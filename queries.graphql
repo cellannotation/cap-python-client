@@ -1,0 +1,55 @@
+query SearchDatasets($options: DatasetSearchOptions, $search: LookupDatasetsSearchInput, $filter: LookupDatasetsFiltersInput) {
+  results: lookupDatasets(options: $options, search: $search, filter: $filter) {
+    id
+    name
+    ...DatasetResult
+    __typename
+  }
+}
+
+fragment ProjectAuthorsData on Project {
+  version
+  owner {
+    uid
+    displayName
+    avatarUrl
+    __typename
+  }
+  permissions {
+    id
+    isActive
+    role
+    user {
+      uid
+      displayName
+      avatarUrl
+      __typename
+    }
+    __typename
+  }
+  __typename
+}
+
+fragment DatasetResult on DatasetLookupResponse {
+  id
+  name
+  cellCount
+  labelsets {
+    id
+    name
+    labels {
+      id
+      name
+      count
+      __typename
+    }
+    __typename
+  }
+  project {
+    id
+    name
+    ...ProjectAuthorsData
+    __typename
+  }
+  __typename
+}
