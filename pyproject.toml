@@ -1,3 +1,4 @@
 [tool.ariadne-codegen]
 remote_schema_url = "https://celltype.info/graphql"
 queries_path="queries.graphql"
+enable_custom_operations = true
