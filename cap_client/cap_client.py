@@ -10,19 +10,27 @@ from graphql_client.input_types import (
     LookupDatasetsFiltersInput,
     LookupDatasetsSearchInput,
     SearchByMetadataArgs,
+    DatasetSearchSort,
     CellLabelsSearchOptions,
     LookupLabelsFilters,
     LookupCellsSearch,
-    SearchLabelByMetadataArgs
+    SearchLabelByMetadataArgs,
+    CellLabelsSearchSort
 )
 from graphql_client.custom_queries import Query
 from graphql_client.custom_queries import Query
 
-async def search_datasets(search=None, organism=None, tissue=None, assay=None, limit = 50, offset=0, sort=[]):
+async def search_datasets(search=None, organism=None, tissue=None, assay=None, limit = 50, offset=0, sort=[{'name':'ASC'}]):
     # Create a client instance with the specified URL and headers
     client = Client(
         url="https://celltype.info/graphql" 
     )
+
+    sorting = []
+    for item in sort:
+        sorting.append(DatasetSearchSort(field=list(item.keys())[0], order=list(item.values())[0]))
+    search_options = DatasetSearchOptions(limit=limit, offset=offset, sort=sort)
+
     metadata = []
     if organism: 
         metadata.append(SearchByMetadataArgs(field="organism", values=organism))
@@ -31,7 +39,6 @@ async def search_datasets(search=None, organism=None, tissue=None, assay=None, l
     if assay: 
         metadata.append(SearchByMetadataArgs(field="assay", values=assay))
 
-    search_options = DatasetSearchOptions(limit=limit, offset=offset, sort=sort)
     search_filter = LookupDatasetsFiltersInput(metadata = metadata)
     search_input =  None
     if search:
@@ -65,13 +72,16 @@ async def search_datasets(search=None, organism=None, tissue=None, assay=None, l
 
     print(response)
 
-async def search_cells(search=None, organism=None, tissue=None, assay=None, limit = 50, offset=0, sort=[]):
+async def search_cells(search=None, organism=None, tissue=None, assay=None, limit = 50, offset=0, sort=[{'name':'ASC'}]):
     # Create a client instance with the specified URL and headers
     client = Client(
         url="https://celltype.info/graphql" 
     )
     
-    search_options = CellLabelsSearchOptions(limit=limit, offset=offset, sort=sort)
+    sorting = []
+    for item in sort:
+        sorting.append(CellLabelsSearchSort(field=list(item.keys())[0], order=list(item.values())[0]))
+    search_options = CellLabelsSearchOptions(limit=limit, offset=offset, sort=sorting)
 
     metadata = []
     if organism: 
@@ -149,7 +159,7 @@ async def download_urls(id):
     print(response)
 
 # Run the async function
-asyncio.run(search_datasets(organism=["Homo sapiens"], tissue=[
+asyncio.run(search_datasets(search="blood",organism=["Homo sapiens"], tissue=[
   "stomach",
   "pyloric antrum",
   "body of stomach",
@@ -169,7 +179,7 @@ asyncio.run(search_datasets(organism=["Homo sapiens"], tissue=[
   "atrioventricular node",
   "right cardiac atrium",
   "left cardiac atrium"
-]))
+], sort=[{"field":"name", "order":"ASC"}]))
 asyncio.run(download_urls(678))
 asyncio.run(search_cells(organism=["Homo sapiens"], tissue=[
   "stomach",
