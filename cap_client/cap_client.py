@@ -2,7 +2,10 @@ import asyncio
 from graphql_client import Client
 from graphql_client.custom_fields import (
     LabelFields,
+    LabelsetFields,
     DatasetFields,
+    ProjectFields,
+    CapUserFields,
     DatasetDownloadUrlsResponseFields
 )
 from graphql_client.input_types import (
@@ -20,7 +23,7 @@ from graphql_client.input_types import (
 from graphql_client.custom_queries import Query
 from graphql_client.custom_queries import Query
 
-async def search_datasets(search=None, organism=None, tissue=None, assay=None, limit = 50, offset=0, sort=[{'name':'ASC'}]):
+async def search_datasets(search=None, organism=None, tissue=None, assay=None, limit = 50, offset=0, sort=[]):
     # Create a client instance with the specified URL and headers
     client = Client(
         url="https://celltype.info/graphql" 
@@ -28,8 +31,10 @@ async def search_datasets(search=None, organism=None, tissue=None, assay=None, l
 
     sorting = []
     for item in sort:
-        sorting.append(DatasetSearchSort(field=list(item.keys())[0], order=list(item.values())[0]))
-    search_options = DatasetSearchOptions(limit=limit, offset=offset, sort=sort)
+        key = list(item.keys())[0]
+        value = list(item.values())[0]
+        sorting.append(DatasetSearchSort(field=key, order=value))
+    search_options = DatasetSearchOptions(limit=limit, offset=offset, sort=sorting)
 
     metadata = []
     if organism: 
@@ -53,15 +58,25 @@ async def search_datasets(search=None, organism=None, tissue=None, assay=None, l
         DatasetFields.name,
         DatasetFields.description,
         DatasetFields.cell_count,
-        DatasetFields.project().id,
-        DatasetFields.project().name,
-        DatasetFields.labelsets().id,
-        DatasetFields.labelsets().name,
-        DatasetFields.labelsets().labels().id,
-        DatasetFields.labelsets().labels().name,
-        # DatasetFields.project().version,
-        # DatasetFields.project().owner().display_name,
-        # DatasetFields.labelsets().labels().count
+        DatasetFields.labelsets().fields(
+            LabelsetFields.id,
+            LabelsetFields.name,
+            LabelsetFields.description,
+            LabelsetFields.labels().fields(
+                LabelFields.id,
+                LabelFields.name,
+                LabelFields.count,
+            )
+        ),
+        DatasetFields.project().fields(
+            ProjectFields.id,
+            ProjectFields.name,
+            ProjectFields.version,
+            ProjectFields.description,
+            ProjectFields.owner().fields(
+                CapUserFields.display_name
+            )
+        )
     )
 
     # Execute the queries with an operation name
@@ -72,7 +87,7 @@ async def search_datasets(search=None, organism=None, tissue=None, assay=None, l
 
     print(response)
 
-async def search_cells(search=None, organism=None, tissue=None, assay=None, limit = 50, offset=0, sort=[{'name':'ASC'}]):
+async def search_cells(search=None, organism=None, tissue=None, assay=None, limit = 50, offset=0, sort=[]):
     # Create a client instance with the specified URL and headers
     client = Client(
         url="https://celltype.info/graphql" 
@@ -80,7 +95,9 @@ async def search_cells(search=None, organism=None, tissue=None, assay=None, limi
     
     sorting = []
     for item in sort:
-        sorting.append(CellLabelsSearchSort(field=list(item.keys())[0], order=list(item.values())[0]))
+        key = list(item.keys())[0]
+        value = list(item.values())[0]
+        sorting.append(CellLabelsSearchSort(field=key, order=value))
     search_options = CellLabelsSearchOptions(limit=limit, offset=offset, sort=sorting)
 
     metadata = []
@@ -114,18 +131,20 @@ async def search_cells(search=None, organism=None, tissue=None, assay=None, limi
         LabelFields.canonical_marker_genes,
         LabelFields.count,
         LabelFields.ontology_assessment,
-        LabelFields.labelset().id,
-        LabelFields.labelset().name,
-        LabelFields.labelset().labels().id, 
-        LabelFields.labelset().labels().name,
-        LabelFields.labelset().labels().count,
-        LabelFields.labelset().dataset().id,
-        LabelFields.labelset().dataset().name,
-        LabelFields.labelset().dataset().project().id,
-        LabelFields.labelset().dataset().project().name,
-        # LabelFields.labelset().dataset().description,
-        # LabelFields.labelset().dataset().project().version,
-        # LabelFields.labelset().dataset().project().owner().display_name
+        LabelFields.labelset().fields(
+            LabelsetFields.id,
+            LabelsetFields.name,
+            LabelsetFields.description,
+            LabelsetFields.dataset().fields(
+                DatasetFields.id,
+                DatasetFields.name,
+                DatasetFields.project().fields(
+                    ProjectFields.id,
+                    ProjectFields.name,
+                    ProjectFields.version,
+                )
+            )
+        )
     )  
 
     # Execute the queries with an operation name
@@ -159,7 +178,7 @@ async def download_urls(id):
     print(response)
 
 # Run the async function
-asyncio.run(search_datasets(search="blood",organism=["Homo sapiens"], tissue=[
+asyncio.run(search_datasets(search="blood", organism=["Homo sapiens"], tissue=[
   "stomach",
   "pyloric antrum",
   "body of stomach",
@@ -179,9 +198,9 @@ asyncio.run(search_datasets(search="blood",organism=["Homo sapiens"], tissue=[
   "atrioventricular node",
   "right cardiac atrium",
   "left cardiac atrium"
-], sort=[{"field":"name", "order":"ASC"}]))
+], sort=[{"name":"ASC"}]))
 asyncio.run(download_urls(678))
-asyncio.run(search_cells(organism=["Homo sapiens"], tissue=[
+asyncio.run(search_cells(search="blood", organism=["Homo sapiens"], tissue=[
   "stomach",
   "pyloric antrum",
   "body of stomach",
@@ -201,6 +220,6 @@ asyncio.run(search_cells(organism=["Homo sapiens"], tissue=[
   "atrioventricular node",
   "right cardiac atrium",
   "left cardiac atrium"
-]))
-
+], sort=[{"name":"ASC"}]))
+ 
 
