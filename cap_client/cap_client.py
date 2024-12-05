@@ -1,4 +1,3 @@
-import asyncio
 from graphql_client import Client
 from graphql_client.custom_fields import (
     LabelFields,
@@ -85,7 +84,7 @@ async def search_datasets(search=None, organism=None, tissue=None, assay=None, l
         operation_name="SearchDatasets",
     )
 
-    print(response)
+    return response 
 
 async def search_cells(search=None, organism=None, tissue=None, assay=None, limit = 50, offset=0, sort=[]):
     # Create a client instance with the specified URL and headers
@@ -153,7 +152,7 @@ async def search_cells(search=None, organism=None, tissue=None, assay=None, limi
         operation_name="lookupCells",
     )
 
-    print(response)
+    return response 
 
 async def download_urls(id):
     # Create a client instance with the specified URL and headers
@@ -175,51 +174,29 @@ async def download_urls(id):
         operation_name="DownloadUrls",
     )
 
+    return response
+
+import asyncio
+def test_search_datasets():
+    response = asyncio.run(search_datasets(search="blood", organism=["Homo sapiens"], tissue=[
+        "stomach",
+        "pyloric antrum",
+        "body of stomach"
+        ], sort=[{"name":"ASC"}]))
     print(response)
 
-# Run the async function
-asyncio.run(search_datasets(search="blood", organism=["Homo sapiens"], tissue=[
-  "stomach",
-  "pyloric antrum",
-  "body of stomach",
-  "brain",
-  "primary motor cortex",
-  "prefrontal cortex",
-  "parietal cortex",
-  "primary visual cortex",
-  "primary somatosensory cortex",
-  "temporal cortex",
-  "heart",
-  "apex of heart",
-  "heart right ventricle",
-  "heart left ventricle",
-  "interventricular septum",
-  "sinoatrial node",
-  "atrioventricular node",
-  "right cardiac atrium",
-  "left cardiac atrium"
-], sort=[{"name":"ASC"}]))
-asyncio.run(download_urls(678))
-asyncio.run(search_cells(search="blood", organism=["Homo sapiens"], tissue=[
-  "stomach",
-  "pyloric antrum",
-  "body of stomach",
-  "brain",
-  "primary motor cortex",
-  "prefrontal cortex",
-  "parietal cortex",
-  "primary visual cortex",
-  "primary somatosensory cortex",
-  "temporal cortex",
-  "heart",
-  "apex of heart",
-  "heart right ventricle",
-  "heart left ventricle",
-  "interventricular septum",
-  "sinoatrial node",
-  "atrioventricular node",
-  "right cardiac atrium",
-  "left cardiac atrium"
-], sort=[{"name":"ASC"}]))
- 
+def test_download_urls():
+    response = asyncio.run(download_urls(678))
+    print(response)
 
+def test_search_cells():
+    response = asyncio.run(search_cells(search="blood", organism=["Homo sapiens"], tissue=[
+        "stomach",
+        "pyloric antrum",
+        "body of stomach",
+        ], sort=[{"name":"ASC"}]))
+    print(response)
+
+test_search_datasets()
+test_download_urls()
+test_search_cells()
