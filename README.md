@@ -30,7 +30,32 @@ Result:
             'id': '420', 
             'name': 'Charting human development ...',
             'description': 'Developing human multi-organ ...',
-            'cellCount': 155232
+            'cellCount': 155232,
+            'labelsets': [
+                {
+                    'id': '3714', 
+                    'name': 'assay', 
+                    'description': None, 
+                    'labels': [
+                        {
+                            'id': '25154', 
+                            'name': "10x 3' v2", 
+                            'count': 146343
+                        }
+                        ...
+                    ]
+                }
+                ...
+            ],
+            'project': {
+                'id': '263', 
+                'name': 'Charting human ...', 
+                'version': 1, 
+                'description': 'Organs are composed ...', 
+                'owner': {
+                    'displayName': 'CAP Data Upload'
+                }
+            }            
         }
     ...
     ]
@@ -53,7 +78,9 @@ Result:
         'annDataUrl': 'https://storage.googleapis.com/...h5ad',
         'seuratUrl': None,
         'capJsonUrlTar': 'https://storage.googleapis.com/...h5ad.json.tar',
-        'capJsonUrlZip': 'https://storage.googleapis.com/...h5ad.json.zip'}}
+        'capJsonUrlZip': 'https://storage.googleapis.com/...h5ad.json.zip'
+    }
+}
 ```
 
 ## Search cell labels
@@ -92,7 +119,21 @@ Result:
             'markerGenes': ['EOMES'], 
             'canonicalMarkerGenes': ['unknown'], 
             'count': 53089, 
-            'ontologyAssessment': None
+            'ontologyAssessment': None,
+            'labelset': {
+                'id': '6387', 
+                'name': 'cell_type', 
+                'description': 'An atlas ...', 
+                'dataset': {
+                    'id': '532', 
+                    'name': 'Second Trimester ...', 
+                    'project': {
+                        'id': '305', 
+                        'name': 'Human developing neocortex by area', 
+                        'version': 1
+                    }
+                }
+            }
         }
         ...
     ]

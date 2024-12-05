@@ -22,10 +22,10 @@ from graphql_client.input_types import (
 from graphql_client.custom_queries import Query
 from graphql_client.custom_queries import Query
 
-async def search_datasets(search=None, organism=None, tissue=None, assay=None, limit = 50, offset=0, sort=[]):
+async def search_datasets(url="https://celltype.info/graphql", search=None, organism=None, tissue=None, assay=None, limit = 50, offset=0, sort=[]):
     # Create a client instance with the specified URL and headers
     client = Client(
-        url="https://celltype.info/graphql" 
+        url=url 
     )
 
     sorting = []
@@ -86,10 +86,10 @@ async def search_datasets(search=None, organism=None, tissue=None, assay=None, l
 
     return response 
 
-async def search_cells(search=None, organism=None, tissue=None, assay=None, limit = 50, offset=0, sort=[]):
+async def search_cells(url="https://celltype.info/graphql", search=None, organism=None, tissue=None, assay=None, limit = 50, offset=0, sort=[]):
     # Create a client instance with the specified URL and headers
     client = Client(
-        url="https://celltype.info/graphql" 
+        url=url 
     )
     
     sorting = []
@@ -154,10 +154,10 @@ async def search_cells(search=None, organism=None, tissue=None, assay=None, limi
 
     return response 
 
-async def download_urls(id):
+async def download_urls(id, url="https://celltype.info/graphql"):
     # Create a client instance with the specified URL and headers
     client = Client(
-        url="https://celltype.info/graphql" 
+        url=url 
     )
 
     # Build the queries
@@ -191,9 +191,7 @@ def test_download_urls():
 
 def test_search_cells():
     response = asyncio.run(search_cells(search="blood", organism=["Homo sapiens"], tissue=[
-        "stomach",
-        "pyloric antrum",
-        "body of stomach",
+        "parietal cortex",
         ], sort=[{"name":"ASC"}]))
     print(response)
 
