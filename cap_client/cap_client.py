@@ -1,3 +1,4 @@
+from typing import List, Any, Optional, Dict
 from graphql_client import Client
 from graphql_client.custom_fields import (
     LabelFields,
@@ -22,7 +23,7 @@ from graphql_client.input_types import (
 from graphql_client.custom_queries import Query
 from graphql_client.custom_queries import Query
 
-async def search_datasets(url="https://celltype.info/graphql", search=None, organism=None, tissue=None, assay=None, limit = 50, offset=0, sort=[]):
+async def search_datasets(url: str="https://celltype.info/graphql", search: List[str]=None, organism: List[str]=None, tissue: List[str]=None, assay: List[str]=None, limit: int=50, offset: int=0, sort: List[Dict[str,str]]=[]):
     # Create a client instance with the specified URL and headers
     client = Client(
         url=url 
@@ -86,7 +87,7 @@ async def search_datasets(url="https://celltype.info/graphql", search=None, orga
 
     return response 
 
-async def search_cells(url="https://celltype.info/graphql", search=None, organism=None, tissue=None, assay=None, limit = 50, offset=0, sort=[]):
+async def search_cells(url: str="https://celltype.info/graphql", search: List[str]=None, organism: List[str]=None, tissue: List[str]=None, assay: List[str]=None, limit: int=50, offset: int=0, sort: List[Dict[str,str]]=[]):
     # Create a client instance with the specified URL and headers
     client = Client(
         url=url 
@@ -154,7 +155,7 @@ async def search_cells(url="https://celltype.info/graphql", search=None, organis
 
     return response 
 
-async def download_urls(id, url="https://celltype.info/graphql"):
+async def download_urls(id: int, url: str="https://celltype.info/graphql"):
     # Create a client instance with the specified URL and headers
     client = Client(
         url=url 
