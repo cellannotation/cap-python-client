@@ -1,3 +1,33 @@
+[project]
+name="cap_client"
+version="0.0.1"
+author="M. Sokolov"
+author_email="maxim.sokolov@ebookapplications.com"
+description = "Python client for CAP GraphQL API."
+readme = {file = "README.txt", content-type = "text/markdown"}
+
+[project.urls]
+Homepage="https://github.com/cellannotation/cap-python-client"
+Documentation="https://github.com/cellannotation/cap-python-client/blob/main/README.md"
+Issues="https://github.com/cellannotation/cap-python-client/issues"
+Changelog="https://github.com/cellannotation/cap-python-client/blob/main/README.md"
+
+classifiers = [
+  "Development Status :: 3 - Alpha",
+  "Intended Audience :: Developers",
+  "Topic :: Software Development :: Build Tools",
+  "License :: OSI Approved :: MIT License",
+  "Programming Language :: Python :: 3.10",
+]
+
+[build-system]
+# Minimum requirements for the build system to execute.
+requires = ["setuptools"]
+
+[project.optional-dependencies]
+dev = ["ariadne"]
+test = ["pytest"]
+
 [tool.ariadne-codegen]
 remote_schema_url = "https://celltype.info/graphql"
 queries_path="queries.graphql"
