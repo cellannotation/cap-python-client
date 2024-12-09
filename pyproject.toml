@@ -1,6 +1,7 @@
 [project]
 name="cap_client"
 version="0.0.1"
+license = {file = "LICENSE"}
 author="M. Sokolov"
 author_email="maxim.sokolov@ebookapplications.com"
 description = "Python client for CAP GraphQL API."
@@ -10,7 +11,7 @@ readme = {file = "README.txt", content-type = "text/markdown"}
 Homepage="https://github.com/cellannotation/cap-python-client"
 Documentation="https://github.com/cellannotation/cap-python-client/blob/main/README.md"
 Issues="https://github.com/cellannotation/cap-python-client/issues"
-Changelog="https://github.com/cellannotation/cap-python-client/blob/main/README.md"
+Changelog="https://github.com/cellannotation/cap-python-client/blob/main/CHANGELOG.md"
 
 classifiers = [
   "Development Status :: 3 - Alpha",
