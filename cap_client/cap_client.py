@@ -1,3 +1,4 @@
+import asyncio
 from typing import List, Any, Optional, Dict
 from graphql_client import Client
 from graphql_client.custom_fields import (
@@ -23,7 +24,7 @@ from graphql_client.input_types import (
 from graphql_client.custom_queries import Query
 from graphql_client.custom_queries import Query
 
-async def search_datasets(url: str="https://celltype.info/graphql", search: List[str]=None, organism: List[str]=None, tissue: List[str]=None, assay: List[str]=None, limit: int=50, offset: int=0, sort: List[Dict[str,str]]=[]):
+async def search_datasets_async(url: str="https://celltype.info/graphql", search: List[str]=None, organism: List[str]=None, tissue: List[str]=None, assay: List[str]=None, limit: int=50, offset: int=0, sort: List[Dict[str,str]]=[]):
     # Create a client instance with the specified URL and headers
     client = Client(
         url=url 
@@ -87,7 +88,7 @@ async def search_datasets(url: str="https://celltype.info/graphql", search: List
 
     return response 
 
-async def search_cells(url: str="https://celltype.info/graphql", search: List[str]=None, organism: List[str]=None, tissue: List[str]=None, assay: List[str]=None, limit: int=50, offset: int=0, sort: List[Dict[str,str]]=[]):
+async def search_cells_async(url: str="https://celltype.info/graphql", search: List[str]=None, organism: List[str]=None, tissue: List[str]=None, assay: List[str]=None, limit: int=50, offset: int=0, sort: List[Dict[str,str]]=[]):
     # Create a client instance with the specified URL and headers
     client = Client(
         url=url 
@@ -155,7 +156,7 @@ async def search_cells(url: str="https://celltype.info/graphql", search: List[st
 
     return response 
 
-async def download_urls(id: int, url: str="https://celltype.info/graphql"):
+async def download_urls_async(id: int, url: str="https://celltype.info/graphql"):
     # Create a client instance with the specified URL and headers
     client = Client(
         url=url 
@@ -176,3 +177,23 @@ async def download_urls(id: int, url: str="https://celltype.info/graphql"):
     )
 
     return response
+
+def search_datasets(url: str="https://celltype.info/graphql", search: List[str]=None, organism: List[str]=None, tissue: List[str]=None, assay: List[str]=None, limit: int=50, offset: int=0, sort: List[Dict[str,str]]=[]):
+    response = asyncio.run(search_datasets_async(url, search, organism, tissue, assay, limit, offset, sort))
+    return response
+
+def search_cells(url: str="https://celltype.info/graphql", search: List[str]=None, organism: List[str]=None, tissue: List[str]=None, assay: List[str]=None, limit: int=50, offset: int=0, sort: List[Dict[str,str]]=[]):
+    response = asyncio.run(search_cells_async(url, search, organism, tissue, assay, limit, offset, sort))
+    return response
+
+def download_urls(id: int, url: str="https://celltype.info/graphql"):
+    response = asyncio.run(download_urls_async(id, url))
+    return response
+
+def test_search_datasets():
+    response = search_datasets(search="blood", organism=["Homo sapiens"], tissue=[
+        "stomach",
+        "pyloric antrum",
+        "body of stomach"
+        ], sort=[{"name":"ASC"}])
+    print(response)
