@@ -1,5 +1,5 @@
 import asyncio
-from typing import List, Any, Optional, Dict
+from typing import List, Dict
 from graphql_client import Client
 from graphql_client.custom_fields import (
     LabelFields,
