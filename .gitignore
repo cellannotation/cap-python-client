@@ -1,2 +1,4 @@
 cap_client/__pycache__/*
-cap_client/graphql_client/__pycache__/*
+cap_client/client/__pycache__/*
+cap_client.egg-info/*
+dist/*

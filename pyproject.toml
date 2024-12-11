@@ -1,6 +1,6 @@
 [project]
 name="cap_client"
-version="0.0.1"
+version="0.0.4"
 license = {file = "LICENSE"}
 authors= [
   { name="M. Sokolov", email="maxim.sokolov@ebookapplications.com" },
@@ -35,4 +35,4 @@ queries_path="queries.graphql"
 async_client=false
 include_all_inputs=false
 include_all_enums=false
-target_package_name="cap_client"
+target_package_name="cap_client/client"

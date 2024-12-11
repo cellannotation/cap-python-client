@@ -1,7 +1,7 @@
 from typing import List, Dict
 
-from .client import Client
-from .input_types import (
+from .client.client import Client
+from .client.input_types import (
     DatasetSearchOptions,
     LookupDatasetsFiltersInput,
     LookupDatasetsSearchInput,
@@ -13,9 +13,9 @@ from .input_types import (
     SearchLabelByMetadataArgs,
     CellLabelsSearchSort,
 )
-from .download_urls import DownloadUrls
-from .lookup_cells import LookupCells
-from .search_datasets import SearchDatasets
+from .client.download_urls import DownloadUrls
+from .client.lookup_cells import LookupCells
+from .client.search_datasets import SearchDatasets
 
 
 class Cap(Client):
@@ -31,7 +31,7 @@ class Cap(Client):
         limit: int = 50,
         offset: int = 0,
         sort: List[Dict[str, str]] = [],
-    ) -> SearchDatasets:
+    ) -> str:
         sorting = []
         for item in sort:
             key = list(item.keys())[0]
@@ -55,7 +55,7 @@ class Cap(Client):
         response = super().search_datasets(
             options=search_options, filter=search_filter, search=search_input
         )
-        return response
+        return response.model_dump_json()
 
     def search_cell_labels(
         self,
@@ -66,7 +66,7 @@ class Cap(Client):
         limit: int = 50,
         offset: int = 0,
         sort: List[Dict[str, str]] = [],
-    ) -> LookupCells:
+    ) -> str:
         sorting = []
         for item in sort:
             key = list(item.keys())[0]
@@ -94,9 +94,9 @@ class Cap(Client):
         response = super().lookup_cells(
             options=search_options, filter=search_filter, search=search_input
         )
-        return response
+        return response.model_dump_json()
 
-    def download_urls(self, dataset_id: str) -> DownloadUrls:
+    def download_urls(self, dataset_id: str) -> str:
 
         response = super().download_urls(dataset_id=dataset_id)
-        return response
+        return response.model_dump_json()
