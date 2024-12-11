@@ -1,7 +1,9 @@
-from cap_client import search_datasets, download_urls, search_cell_labels 
+from cap_client import Cap 
+
+cap = Cap()
 
 def test_search_datasets():
-    response = search_datasets(search="blood", organism=["Homo sapiens"], tissue=[
+    response = cap.search_datasets(search="blood", organism=["Homo sapiens"], tissue=[
         "stomach",
         "pyloric antrum",
         "body of stomach"
@@ -9,11 +11,11 @@ def test_search_datasets():
     print(response)
 
 def test_download_urls():
-    response = download_urls(678)
+    response = cap.download_urls(678)
     print(response)
 
 def test_search_cells():
-    response = search_cell_labels(search="blood", organism=["Homo sapiens"], tissue=[
+    response = cap.search_cell_labels(search="blood", organism=["Homo sapiens"], tissue=[
         "parietal cortex",
         ], sort=[{"name":"ASC"}])
     print(response)
