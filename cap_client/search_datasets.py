@@ -16,7 +16,7 @@ class SearchDatasets(BaseModel):
 class SearchDatasetsResults(DatasetResult):
     id: str
     name: str
-    typename__: Literal["DatasetLookupResponse"] = Field(alias="__typename")
+    typename__: Literal["Dataset"] = Field(alias="__typename")
 
 
 SearchDatasets.model_rebuild()

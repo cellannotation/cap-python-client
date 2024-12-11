@@ -2,6 +2,8 @@
 
 Python client uses Ariadne code generation https://ariadnegraphql.org/blog/2023/02/02/ariadne-codegen to generate pydantic models and graphQL client.  
 
+1. Add new queries to `queries.graphql`
+2. Run `ariadne-codegen`
 
 # API calls
 
@@ -14,13 +16,13 @@ The result could be paginated using `limit`, `offset` and sorted using `sort` an
 
 Example:
 ```Python 
-asyncio.run(search_datasets(
+search_datasets(
     search="blood"
     organism=["Homo sapiens"], 
     tissue=["stomach","pyloric antrum"],
     assay=["10x 3' v1"],
     sort=[{'name':'ASC'}]
-))
+)
 ```
 Result:
 ```Python
@@ -69,7 +71,7 @@ returns URLs for published dataset files: annData, Seurat, JSON (zip), JSON (tar
 
 Example:
 ```Python
-asyncio.run(download_urls(678))
+download_urls(678)
 ```
 Result:
 ```Python
@@ -85,20 +87,20 @@ Result:
 
 ## Search cell labels
 ```Python
-search_cells(search=None, organism=None, tissue=None, assay=None, limit = 50, offset=0, sort=[])
+search_cell_labels(search=None, organism=None, tissue=None, assay=None, limit = 50, offset=0, sort=[])
 ```
 returns cell labels from CAP published datasets searched by a keyword that could be filtered by `organism`, `tissue` or `assay`.
 The result could be paginated using `limit`, `offset` and sorted using `sort` and `ASC`, `DESC` keywords
 
 Example:
 ```Python 
-asyncio.run(search_cells(
+search_cell_labels(
     search="blood"
     organism=["Homo sapiens"], 
     tissue=["stomach","pyloric antrum"],
     assay=["10x 3' v1"],
     sort=[{'name':'ASC'}]
-))
+)
 ```
 Result:
 ```Python

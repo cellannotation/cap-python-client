@@ -1,0 +1,134 @@
+query SearchDatasets($options: DatasetSearchOptions, $search: LookupDatasetsSearchInput, $filter: LookupDatasetsFiltersInput) {
+  results: lookupDatasets(options: $options, search: $search, filter: $filter) {
+    id
+    name
+    ...DatasetResult
+    __typename
+  }
+}
+
+fragment ProjectAuthors_project on Project {
+  version
+  owner {
+    uid
+    tempDisplayName
+    displayName
+    avatarUrl
+    __typename
+  }
+  permissions {
+    id
+    isActive
+    role
+    user {
+      uid
+      tempDisplayName
+      displayName
+      avatarUrl
+      __typename
+    }
+    __typename
+  }
+  __typename
+}
+
+fragment DatasetResult on Dataset {
+  id
+  name
+  cellCount
+  labelsets {
+    id
+    name
+    labels {
+      id
+      name
+      count
+      __typename
+    }
+    __typename
+  }
+  project {
+    id
+    name
+    ...ProjectAuthors_project
+    __typename
+  }
+  __typename
+}
+
+query LookupCells($options: CellLabelsSearchOptions!, $filter: LookupLabelsFilters, $search: LookupCellsSearch) {
+  lookupCells(options: $options, filter: $filter, search: $search) {
+    id
+    fullName
+    name
+    ...CellLabelResult
+    __typename
+  }
+}
+
+fragment GeneLink_labelset on Labelset {
+  id
+  labels {
+    id
+    name
+    count
+    __typename
+  }
+  __typename
+}
+
+fragment CellLabelResult on Label {
+  id
+  fullName
+  name
+  ontologyTermExists
+  ontologyTermId
+  ontologyTerm
+  synonyms
+  categoryOntologyTermExists
+  categoryOntologyTermId
+  categoryOntologyTerm
+  categoryFullName
+  markerGenes
+  canonicalMarkerGenes
+  count
+  labelset {
+    id
+    name
+    dataset {
+      id
+      name
+      labelsets {
+        id
+        name
+        labels {
+          id
+          name
+          count
+          __typename
+        }
+        ...GeneLink_labelset
+        __typename
+      }
+      project {
+        id
+        name
+        ...ProjectAuthors_project
+        __typename
+      }
+      __typename
+    }
+    __typename
+  }
+  __typename
+}
+
+query DownloadUrls($datasetId: ID!) {
+  downloadUrls(datasetId: $datasetId) {
+    isAnnDataUrlUpToDate
+    annDataUrl
+    capJsonUrlZip
+    capJsonUrlTar
+    __typename
+  }
+}
