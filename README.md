@@ -7,16 +7,18 @@ Python client uses Ariadne code generation https://ariadnegraphql.org/blog/2023/
 
 # API calls
 
+Create CAP object `cap = Cap()` and use it to access API endpoints
+
 ## Search datasets
 ```Python
-search_datasets(search=None, organism=None, tissue=None, assay=None, limit = 50, offset=0, sort=[])
+cap.search_datasets(search=None, organism=None, tissue=None, assay=None, limit = 50, offset=0, sort=[])
 ```
 returns CAP published datasets searched by a keyword that could be filtered by `organism`, `tissue` or `assay`.
 The result could be paginated using `limit`, `offset` and sorted using `sort` and `ASC`, `DESC` keywords
 
 Example:
 ```Python 
-search_datasets(
+cap.search_datasets(
     search="blood"
     organism=["Homo sapiens"], 
     tissue=["stomach","pyloric antrum"],
@@ -27,7 +29,7 @@ search_datasets(
 Result:
 ```Python
 {
-    'lookupDatasets': [
+    'results': [
         {
             'id': '420', 
             'name': 'Charting human development ...',
@@ -42,21 +44,23 @@ Result:
                         {
                             'id': '25154', 
                             'name': "10x 3' v2", 
-                            'count': 146343
+                            'count': 146343,
+                            'typename__': 'Label'
                         }
                         ...
-                    ]
+                    ],
+                    'typename__': 'Labelset'
                 }
                 ...
             ],
             'project': {
+                'version': 1.0,
                 'id': '263', 
                 'name': 'Charting human ...', 
-                'version': 1, 
-                'description': 'Organs are composed ...', 
                 'owner': {
                     'displayName': 'CAP Data Upload'
-                }
+                },
+                'typename__': 'Project'
             }            
         }
     ...
@@ -65,13 +69,13 @@ Result:
 ```
 ## Dataset download URLs
 ```Python
-download_urls(id)
+cap.download_urls(id)
 ```
 returns URLs for published dataset files: annData, Seurat, JSON (zip), JSON (tar)
 
 Example:
 ```Python
-download_urls(678)
+cap.download_urls(678)
 ```
 Result:
 ```Python
@@ -80,21 +84,22 @@ Result:
         'annDataUrl': 'https://storage.googleapis.com/...h5ad',
         'seuratUrl': None,
         'capJsonUrlTar': 'https://storage.googleapis.com/...h5ad.json.tar',
-        'capJsonUrlZip': 'https://storage.googleapis.com/...h5ad.json.zip'
+        'capJsonUrlZip': 'https://storage.googleapis.com/...h5ad.json.zip',
+        'typename__': 'DatasetDownloadUrlsResponse'
     }
 }
 ```
 
 ## Search cell labels
 ```Python
-search_cell_labels(search=None, organism=None, tissue=None, assay=None, limit = 50, offset=0, sort=[])
+cap.search_cell_labels(search=None, organism=None, tissue=None, assay=None, limit = 50, offset=0, sort=[])
 ```
 returns cell labels from CAP published datasets searched by a keyword that could be filtered by `organism`, `tissue` or `assay`.
 The result could be paginated using `limit`, `offset` and sorted using `sort` and `ASC`, `DESC` keywords
 
 Example:
 ```Python 
-search_cell_labels(
+cap.search_cell_labels(
     search="blood"
     organism=["Homo sapiens"], 
     tissue=["stomach","pyloric antrum"],
@@ -132,10 +137,14 @@ Result:
                     'project': {
                         'id': '305', 
                         'name': 'Human developing neocortex by area', 
-                        'version': 1
-                    }
-                }
-            }
+                        'version': 1,
+                        'typename__': 'Project'
+                    },
+                    'typename__': 'Dataset'
+                },
+                'typename__': 'Labelset'
+            },
+            'typename__': 'Label'
         }
         ...
     ]
