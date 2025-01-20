@@ -17,21 +17,18 @@ from .client.input_types import (
     SearchLabelByMetadataArgs,
     CellLabelsSearchSort,
 )
-from .client.download_urls import DownloadUrls
-from .client.lookup_cells import LookupCells
-from .client.search_datasets import SearchDatasets
 
 CAP_API_URL = "https://celltype.info/graphql"
 CAP_AUTHORIZE_URL = "authenticate-user-wg6qkl5yea-uc.a.run.app"
 class Cap(Client):
     def __init__(self, login = None, pwd = None, authorize_url = CAP_AUTHORIZE_URL) -> None:
-        super().__init__(url = CAP_API_URL),
-        self._authorize_url = authorize_url,
-        self._login: str = login,
-        self._pwd: str = pwd,
-        self._token: str = None,
-        self._token_expiry_time: time = None,
-        self._error_status: str = None,
+        super().__init__(url = CAP_API_URL)
+        self._authorize_url = authorize_url
+        self._login: str = login
+        self._pwd: str = pwd
+        self._token: str = None
+        self._token_expiry_time: time = None
+        self._error_status: str = None
 
     def _authenticate(
         self  
@@ -59,7 +56,7 @@ class Cap(Client):
                 except: 
                     self._error_status = "Failed to parse 200 OK response to get ID token"
                     return False                
-            self._error_status = "Failed to get ID token " + response.status + response.reason
+            self._error_status = "Failed to get ID token " + response.reason
             return False
         else:
             return True
