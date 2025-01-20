@@ -1,5 +1,5 @@
 from typing import List, Dict
-import datetime
+import time
 import http.client
 import json
 import jwt
@@ -23,38 +23,39 @@ from .client.search_datasets import SearchDatasets
 
 CAP_API_URL = "https://celltype.info/graphql"
 CAP_AUTHORIZE_URL = "authenticate-user-wg6qkl5yea-uc.a.run.app"
-
 class Cap(Client):
-    def __init__(self, login=None, pwd=None, authorize_url=CAP_AUTHORIZE_URL) -> None:
-        super().__init__(url=CAP_API_URL),
-        self._authorize_url = (authorize_url,)
-        self._login: str = (login,)
-        self._pwd: str = (pwd,)
-        self._token: str = (None,)
-        self._token_expiry_time: datetime = (None,)
+    def __init__(self, login = None, pwd = None, authorize_url = CAP_AUTHORIZE_URL) -> None:
+        super().__init__(url = CAP_API_URL),
+        self._authorize_url = authorize_url,
+        self._login: str = login,
+        self._pwd: str = pwd,
+        self._token: str = None,
+        self._token_expiry_time: time = None,
 
-    def _authenticate(self) -> bool:
-        if self._login is None or self._pwd is None:
+    def _authenticate(
+        self  
+     ) -> bool:
+        if self._login is None or  self._pwd is None:
             return False
-
-        connection = http.client.HTTPSConnection(self._authorize_url)
-        headers = {"Content-type": "application/json"}
-        body = {"email": self._login, "password": self._pwd}
-        connection.request("POST", url="", body=json.dumps(body), headers=headers)
-        response = connection.getresponse()
-        if response.status == 200:
-            try:
-                response = response.read().decode()
-                self._token = json.loads(response)["idToken"]
-                self._token_expiry_time = jwt.decode(
-                    self._token, options={"verify_signature": False}
-                )["exp"]
-                return True
-            except:
-                self._token = None
-                self._token_expiry_time = (None,)
-                return False
-        return False
+        if (self._token is None or self._token_expiry_time or time.time() >= self._token_expiry_time ):
+            connection = http.client.HTTPSConnection(self._authorize_url)
+            headers = {'Content-type': 'application/json'}
+            body = {'email':self._login, 'password': self._pwd}
+            connection.request("POST", url="",  body=json.dumps(body), headers=headers)
+            response = connection.getresponse()
+            if (response.status == 200):
+                try:
+                    response = response.read().decode()
+                    self._token = json.loads(response)['idToken']
+                    self._token_expiry_time = jwt.decode(self._token, options={"verify_signature": False})['exp']
+                    return True
+                except:
+                    self._token = None
+                    self._token_expiry_time = None
+                    return False
+            return False
+        else:
+            return True
 
     def search_datasets(
         self,
