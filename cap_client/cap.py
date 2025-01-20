@@ -37,7 +37,7 @@ class Cap(Client):
      ) -> bool:
         if self._login is None or  self._pwd is None:
             return False
-        if (self._token is None or self._token_expiry_time or time.time() >= self._token_expiry_time ):
+        if (self._token is None or self._token_expiry_time is None or time.time() >= self._token_expiry_time ):
             connection = http.client.HTTPSConnection(self._authorize_url)
             headers = {'Content-type': 'application/json'}
             body = {'email':self._login, 'password': self._pwd}
