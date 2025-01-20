@@ -31,13 +31,19 @@ class Cap(Client):
         self._pwd: str = pwd,
         self._token: str = None,
         self._token_expiry_time: time = None,
+        self._error_status: str = None,
 
     def _authenticate(
         self  
      ) -> bool:
-        if self._login is None or  self._pwd is None:
+        if self._login is None or self._pwd is None:
+            self._token = None
+            self._token_expiry_time = None
+            self._error_status = "No credentials"
             return False
         if (self._token is None or self._token_expiry_time is None or time.time() >= self._token_expiry_time ):
+            self._token = None
+            self._token_expiry_time = None            
             connection = http.client.HTTPSConnection(self._authorize_url)
             headers = {'Content-type': 'application/json'}
             body = {'email':self._login, 'password': self._pwd}
@@ -48,11 +54,12 @@ class Cap(Client):
                     response = response.read().decode()
                     self._token = json.loads(response)['idToken']
                     self._token_expiry_time = jwt.decode(self._token, options={"verify_signature": False})['exp']
+                    self._error_status = None
                     return True
-                except:
-                    self._token = None
-                    self._token_expiry_time = None
-                    return False
+                except: 
+                    self._error_status = "Failed to parse 200 OK response to get ID token"
+                    return False                
+            self._error_status = "Failed to get ID token " + response.status + response.reason
             return False
         else:
             return True
