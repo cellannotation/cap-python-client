@@ -14,9 +14,8 @@ permissions:
 
 jobs:
   build:
-
     runs-on: ubuntu-latest
-     strategy:
+    strategy:
       matrix:
         python-version: ['3.10']
         constrain: ["-c constrain_min.txt", ""]
