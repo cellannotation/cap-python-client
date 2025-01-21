@@ -3,6 +3,7 @@ import time
 import http.client
 import json
 import jwt
+import os
 
 from .client.client import Client
 from .client.input_types import (
@@ -19,48 +20,60 @@ from .client.input_types import (
 )
 
 CAP_API_URL = "https://celltype.info/graphql"
-CAP_AUTHORIZE_URL = "authenticate-user-wg6qkl5yea-uc.a.run.app"
+CAP_AUTHENTICATE_USER_URL = "authenticate-user-wg6qkl5yea-uc.a.run.app"
+CAP_AUTHENTICATE_TOKEN_URL = "authenticate-token-wg6qkl5yea-uc.a.run.app"
 class Cap(Client):
-    def __init__(self, login = None, pwd = None, authorize_url = CAP_AUTHORIZE_URL) -> None:
+    def __init__(self) -> None:
         super().__init__(url = CAP_API_URL)
-        self._authorize_url = authorize_url
-        self._login: str = login
-        self._pwd: str = pwd
+        self._login: str = os.environ.get('CAP_LOGIN')
+        self._pwd: str = os.environ.get('CAP_PWD')
+        self._custom_token: str = os.environ.get('CAP_TOKEN')
         self._token: str = None
         self._token_expiry_time: time = None
         self._error_status: str = None
 
+    def _request (
+            self,
+            url: str, 
+            body: dict
+        ) -> bool: 
+        connection = http.client.HTTPSConnection(url)
+        headers = {'Content-type': 'application/json'}
+        connection.request("POST", url="",  body=json.dumps(body), headers=headers)
+        response = connection.getresponse()
+        if (response.status == 200):
+            try:
+                response = response.read().decode()
+                self._token = json.loads(response)['idToken']
+                self._token_expiry_time = jwt.decode(self._token, options={"verify_signature": False})['exp']
+                self._error_status = None
+                return True
+            except: 
+                self._error_status = "Failed to parse 200 OK response to get ID token"
+                return False  
+        self._error_status = "Failed to get ID token " + response.reason 
+        return False
+    
     def _authenticate(
         self  
      ) -> bool:
-        if self._login is None or self._pwd is None:
-            self._token = None
-            self._token_expiry_time = None
-            self._error_status = "No credentials"
-            return False
-        if (self._token is None or self._token_expiry_time is None or time.time() >= self._token_expiry_time ):
-            self._token = None
-            self._token_expiry_time = None            
-            connection = http.client.HTTPSConnection(self._authorize_url)
-            headers = {'Content-type': 'application/json'}
+        # try authenticate by custom token first
+        if self._custom_token is not None:
+            body = {'token':self._custom_token}
+            if (self._request(CAP_AUTHENTICATE_TOKEN_URL, body)):
+                return True
+        if self._login is not None and self._pwd is not None:    
             body = {'email':self._login, 'password': self._pwd}
-            connection.request("POST", url="",  body=json.dumps(body), headers=headers)
-            response = connection.getresponse()
-            if (response.status == 200):
-                try:
-                    response = response.read().decode()
-                    self._token = json.loads(response)['idToken']
-                    self._token_expiry_time = jwt.decode(self._token, options={"verify_signature": False})['exp']
-                    self._error_status = None
-                    return True
-                except: 
-                    self._error_status = "Failed to parse 200 OK response to get ID token"
-                    return False                
-            self._error_status = "Failed to get ID token " + response.reason
-            return False
-        else:
-            return True
-
+            if (self._request(CAP_AUTHENTICATE_USER_URL, body)):
+                return True
+        self._error_status = "Missing CAP client authetication settings. Check CAP_LOGIN, CAP_PWD or CAP_TOKEN enviroment variables."
+        return False
+           
+    def get_error_status(
+            self
+    ) -> str:
+        return self._error_status
+    
     def search_datasets(
         self,
         search: List[str] = None,
