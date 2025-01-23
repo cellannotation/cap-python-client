@@ -11,9 +11,9 @@ def test_authentication_by_right_credentials_user():
     else:
         # considering right credentials
         assert cap._authenticate() is True
-        assert cap.get_id_token() is not None
-        assert cap.get_token_expiry_time() > time.time()
-        assert cap.get_error_status() is None
+        assert cap.id_token is not None
+        assert cap.token_expiry_time > time.time()
+        assert cap.error_status is None
 
 def test_authentication_by_right_token():
     cap = Cap()
@@ -23,26 +23,26 @@ def test_authentication_by_right_token():
     else:
         # considering correct token
         assert cap._authenticate() is True
-        assert cap.get_id_token() is not None
-        assert cap.get_token_expiry_time() > time.time()
-        assert cap.get_error_status() is None
+        assert cap.id_token is not None
+        assert cap.token_expiry_time > time.time()
+        assert cap.error_status is None
 
 def test_authentication_by_wrong_credentials_user():
     cap = Cap(login = 'Not existing user', pwd = 'Password')
     assert cap._authenticate() is False
-    assert cap.get_id_token() is None
-    assert cap.get_token_expiry_time() is None
-    assert cap.get_error_status() is not None
+    assert cap.id_token is None
+    assert cap.token_expiry_time is None
+    assert cap.error_status is not None
 
 def test_authentication_by_wrong_token():
     cap = Cap(login = '', pwd = '', custom_token = 'Not existing token')
     assert cap._authenticate() is False
-    assert cap.get_id_token() is None
-    assert cap.get_token_expiry_time() is None
-    assert cap.get_error_status() is not None
+    assert cap.id_token is None
+    assert cap.token_expiry_time is None
+    assert cap.error_status is not None
 
 def test_empty_credentials():
     cap = Cap(login = '', pwd = '', custom_token = '')
     assert cap._authenticate() is False
-    assert cap.get_id_token() is None
-    assert cap.get_error_status() is not None
+    assert cap.id_token is None
+    assert cap.error_status is not None

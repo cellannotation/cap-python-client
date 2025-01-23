@@ -73,20 +73,17 @@ class Cap(Client):
                 return True
         self._error_status = "Missing CAP client authetication settings. Check CAP_LOGIN, CAP_PWD or CAP_TOKEN enviroment variables."
         return False
-           
-    def get_error_status(
-            self
-    ) -> str:
+
+    @property     
+    def error_status(self) -> str:
         return self._error_status
     
-    def get_id_token(
-            self
-    ) -> str:
+    @property
+    def id_token(self) -> str:
         return self._token
     
-    def get_token_expiry_time(
-            self
-    ) -> time:
+    @property
+    def token_expiry_time(self) -> time:
         return self._token_expiry_time
     
     def search_datasets(
