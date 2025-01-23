@@ -23,11 +23,16 @@ CAP_API_URL = "https://celltype.info/graphql"
 CAP_AUTHENTICATE_USER_URL  = "authenticate-user-wg6qkl5yea-uc.a.run.app"
 CAP_AUTHENTICATE_TOKEN_URL = "authenticate-token-wg6qkl5yea-uc.a.run.app"
 class Cap(Client):
-    def __init__(self) -> None:
+    def __init__(
+            self,  
+            login: str = None,
+            pwd: str = None,
+            custom_token: str = None  
+        ) -> None:
         super().__init__(url = CAP_API_URL)
-        self._login: str = os.environ.get('CAP_LOGIN')
-        self._pwd: str = os.environ.get('CAP_PWD')
-        self._custom_token: str = os.environ.get('CAP_TOKEN')
+        self._login = login if login is not None else os.environ.get('CAP_LOGIN')
+        self._pwd = pwd if pwd is not None else os.environ.get('CAP_PWD')
+        self._custom_token = custom_token if custom_token is not None else os.environ.get('CAP_TOKEN')
         self._token: str = None
         self._token_expiry_time: time = None
         self._error_status: str = None
@@ -55,7 +60,7 @@ class Cap(Client):
         return False
     
     def _authenticate(
-        self  
+        self
      ) -> bool:
         # try authenticate by custom token first
         if self._custom_token is not None:
