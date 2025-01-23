@@ -20,8 +20,8 @@ from .client.input_types import (
 )
 
 CAP_API_URL = "https://celltype.info/graphql"
-CAP_AUTHENTICATE_USER_URL = "us-central1-capv2-gke-prod.cloudfunctions.net/authenticate-user"
-CAP_AUTHENTICATE_TOKEN_URL = "us-central1-capv2-gke-prod.cloudfunctions.net/authenticate-token"
+CAP_AUTHENTICATE_USER_URL  = "authenticate-user-wg6qkl5yea-uc.a.run.app"
+CAP_AUTHENTICATE_TOKEN_URL = "authenticate-token-wg6qkl5yea-uc.a.run.app"
 class Cap(Client):
     def __init__(self) -> None:
         super().__init__(url = CAP_API_URL)
@@ -73,6 +73,16 @@ class Cap(Client):
             self
     ) -> str:
         return self._error_status
+    
+    def get_id_token(
+            self
+    ) -> str:
+        return self._token
+    
+    def get_token_expiry_time(
+            self
+    ) -> time:
+        return self._token_expiry_time
     
     def search_datasets(
         self,
