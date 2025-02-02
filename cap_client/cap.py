@@ -22,6 +22,7 @@ from .client.input_types import (
 CAP_API_URL = "https://celltype.info/graphql"
 CAP_AUTHENTICATE_USER_URL  = "authenticate-user-wg6qkl5yea-uc.a.run.app"
 CAP_AUTHENTICATE_TOKEN_URL = "authenticate-token-wg6qkl5yea-uc.a.run.app"
+
 class Cap(Client):
     def __init__(
             self,  
@@ -50,6 +51,7 @@ class Cap(Client):
             try:
                 response = response.read().decode()
                 self._token = json.loads(response)['idToken']
+                # TODO : Add signature verification 
                 self._token_expiry_time = jwt.decode(self._token, options={"verify_signature": False})['exp']
                 self._error_status = None
                 return True
@@ -161,6 +163,5 @@ class Cap(Client):
         return response.model_dump_json()
 
     def download_urls(self, dataset_id: str) -> str:
-
         response = super().download_urls(dataset_id=dataset_id)
         return response.model_dump_json()
