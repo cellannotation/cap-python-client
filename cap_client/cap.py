@@ -1,4 +1,9 @@
 from typing import List, Dict
+import time
+import http.client
+import json
+import jwt
+import os
 
 from .client.client import Client
 from .client.input_types import (
@@ -13,15 +18,76 @@ from .client.input_types import (
     SearchLabelByMetadataArgs,
     CellLabelsSearchSort,
 )
-from .client.download_urls import DownloadUrls
-from .client.lookup_cells import LookupCells
-from .client.search_datasets import SearchDatasets
 
+CAP_API_URL = "https://celltype.info/graphql"
+CAP_AUTHENTICATE_USER_URL  = "authenticate-user-wg6qkl5yea-uc.a.run.app"
+CAP_AUTHENTICATE_TOKEN_URL = "authenticate-token-wg6qkl5yea-uc.a.run.app"
 
 class Cap(Client):
-    def __init__(self) -> None:
-        super().__init__(url="https://celltype.info/graphql")
+    def __init__(
+            self,  
+            login: str = None,
+            pwd: str = None,
+            custom_token: str = None  
+        ) -> None:
+        super().__init__(url = CAP_API_URL)
+        self._login = login if login is not None else os.environ.get('CAP_LOGIN')
+        self._pwd = pwd if pwd is not None else os.environ.get('CAP_PWD')
+        self._custom_token = custom_token if custom_token is not None else os.environ.get('CAP_TOKEN')
+        self._token: str = None
+        self._token_expiry_time: time = None
+        self._error_status: str = None
 
+    def _request (
+            self,
+            url: str, 
+            body: dict
+        ) -> bool: 
+        connection = http.client.HTTPSConnection(url)
+        headers = {'Content-type': 'application/json'}
+        connection.request("POST", url="",  body=json.dumps(body), headers=headers)
+        response = connection.getresponse()
+        if (response.status == 200):
+            try:
+                response = response.read().decode()
+                self._token = json.loads(response)['idToken']
+                # TODO : Add signature verification 
+                self._token_expiry_time = jwt.decode(self._token, options={"verify_signature": False})['exp']
+                self._error_status = None
+                return True
+            except: 
+                self._error_status = "Failed to parse 200 OK response to get ID token"
+                return False  
+        self._error_status = "Failed to get ID token " + response.reason 
+        return False
+    
+    def _authenticate(
+        self
+     ) -> bool:
+        # try authenticate by custom token first
+        if self._custom_token is not None:
+            body = {'token':self._custom_token}
+            if (self._request(CAP_AUTHENTICATE_TOKEN_URL, body)):
+                return True
+        if self._login is not None and self._pwd is not None:    
+            body = {'email':self._login, 'password': self._pwd}
+            if (self._request(CAP_AUTHENTICATE_USER_URL, body)):
+                return True
+        self._error_status = "Missing CAP client authetication settings. Check CAP_LOGIN, CAP_PWD or CAP_TOKEN enviroment variables."
+        return False
+
+    @property     
+    def error_status(self) -> str:
+        return self._error_status
+    
+    @property
+    def id_token(self) -> str:
+        return self._token
+    
+    @property
+    def token_expiry_time(self) -> time:
+        return self._token_expiry_time
+    
     def search_datasets(
         self,
         search: List[str] = None,
@@ -97,6 +163,5 @@ class Cap(Client):
         return response.model_dump_json()
 
     def download_urls(self, dataset_id: str) -> str:
-
         response = super().download_urls(dataset_id=dataset_id)
         return response.model_dump_json()

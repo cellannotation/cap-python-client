@@ -7,7 +7,9 @@ Python client uses Ariadne code generation https://ariadnegraphql.org/blog/2023/
 
 # API calls
 
-Create CAP object `cap = Cap()` and use it to access API endpoints
+Create CAP object `cap = Cap()` and use it to access public API endpoints.
+
+If you plan to use CAP API endpoints that require authoriization please set environment variables either `CAP_LOGIN` / `CAP_PWD` or `CAP_TOKEN` with custom token that you can get from CAP UI. CAP will automatically use this information to authenticate you during authorized endpoints requests.
 
 ## Search datasets
 ```Python
