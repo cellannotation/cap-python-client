@@ -18,6 +18,9 @@ from .client.input_types import (
     SearchLabelByMetadataArgs,
     CellLabelsSearchSort,
 )
+from .client.search_datasets import SearchDatasets
+from .client.lookup_cells import LookupCells
+from .client.download_urls import DownloadUrls
 
 CAP_API_URL = "https://celltype.info/graphql"
 CAP_AUTHENTICATE_USER_URL  = "authenticate-user-wg6qkl5yea-uc.a.run.app"
@@ -97,7 +100,7 @@ class Cap(Client):
         limit: int = 50,
         offset: int = 0,
         sort: List[Dict[str, str]] = [],
-    ) -> str:
+    ) -> SearchDatasets:
         sorting = []
         for item in sort:
             key = list(item.keys())[0]
@@ -121,6 +124,27 @@ class Cap(Client):
         response = super().search_datasets(
             options=search_options, filter=search_filter, search=search_input
         )
+        return response
+
+    def search_datasets_json(
+        self,
+        search: List[str] = None,
+        organism: List[str] = None,
+        tissue: List[str] = None,
+        assay: List[str] = None,
+        limit: int = 50,
+        offset: int = 0,
+        sort: List[Dict[str, str]] = []
+    ) -> str:
+        response = self.search_datasets(
+            search,
+            organism,
+            tissue,
+            assay,
+            limit,
+            offset,
+            sort
+        )
         return response.model_dump_json()
 
     def search_cell_labels(
@@ -132,7 +156,7 @@ class Cap(Client):
         limit: int = 50,
         offset: int = 0,
         sort: List[Dict[str, str]] = [],
-    ) -> str:
+    ) -> LookupCells:
         sorting = []
         for item in sort:
             key = list(item.keys())[0]
@@ -160,8 +184,34 @@ class Cap(Client):
         response = super().lookup_cells(
             options=search_options, filter=search_filter, search=search_input
         )
+        return response
+    
+    def search_cell_labels_json(
+        self,
+        search: List[str] = None,
+        organism: List[str] = None,
+        tissue: List[str] = None,
+        assay: List[str] = None,
+        limit: int = 50,
+        offset: int = 0,
+        sort: List[Dict[str, str]] = [],
+    ) -> str:
+        response = self.search_cell_labels(
+            self,
+            search,
+            organism,
+            tissue,
+            assay,
+            limit,
+            offset,
+            sort
+        )
         return response.model_dump_json()
 
-    def download_urls(self, dataset_id: str) -> str:
+    def download_urls(self, dataset_id: str) -> DownloadUrls:
         response = super().download_urls(dataset_id=dataset_id)
+        return response
+    
+    def download_urls_json(self, dataset_id: str) -> str:
+        response = self.download_urls(dataset_id)
         return response.model_dump_json()
