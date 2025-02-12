@@ -215,3 +215,20 @@ class Cap(Client):
     def download_urls_json(self, dataset_id: str) -> str:
         response = self.download_urls(dataset_id)
         return response.model_dump_json()
+    
+    def file_status_json(self, dataset_id: str) -> str:
+        response = super().files_status(dataset_id)
+        return response.model_dump_json()
+    
+    def md_commons_query_json(self, dataset_id: str) -> str:
+        response = super().md_commons_query(dataset_id)
+        return response.model_dump_json()
+    
+    def dataset_initial_state_query_json(self, dataset_id: str) -> str:
+        response = super().dataset_initial_state_query(dataset_id)
+        return response.model_dump_json()
+    
+    def cluster_types_json(self, dataset_id: str) -> str:
+        response = super().cluster_types(dataset_id)
+        return response.model_dump_json()
+    
