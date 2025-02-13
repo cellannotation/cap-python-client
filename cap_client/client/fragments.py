@@ -8,6 +8,19 @@ from pydantic import Field
 from .base_model import BaseModel
 
 
+class GeneLinkLabelset(BaseModel):
+    id: str
+    labels: Optional[List["GeneLinkLabelsetLabels"]]
+    typename__: str = Field(alias="__typename")
+
+
+class GeneLinkLabelsetLabels(BaseModel):
+    id: str
+    name: str
+    count: int
+    typename__: Literal["Label"] = Field(alias="__typename")
+
+
 class ProjectAuthorsProject(BaseModel):
     version: float
     owner: "ProjectAuthorsProjectOwner"
@@ -37,19 +50,6 @@ class ProjectAuthorsProjectPermissionsUser(BaseModel):
     display_name: str = Field(alias="displayName")
     avatar_url: str = Field(alias="avatarUrl")
     typename__: Literal["CapUser"] = Field(alias="__typename")
-
-
-class GeneLinkLabelset(BaseModel):
-    id: str
-    labels: Optional[List["GeneLinkLabelsetLabels"]]
-    typename__: str = Field(alias="__typename")
-
-
-class GeneLinkLabelsetLabels(BaseModel):
-    id: str
-    name: str
-    count: int
-    typename__: Literal["Label"] = Field(alias="__typename")
 
 
 class CellLabelResult(BaseModel):
@@ -127,6 +127,21 @@ class FeedbackCardOrganismLabelset(GeneLinkLabelset):
     typename__: str = Field(alias="__typename")
 
 
+class SplitContentExplanationData(BaseModel):
+    groups_number: float = Field(alias="groupsNumber")
+    groups: Optional[List["SplitContentExplanationDataGroups"]]
+    comment: Optional[str]
+    typename__: str = Field(alias="__typename")
+
+
+class SplitContentExplanationDataGroups(BaseModel):
+    name: str
+    marker_genes: List[str] = Field(alias="markerGenes")
+    typename__: Literal["FeedbackExplanationDataSplitLabels"] = Field(
+        alias="__typename"
+    )
+
+
 class MergeContentExplanationData(BaseModel):
     comment: Optional[str]
     labels: List["MergeContentExplanationDataLabels"]
@@ -149,21 +164,6 @@ class RefineContentExplanationDataChanges(BaseModel):
     original_value: Any = Field(alias="originalValue")
     new_value: Any = Field(alias="newValue")
     typename__: Literal["FeedbackExplanationDataRefineChanges"] = Field(
-        alias="__typename"
-    )
-
-
-class SplitContentExplanationData(BaseModel):
-    groups_number: float = Field(alias="groupsNumber")
-    groups: Optional[List["SplitContentExplanationDataGroups"]]
-    comment: Optional[str]
-    typename__: str = Field(alias="__typename")
-
-
-class SplitContentExplanationDataGroups(BaseModel):
-    name: str
-    marker_genes: List[str] = Field(alias="markerGenes")
-    typename__: Literal["FeedbackExplanationDataSplitLabels"] = Field(
         alias="__typename"
     )
 
@@ -386,15 +386,15 @@ class DatasetResultProject(ProjectAuthorsProject):
     typename__: Literal["Project"] = Field(alias="__typename")
 
 
-ProjectAuthorsProject.model_rebuild()
 GeneLinkLabelset.model_rebuild()
+ProjectAuthorsProject.model_rebuild()
 CellLabelResult.model_rebuild()
 CommentContentExplanationData.model_rebuild()
 CurrentEmbeddingProviderAvailableEmbeddings.model_rebuild()
 FeedbackCardOrganismLabelset.model_rebuild()
+SplitContentExplanationData.model_rebuild()
 MergeContentExplanationData.model_rebuild()
 RefineContentExplanationData.model_rebuild()
-SplitContentExplanationData.model_rebuild()
 FeedbackCardFeedback.model_rebuild()
 DatasetInitialState.model_rebuild()
 DatasetResult.model_rebuild()

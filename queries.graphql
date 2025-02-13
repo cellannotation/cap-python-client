@@ -459,3 +459,16 @@ query Heatmap($options: PostHeatmapInput!, $datasetId: ID!) {
     __typename
   }
 }
+
+query EmbeddingClusters($cluster: GetDatasetClustersDataInput!, $datasetId: ID!) {
+  dataset(datasetId: $datasetId) {
+    id
+    embeddingClusters(cluster: $cluster) {
+      clusterId
+      cellCount
+      color
+      __typename
+    }
+    __typename
+  }
+}

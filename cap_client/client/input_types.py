@@ -18,6 +18,10 @@ class GetDatasetEmbeddingDataInput(BaseModel):
     labelsets: Optional[List[str]] = None
 
 
+class GetDatasetClustersDataInput(BaseModel):
+    cluster_type: str = Field(alias="clusterType")
+
+
 class PostHeatmapInput(BaseModel):
     diff_key: str = Field(alias="diffKey")
     n_genes: Optional[int] = Field(alias="nGenes", default=None)

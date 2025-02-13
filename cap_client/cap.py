@@ -17,10 +17,14 @@ from .client.input_types import (
     LookupCellsSearch,
     SearchLabelByMetadataArgs,
     CellLabelsSearchSort,
+    GetDatasetClustersDataInput,
+    GetDatasetEmbeddingDataInput
 )
 from .client.search_datasets import SearchDatasets
 from .client.lookup_cells import LookupCells
 from .client.download_urls import DownloadUrls
+from .client.embedding_clusters import EmbeddingClusters
+from .client.embedding_data import EmbeddingData
 
 CAP_API_URL = "https://celltype.info/graphql"
 CAP_AUTHENTICATE_USER_URL  = "authenticate-user-wg6qkl5yea-uc.a.run.app"
@@ -232,3 +236,79 @@ class Cap(Client):
         response = super().cluster_types(dataset_id)
         return response.model_dump_json()
     
+    def embeddings_clusters(
+            self, 
+            dataset_id: str, 
+            cluster: str
+        ) -> EmbeddingClusters:
+
+        response = super().embedding_clusters(
+            dataset_id = dataset_id, 
+            cluster = GetDatasetClustersDataInput(cluster)
+        )
+        return response
+    
+    def embeddings_clusters_json(
+            self, 
+            dataset_id: str, 
+            cluster: str
+        ) -> str:
+
+        response = self().embedding_clusters(
+            dataset_id = dataset_id, 
+            cluster = GetDatasetClustersDataInput(cluster) 
+        )
+        return response.model_dump_json()
+
+    def embedding_data(
+            self, 
+            dataset_id: str,
+            embedding: str,
+            scale_max_plan: float,
+            session_id: str = None,
+            labelsets: List[str] = None,
+            selection_gene: str = None,
+            selection_key_major: str = None,
+            selection_key_minor: str = None
+        ) -> EmbeddingData:
+ 
+        options = GetDatasetEmbeddingDataInput(
+            embedding = embedding,
+            selection_gene = selection_gene,
+            scale_max_plan = scale_max_plan,
+            selection_key_major = selection_key_major,
+            selection_key_minor = selection_key_minor,
+            session_id = session_id,
+            labelsets = labelsets
+        )
+        response = super().embedding_data(
+            dataset_id = dataset_id,
+            options = options
+        )
+        return response
+    
+    def embedding_data_json(
+            self, 
+            dataset_id: str,
+            embedding: str,
+            scale_max_plan: float,
+            session_id: str = None,
+            labelsets: List[str] = None,
+            selection_gene: str = None,
+            selection_key_major: str = None,
+            selection_key_minor: str = None
+        ) -> str:
+ 
+        response = self().embedding_data(
+            self, 
+            dataset_id = dataset_id,
+            embedding = embedding,
+            scale_max_plan = scale_max_plan,
+            session_id = session_id,
+            labelsets = labelsets,
+            selection_gene = selection_gene,
+            selection_key_major = selection_key_major,
+            selection_key_minor = selection_key_minor
+        )
+        return response.model_dump_json()
+

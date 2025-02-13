@@ -111,7 +111,7 @@ def test_file_status_json():
         file_status_request_mock.return_value = sample_dataset_response
 
         # Act
-        result = cap.file_status_json(825)
+        result = cap.file_status_json("1")
 
         # Assert
         assert result == '{"data": { "dataset": { "id": "123", "getMdFilesStatus": "ready" } } }'
@@ -137,7 +137,7 @@ def test_md_commons_query_json():
         md_commons_query_request_mock.return_value = sample_dataset_response
 
         # Act
-        result = cap.md_commons_query_json(825)
+        result = cap.md_commons_query_json("1")
 
         # Assert
         assert result == '{"data": { "dataset": { "id": "123", "embeddings": [] } } }'
@@ -163,7 +163,7 @@ def test_dataset_initial_state_query_json():
         dataset_initial_state_query_request_mock.return_value = sample_dataset_response
 
         # Act
-        result = cap.dataset_initial_state_query_json(825)
+        result = cap.dataset_initial_state_query_json("1")
 
         # Assert
         assert result == '{"data": { "dataset": { "id": "123", "name": "dataset"} } }'
@@ -189,7 +189,7 @@ def test_cluster_types_json():
         cluster_types_request_mock.return_value = sample_dataset_response
 
         # Act
-        result = cap.cluster_types_json(825)
+        result = cap.cluster_types_json("1")
 
         # Assert
         assert result == '{"data": { "dataset": { "id": "123", "embeddingClusterTypes": [] } } }'
@@ -207,3 +207,55 @@ def test_cluster_types_json_no_params():
         # Assert
         assert result == '{"data": { "dataset": { "id": "123", "embeddingClusterTypes": [] } } }'
         cluster_types_request_mock.assert_called_once()
+
+def test_embeddings_clusters_json():
+    cap = Cap()
+    sample_dataset_response = '{"data": { "dataset": { "id": "123", "embeddingCluster": [] } } }'
+    with patch.object(Cap, 'embeddings_clusters_json') as embeddings_clusters_request_mock:
+        embeddings_clusters_request_mock.return_value = sample_dataset_response
+
+        # Act
+        result = cap.embeddings_clusters_json(dataset_id = "1", cluster = "cluster")
+
+        # Assert
+        assert result == '{"data": { "dataset": { "id": "123", "embeddingCluster": [] } } }'
+        embeddings_clusters_request_mock.assert_called_once()
+
+def test_embeddings_clusters_no_params():
+    cap = Cap()
+    sample_dataset_response = '{"data": { "dataset": { "id": "123", "embeddingCluster": [] } } }'
+    with patch.object(Cap, 'embeddings_clusters_json') as embeddings_clusters_request_mock:
+        embeddings_clusters_request_mock.return_value = sample_dataset_response
+
+        # Act
+        result = cap.embeddings_clusters_json()
+
+        # Assert
+        assert result == '{"data": { "dataset": { "id": "123", "embeddingCluster": [] } } }'
+        embeddings_clusters_request_mock.assert_called_once()
+
+def test_embedding_data_json():
+    cap = Cap()
+    sample_dataset_response = '{"data": { "dataset": { "id": "123", "embeddingData": {} } } } }'
+    with patch.object(Cap, 'embedding_data_json') as embedding_data_request_mock:
+        embedding_data_request_mock.return_value = sample_dataset_response
+
+        # Act
+        result = cap.embedding_data_json(dataset_id = "1", embedding = "embedding", scale_max_plan = 1000, session_id = "123")
+
+        # Assert
+        assert result == '{"data": { "dataset": { "id": "123", "embeddingData": {} } } } }'
+        embedding_data_request_mock.assert_called_once()
+
+def test_embedding_data_no_params():
+    cap = Cap()
+    sample_dataset_response = '{"data": { "dataset": { "id": "123", "embeddingData": {} } } } }'
+    with patch.object(Cap, 'embedding_data_json') as embedding_data_request_mock:
+        embedding_data_request_mock.return_value = sample_dataset_response
+
+        # Act
+        result = cap.embedding_data_json()
+
+        # Assert
+        assert result == '{"data": { "dataset": { "id": "123", "embeddingData": {} } } } }'
+        embedding_data_request_mock.assert_called_once()

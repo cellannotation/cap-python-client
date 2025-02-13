@@ -9,6 +9,7 @@ from .cluster_types import ClusterTypes
 from .create_session import CreateSession
 from .dataset_initial_state_query import DatasetInitialStateQuery
 from .download_urls import DownloadUrls
+from .embedding_clusters import EmbeddingClusters
 from .embedding_data import EmbeddingData
 from .files_status import FilesStatus
 from .general_de import GeneralDE
@@ -17,6 +18,7 @@ from .highly_variable_genes import HighlyVariableGenes
 from .input_types import (
     CellLabelsSearchOptions,
     DatasetSearchOptions,
+    GetDatasetClustersDataInput,
     GetDatasetEmbeddingDataInput,
     GetGeneralDiffInput,
     GetHighlyVariableGenesInput,
@@ -704,3 +706,32 @@ class Client(BaseClient):
         )
         data = self.get_data(response)
         return Heatmap.model_validate(data)
+
+    def embedding_clusters(
+        self, cluster: GetDatasetClustersDataInput, dataset_id: str, **kwargs: Any
+    ) -> EmbeddingClusters:
+        query = gql(
+            """
+            query EmbeddingClusters($cluster: GetDatasetClustersDataInput!, $datasetId: ID!) {
+              dataset(datasetId: $datasetId) {
+                id
+                embeddingClusters(cluster: $cluster) {
+                  clusterId
+                  cellCount
+                  color
+                  __typename
+                }
+                __typename
+              }
+            }
+            """
+        )
+        variables: Dict[str, object] = {"cluster": cluster, "datasetId": dataset_id}
+        response = self.execute(
+            query=query,
+            operation_name="EmbeddingClusters",
+            variables=variables,
+            **kwargs
+        )
+        data = self.get_data(response)
+        return EmbeddingClusters.model_validate(data)

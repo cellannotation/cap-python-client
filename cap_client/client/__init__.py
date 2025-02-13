@@ -20,6 +20,11 @@ from .dataset_initial_state_query import (
     DatasetInitialStateQueryDatasetProject,
 )
 from .download_urls import DownloadUrls, DownloadUrlsDownloadUrls
+from .embedding_clusters import (
+    EmbeddingClusters,
+    EmbeddingClustersDataset,
+    EmbeddingClustersDatasetEmbeddingClusters,
+)
 from .embedding_data import (
     EmbeddingData,
     EmbeddingDataDataset,
@@ -105,6 +110,7 @@ from .input_types import (
     DatasetObjectInput,
     DatasetSearchOptions,
     DatasetSearchSort,
+    GetDatasetClustersDataInput,
     GetDatasetEmbeddingDataInput,
     GetGeneralDiffInput,
     GetHighlyVariableGenesInput,
@@ -169,6 +175,9 @@ __all__ = [
     "DatasetSearchSort",
     "DownloadUrls",
     "DownloadUrlsDownloadUrls",
+    "EmbeddingClusters",
+    "EmbeddingClustersDataset",
+    "EmbeddingClustersDatasetEmbeddingClusters",
     "EmbeddingData",
     "EmbeddingDataDataset",
     "EmbeddingDataDatasetEmbeddingData",
@@ -188,6 +197,7 @@ __all__ = [
     "GeneLinkLabelsetLabels",
     "GeneralDE",
     "GeneralDEDataset",
+    "GetDatasetClustersDataInput",
     "GetDatasetEmbeddingDataInput",
     "GetGeneralDiffInput",
     "GetHighlyVariableGenesInput",
