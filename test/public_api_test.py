@@ -259,3 +259,159 @@ def test_embedding_data_no_params():
         # Assert
         assert result == '{"data": { "dataset": { "id": "123", "embeddingData": {} } } } }'
         embedding_data_request_mock.assert_called_once()
+
+def test_general_de_json():
+    cap = Cap()
+    sample_dataset_response = '{"data": { "dataset": { "id": "123", "generalDiff": "" } } } }'
+    with patch.object(Cap, 'general_de_json') as general_de_request_mock:
+        general_de_request_mock.return_value = sample_dataset_response
+
+        # Act
+        result = cap.general_de_json(dataset_id = "1", labelset_id = "1", random_seed = 1, session_id = "123")
+
+        # Assert
+        assert result == '{"data": { "dataset": { "id": "123", "generalDiff": "" } } } }'
+        general_de_request_mock.assert_called_once()
+
+def test_general_de_json_no_params():
+    cap = Cap()
+    sample_dataset_response = '{"data": { "dataset": { "id": "123", "generalDiff": "" } } } }'
+    with patch.object(Cap, 'general_de_json') as general_de_request_mock:
+        general_de_request_mock.return_value = sample_dataset_response
+
+        # Act
+        result = cap.general_de_json()
+
+        # Assert
+        assert result == '{"data": { "dataset": { "id": "123", "generalDiff": "" } } } }'
+        general_de_request_mock.assert_called_once()
+
+def test_heatmap_json():
+    cap = Cap()
+    sample_dataset_response = '{"data": { "dataset": { "id": "123", "embeddingDiffHeatMap": {} } } } }'
+    with patch.object(Cap, 'heatmap_json') as heatmap_request_mock:
+        heatmap_request_mock.return_value = sample_dataset_response
+
+        # Act
+        result = cap.heatmap_json(dataset_id = "1", diff_key = "kgjgjgk")
+
+        # Assert
+        assert result == '{"data": { "dataset": { "id": "123", "embeddingDiffHeatMap": {} } } } }'
+        heatmap_request_mock.assert_called_once()
+
+def test_heatmap_json_no_params():
+    cap = Cap()
+    sample_dataset_response = '{"data": { "dataset": { "id": "123", "embeddingDiffHeatMap": {} } } } }'
+    with patch.object(Cap, 'heatmap_json') as heatmap_request_mock:
+        heatmap_request_mock.return_value = sample_dataset_response
+
+        # Act
+        result = cap.heatmap_json()
+
+        # Assert
+        assert result == '{"data": { "dataset": { "id": "123", "embeddingDiffHeatMap": {} } } } }'
+        heatmap_request_mock.assert_called_once()
+
+def test_highly_variable_genes_json():
+    cap = Cap()
+    sample_dataset_response = '{"data": { "dataset": { "id": "123", "embeddingHighlyVariableGenes": [] } } } }'
+    with patch.object(Cap, 'highly_variable_genes_json') as highly_variable_genes_request_mock:
+        highly_variable_genes_request_mock.return_value = sample_dataset_response
+
+        # Act
+        result = cap.highly_variable_genes_json(dataset_id = "1", offset = 1, limit = 10)
+
+        # Assert
+        assert result == '{"data": { "dataset": { "id": "123", "embeddingHighlyVariableGenes": [] } } } }'
+        highly_variable_genes_request_mock.assert_called_once()
+
+def test_highly_variable_genes_json_no_params():
+    cap = Cap()
+    sample_dataset_response = '{"data": { "dataset": { "id": "123", "embeddingHighlyVariableGenes": [] } } } }'
+    with patch.object(Cap, 'highly_variable_genes_json') as highly_variable_genes_request_mock:
+        highly_variable_genes_request_mock.return_value = sample_dataset_response
+
+        # Act
+        result = cap.highly_variable_genes_json()
+
+        # Assert
+        assert result == '{"data": { "dataset": { "id": "123", "embeddingHighlyVariableGenes": [] } } } }'
+        highly_variable_genes_request_mock.assert_called_once()
+
+def test_dataset_ready_json():
+    cap = Cap()
+    sample_dataset_response = '{"data": { "dataset": { "id": "123" } } }'
+    with patch.object(Cap, 'dataset_ready_json') as dataset_ready_request_mock:
+        dataset_ready_request_mock.return_value = sample_dataset_response
+
+        # Act
+        result = cap.dataset_ready_json("1")
+
+        # Assert
+        assert result == '{"data": { "dataset": { "id": "123" } } }'
+        dataset_ready_request_mock.assert_called_once()
+
+def test_dataset_ready_json_no_params():
+    cap = Cap()
+    sample_dataset_response = '{"data": { "dataset": { "id": "123" } } }'
+    with patch.object(Cap, 'dataset_ready_json') as dataset_ready_request_mock:
+        dataset_ready_request_mock.return_value = sample_dataset_response
+
+        # Act
+        result = cap.dataset_ready_json()
+
+        # Assert
+        assert result == '{"data": { "dataset": { "id": "123" } } }'
+        dataset_ready_request_mock.assert_called_once()
+
+def test_md_ready_json():
+    cap = Cap()
+    sample_dataset_response = '{"data": { "dataset": { "id": "123" } } }'
+    with patch.object(Cap, 'md_ready_json') as md_ready_request_mock:
+        md_ready_request_mock.return_value = sample_dataset_response
+
+        # Act
+        result = cap.md_ready_json("1")
+
+        # Assert
+        assert result == '{"data": { "dataset": { "id": "123" } } }'
+        md_ready_request_mock.assert_called_once()
+
+def test_md_ready_json_no_params():
+    cap = Cap()
+    sample_dataset_response = '{"data": { "dataset": { "id": "123" } } }'
+    with patch.object(Cap, 'md_ready_json') as md_ready_request_mock:
+        md_ready_request_mock.return_value = sample_dataset_response
+
+        # Act
+        result = cap.md_ready_json()
+
+        # Assert
+        assert result == '{"data": { "dataset": { "id": "123" } } }'
+        md_ready_request_mock.assert_called_once()
+
+def test_create_session_json():
+    cap = Cap()
+    sample_dataset_response = '{"data": { "saveEmbeddingSession": { "id": "123", "name": "test" } } }'
+    with patch.object(Cap, 'create_session_json') as create_session_request_mock:
+        create_session_request_mock.return_value = sample_dataset_response
+
+        # Act
+        result = cap.create_session_json(session_id = "1", data = {})
+
+        # Assert
+        assert result == '{"data": { "saveEmbeddingSession": { "id": "123", "name": "test" } } }'
+        create_session_request_mock.assert_called_once()
+
+def test_create_session_json_no_params():
+    cap = Cap()
+    sample_dataset_response = '{"data": { "saveEmbeddingSession": { "id": "123", "name": "test" } } }'
+    with patch.object(Cap, 'create_session_json') as create_session_request_mock:
+        create_session_request_mock.return_value = sample_dataset_response
+
+        # Act
+        result = cap.create_session_json()
+
+        # Assert
+        assert result == '{"data": { "saveEmbeddingSession": { "id": "123", "name": "test" } } }'
+        create_session_request_mock.assert_called_once()

@@ -8,6 +8,7 @@ from .base_model import UNSET, UnsetType
 from .cluster_types import ClusterTypes
 from .create_session import CreateSession
 from .dataset_initial_state_query import DatasetInitialStateQuery
+from .dataset_ready import DatasetReady
 from .download_urls import DownloadUrls
 from .embedding_clusters import EmbeddingClusters
 from .embedding_data import EmbeddingData
@@ -31,6 +32,7 @@ from .input_types import (
 )
 from .lookup_cells import LookupCells
 from .md_commons_query import MDCommonsQuery
+from .md_ready import MDReady
 from .search_datasets import SearchDatasets
 
 
@@ -735,3 +737,42 @@ class Client(BaseClient):
         )
         data = self.get_data(response)
         return EmbeddingClusters.model_validate(data)
+
+    def dataset_ready(self, dataset_id: str, **kwargs: Any) -> DatasetReady:
+        query = gql(
+            """
+            query DatasetReady($datasetId: ID!) {
+              dataset(datasetId: $datasetId) {
+                id
+                isAnnDataUpToDate
+                isEmbeddingsUpToDate
+                __typename
+              }
+            }
+            """
+        )
+        variables: Dict[str, object] = {"datasetId": dataset_id}
+        response = self.execute(
+            query=query, operation_name="DatasetReady", variables=variables, **kwargs
+        )
+        data = self.get_data(response)
+        return DatasetReady.model_validate(data)
+
+    def md_ready(self, dataset_id: str, **kwargs: Any) -> MDReady:
+        query = gql(
+            """
+            query MDReady($datasetId: ID!) {
+              dataset(datasetId: $datasetId) {
+                id
+                isEmbeddingsUpToDate
+                __typename
+              }
+            }
+            """
+        )
+        variables: Dict[str, object] = {"datasetId": dataset_id}
+        response = self.execute(
+            query=query, operation_name="MDReady", variables=variables, **kwargs
+        )
+        data = self.get_data(response)
+        return MDReady.model_validate(data)

@@ -472,3 +472,20 @@ query EmbeddingClusters($cluster: GetDatasetClustersDataInput!, $datasetId: ID!)
     __typename
   }
 }
+
+query DatasetReady($datasetId: ID!) {
+  dataset(datasetId: $datasetId) {
+    id
+    isAnnDataUpToDate
+    isEmbeddingsUpToDate
+    __typename
+  }
+}
+
+query MDReady($datasetId: ID!) {
+  dataset(datasetId: $datasetId) {
+    id
+    isEmbeddingsUpToDate
+    __typename
+  }
+}
