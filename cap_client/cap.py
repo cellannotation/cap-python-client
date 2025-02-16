@@ -226,7 +226,7 @@ class Cap(Client):
         response = super().download_urls(dataset_id)
         return response.model_dump_json()
     
-    def file_status_json(self, dataset_id: str) -> str:
+    def files_status_json(self, dataset_id: str) -> str:
         response = super().files_status(dataset_id)
         return response.model_dump_json()
     

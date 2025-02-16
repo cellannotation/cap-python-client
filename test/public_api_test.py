@@ -104,31 +104,27 @@ def test_search_cells_no_params():
         assert result == '{"lookup_cells": [{"id": "123", "name": "Test Cell Label"}]}'
         search_request_mock.assert_called_once()
 
-def test_file_status_json():
+def test_files_status_json():
     cap = Cap()
     sample_dataset_response = '{"data": { "dataset": { "id": "123", "getMdFilesStatus": "ready" } } }'
-    with patch.object(Cap, 'file_status_json') as file_status_request_mock:
-        file_status_request_mock.return_value = sample_dataset_response
+    with patch.object(Cap, 'files_status_json') as files_status_request_mock:
+        files_status_request_mock.return_value = sample_dataset_response
 
         # Act
-        result = cap.file_status_json("1")
+        result = cap.files_status_json("1")
 
         # Assert
         assert result == '{"data": { "dataset": { "id": "123", "getMdFilesStatus": "ready" } } }'
-        file_status_request_mock.assert_called_once()
+        files_status_request_mock.assert_called_once()
 
-def test_file_status_json_no_params():
+def test_files_status_json_no_params():
     cap = Cap()
-    sample_dataset_response = '{"data": { "dataset": { "id": "123", "getMdFilesStatus": "ready" } } }'
-    with patch.object(Cap, 'file_status_json') as file_status_request_mock:
-        file_status_request_mock.return_value = sample_dataset_response
-
-        # Act
-        result = cap.file_status_json()
-
-        # Assert
-        assert result == '{"data": { "dataset": { "id": "123", "getMdFilesStatus": "ready" } } }'
-        file_status_request_mock.assert_called_once()
+    try:
+        # Act and Assert
+        cap.files_status_json()
+        assert False
+    except TypeError as e:
+       assert True
 
 def test_md_commons_query_json():
     cap = Cap()
@@ -145,16 +141,12 @@ def test_md_commons_query_json():
 
 def test_md_commons_query_json_no_params():
     cap = Cap()
-    sample_dataset_response = '{"data": { "dataset": { "id": "123", "embeddings": [] } } }'
-    with patch.object(Cap, 'md_commons_query_json') as md_commons_query_request_mock:
-        md_commons_query_request_mock.return_value = sample_dataset_response
-
-        # Act
-        result = cap.md_commons_query_json()
-
-        # Assert
-        assert result == '{"data": { "dataset": { "id": "123", "embeddings": [] } } }'
-        md_commons_query_request_mock.assert_called_once()
+    try:
+        # Act and Assert
+        cap.md_commons_query_json()
+        assert False
+    except TypeError as e:
+       assert True
     
 def test_dataset_initial_state_query_json():
     cap = Cap()
@@ -171,16 +163,12 @@ def test_dataset_initial_state_query_json():
 
 def test_dataset_initial_state_query_json_no_params():
     cap = Cap()
-    sample_dataset_response = '{"data": { "dataset": { "id": "123", "name": "dataset"} } }'
-    with patch.object(Cap, 'dataset_initial_state_query_json') as dataset_initial_state_query_request_mock:
-        dataset_initial_state_query_request_mock.return_value = sample_dataset_response
-
-        # Act
-        result = cap.dataset_initial_state_query_json()
-
-        # Assert
-        assert result == '{"data": { "dataset": { "id": "123", "name": "dataset"} } }'
-        dataset_initial_state_query_request_mock.assert_called_once()
+    try:
+        # Act and Assert
+        cap.dataset_initial_state_query_json()
+        assert False
+    except TypeError as e:
+       assert True
     
 def test_cluster_types_json():
     cap = Cap()
@@ -197,16 +185,12 @@ def test_cluster_types_json():
 
 def test_cluster_types_json_no_params():
     cap = Cap()
-    sample_dataset_response = '{"data": { "dataset": { "id": "123", "embeddingClusterTypes": [] } } }'
-    with patch.object(Cap, 'cluster_types_json') as cluster_types_request_mock:
-        cluster_types_request_mock.return_value = sample_dataset_response
-
-        # Act
-        result = cap.cluster_types_json()
-
-        # Assert
-        assert result == '{"data": { "dataset": { "id": "123", "embeddingClusterTypes": [] } } }'
-        cluster_types_request_mock.assert_called_once()
+    try:
+        # Act and Assert
+        cap.cluster_types_json()
+        assert False
+    except TypeError as e:
+       assert True
 
 def test_embeddings_clusters_json():
     cap = Cap()
@@ -221,18 +205,14 @@ def test_embeddings_clusters_json():
         assert result == '{"data": { "dataset": { "id": "123", "embeddingCluster": [] } } }'
         embeddings_clusters_request_mock.assert_called_once()
 
-def test_embeddings_clusters_no_params():
+def test_embeddings_clusters_json_no_params():
     cap = Cap()
-    sample_dataset_response = '{"data": { "dataset": { "id": "123", "embeddingCluster": [] } } }'
-    with patch.object(Cap, 'embeddings_clusters_json') as embeddings_clusters_request_mock:
-        embeddings_clusters_request_mock.return_value = sample_dataset_response
-
-        # Act
-        result = cap.embeddings_clusters_json()
-
-        # Assert
-        assert result == '{"data": { "dataset": { "id": "123", "embeddingCluster": [] } } }'
-        embeddings_clusters_request_mock.assert_called_once()
+    try:
+        # Act and Assert
+        cap.embeddings_clusters_json()
+        assert False
+    except TypeError as e:
+       assert True
 
 def test_embedding_data_json():
     cap = Cap()
@@ -247,18 +227,14 @@ def test_embedding_data_json():
         assert result == '{"data": { "dataset": { "id": "123", "embeddingData": {} } } } }'
         embedding_data_request_mock.assert_called_once()
 
-def test_embedding_data_no_params():
+def test_embedding_data_json_no_params():
     cap = Cap()
-    sample_dataset_response = '{"data": { "dataset": { "id": "123", "embeddingData": {} } } } }'
-    with patch.object(Cap, 'embedding_data_json') as embedding_data_request_mock:
-        embedding_data_request_mock.return_value = sample_dataset_response
-
-        # Act
-        result = cap.embedding_data_json()
-
-        # Assert
-        assert result == '{"data": { "dataset": { "id": "123", "embeddingData": {} } } } }'
-        embedding_data_request_mock.assert_called_once()
+    try:
+        # Act and Assert
+        cap.embedding_data_json()
+        assert False
+    except TypeError as e:
+       assert True
 
 def test_general_de_json():
     cap = Cap()
@@ -275,16 +251,12 @@ def test_general_de_json():
 
 def test_general_de_json_no_params():
     cap = Cap()
-    sample_dataset_response = '{"data": { "dataset": { "id": "123", "generalDiff": "" } } } }'
-    with patch.object(Cap, 'general_de_json') as general_de_request_mock:
-        general_de_request_mock.return_value = sample_dataset_response
-
-        # Act
-        result = cap.general_de_json()
-
-        # Assert
-        assert result == '{"data": { "dataset": { "id": "123", "generalDiff": "" } } } }'
-        general_de_request_mock.assert_called_once()
+    try:
+        # Act and Assert
+        cap.general_de_json()
+        assert False
+    except TypeError as e:
+       assert True
 
 def test_heatmap_json():
     cap = Cap()
@@ -301,16 +273,12 @@ def test_heatmap_json():
 
 def test_heatmap_json_no_params():
     cap = Cap()
-    sample_dataset_response = '{"data": { "dataset": { "id": "123", "embeddingDiffHeatMap": {} } } } }'
-    with patch.object(Cap, 'heatmap_json') as heatmap_request_mock:
-        heatmap_request_mock.return_value = sample_dataset_response
-
-        # Act
-        result = cap.heatmap_json()
-
-        # Assert
-        assert result == '{"data": { "dataset": { "id": "123", "embeddingDiffHeatMap": {} } } } }'
-        heatmap_request_mock.assert_called_once()
+    try:
+        # Act and Assert
+        cap.heatmap_json()
+        assert False
+    except TypeError as e:
+       assert True
 
 def test_highly_variable_genes_json():
     cap = Cap()
@@ -327,16 +295,12 @@ def test_highly_variable_genes_json():
 
 def test_highly_variable_genes_json_no_params():
     cap = Cap()
-    sample_dataset_response = '{"data": { "dataset": { "id": "123", "embeddingHighlyVariableGenes": [] } } } }'
-    with patch.object(Cap, 'highly_variable_genes_json') as highly_variable_genes_request_mock:
-        highly_variable_genes_request_mock.return_value = sample_dataset_response
-
-        # Act
-        result = cap.highly_variable_genes_json()
-
-        # Assert
-        assert result == '{"data": { "dataset": { "id": "123", "embeddingHighlyVariableGenes": [] } } } }'
-        highly_variable_genes_request_mock.assert_called_once()
+    try:
+        # Act and Assert
+        cap.highly_variable_genes_json()
+        assert False
+    except TypeError as e:
+       assert True
 
 def test_dataset_ready_json():
     cap = Cap()
@@ -353,16 +317,12 @@ def test_dataset_ready_json():
 
 def test_dataset_ready_json_no_params():
     cap = Cap()
-    sample_dataset_response = '{"data": { "dataset": { "id": "123" } } }'
-    with patch.object(Cap, 'dataset_ready_json') as dataset_ready_request_mock:
-        dataset_ready_request_mock.return_value = sample_dataset_response
-
-        # Act
-        result = cap.dataset_ready_json()
-
-        # Assert
-        assert result == '{"data": { "dataset": { "id": "123" } } }'
-        dataset_ready_request_mock.assert_called_once()
+    try:
+        # Act and Assert
+        cap.dataset_ready_json()
+        assert False
+    except TypeError as e:
+       assert True
 
 def test_md_ready_json():
     cap = Cap()
@@ -379,16 +339,12 @@ def test_md_ready_json():
 
 def test_md_ready_json_no_params():
     cap = Cap()
-    sample_dataset_response = '{"data": { "dataset": { "id": "123" } } }'
-    with patch.object(Cap, 'md_ready_json') as md_ready_request_mock:
-        md_ready_request_mock.return_value = sample_dataset_response
-
-        # Act
-        result = cap.md_ready_json()
-
-        # Assert
-        assert result == '{"data": { "dataset": { "id": "123" } } }'
-        md_ready_request_mock.assert_called_once()
+    try:
+        # Act and Assert
+        cap.md_ready_json()
+        assert False
+    except TypeError as e:
+       assert True
 
 def test_create_session_json():
     cap = Cap()
@@ -405,13 +361,9 @@ def test_create_session_json():
 
 def test_create_session_json_no_params():
     cap = Cap()
-    sample_dataset_response = '{"data": { "saveEmbeddingSession": { "id": "123", "name": "test" } } }'
-    with patch.object(Cap, 'create_session_json') as create_session_request_mock:
-        create_session_request_mock.return_value = sample_dataset_response
-
-        # Act
-        result = cap.create_session_json()
-
-        # Assert
-        assert result == '{"data": { "saveEmbeddingSession": { "id": "123", "name": "test" } } }'
-        create_session_request_mock.assert_called_once()
+    try:
+        # Act and Assert
+        cap.create_session_json()
+        assert False
+    except TypeError as e:
+       assert True
