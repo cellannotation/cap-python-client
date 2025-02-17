@@ -353,7 +353,7 @@ def test_create_session_json():
         create_session_request_mock.return_value = sample_dataset_response
 
         # Act
-        result = cap.create_session_json(session_id = "1", data = {})
+        result = cap.create_session_json(session_id = "1")
 
         # Assert
         assert result == '{"data": { "saveEmbeddingSession": { "id": "123", "name": "test" } } }'

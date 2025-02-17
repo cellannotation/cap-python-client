@@ -1,9 +1,10 @@
 import json
 from cap_client import Cap
+from cap_client.client.input_types import DatasetObjectInput
 
 cap = Cap(
-    url = "https://celltype.info/graphql", 
-    auth_url = "us-central1-capv2-gke-prod.cloudfunctions.net",
+    url = "https://rc1.celltype.info/graphql", 
+    auth_url = "us-central1-capv2-gke-rc1.cloudfunctions.net",
     login = "<login>",
     pwd = "<password>" 
 )
@@ -24,9 +25,10 @@ snapshot = cap.dataset_initial_state_query(dataset.id)
 
 print("Create session")
 session_id = "123qwerty"
-# TODO snapshot should be compatible for session creation 
+# TODO DatasetIntialStateQuery should be compatible with DatasetObjectInput 
 # OR should be the endpoint to get a snapshot for session creation
-embeddings = cap.create_session(session_id, snapshot.model_dump())
+snapshot = snapshot.model_dump()
+embeddings = cap.create_session(session_id = session_id, dataset = DatasetObjectInput(**snapshot))
 
 print("General DE")
 labelset = dataset.labelsets[1]    

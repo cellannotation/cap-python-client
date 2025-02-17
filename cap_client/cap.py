@@ -469,12 +469,12 @@ class Cap(Client):
     def create_session(
             self, 
             session_id: str,
-            dataset: dict = None
+            dataset: DatasetObjectInput
         ) -> CreateSession:
  
         data = PostSaveEmbeddingSessionInput(
             session_id = session_id,
-            dataset = DatasetObjectInput(**dataset)
+            dataset = dataset
         )
         response = super().create_session(
             data = data
