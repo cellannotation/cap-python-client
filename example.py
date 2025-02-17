@@ -10,11 +10,10 @@ cap = Cap(
 
 # public API 
 
-'''
-datasets = json.loads(cap.search_datasets_json())
-for dataset in datasets["results"]:
-    dataset_id = dataset["id"]
-    print("Processing dataset id: ", dataset_id) 
+datasets = cap.search_datasets()
+
+for dataset in datasets.results:
+    print("Processing dataset id: ", dataset.id) 
 
     print("Files status")
     cap.files_status_json(dataset_id)
