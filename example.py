@@ -2,8 +2,8 @@ import json
 from cap_client import Cap
 
 cap = Cap(
-    url = "https://rc1.celltype.info/graphql", 
-    auth_url = "us-central1-capv2-gke-rc1.cloudfunctions.net",
+    url = "https://celltype.info/graphql", 
+    auth_url = "us-central1-capv2-gke-prod.cloudfunctions.net",
     login = "<login>",
     pwd = "<password>" 
 )
@@ -12,16 +12,27 @@ cap = Cap(
 
 datasets = cap.search_datasets()
 
-for dataset in datasets.results:
-    print("Processing dataset id: ", dataset.id) 
+# for dataset in datasets.results:
+dataset  = datasets.results[1]
+print("Processing dataset id: ", dataset.id) 
 
-    print("Files status")
-    cap.files_status_json(dataset_id)
+print("Files status")
+cap.files_status(dataset.id)
 
-    print("Dataset initial query")
-    cap.dataset_initial_state_query_json(dataset_id)
+print("Dataset initial query")
+snapshot = cap.dataset_initial_state_query(dataset.id)
 
-    # TODO: Cover full MD page cycle '''
+print("Create session")
+session_id = "123qwerty"
+# TODO snapshot should be compatible for session creation 
+# OR should be the endpoint to get a snapshot for session creation
+embeddings = cap.create_session(session_id, snapshot.model_dump())
+
+print("General DE")
+labelset = dataset.labelsets[1]    
+cap.general_de(dataset_id = dataset.id, labelset_id = labelset.id, session_id = session_id)
+
+# TODO: Cover full MD page cycle '''
 
 # authorized API 
 
