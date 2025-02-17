@@ -37,32 +37,34 @@ from .client.create_session import CreateSession
 
 
 CAP_API_URL = "https://celltype.info/graphql"
-CAP_AUTHENTICATE_USER_URL  = "authenticate-user-wg6qkl5yea-uc.a.run.app"
-CAP_AUTHENTICATE_TOKEN_URL = "authenticate-token-wg6qkl5yea-uc.a.run.app"
-
+CAP_AUTHENTICATE_URL = "us-central1-capv2-gke-prod.cloudfunctions.net" # https://${var.gcp_region}-${var.gcp_project_id}.cloudfunctions.net/authenticate-token
 class Cap(Client):
     def __init__(
-            self,  
+            self, 
+            url: str = CAP_API_URL, 
+            auth_url: str = CAP_AUTHENTICATE_URL,
             login: str = None,
             pwd: str = None,
             custom_token: str = None  
         ) -> None:
-        super().__init__(url = CAP_API_URL)
+        super().__init__(url)
         self._login = login if login is not None else os.environ.get('CAP_LOGIN')
         self._pwd = pwd if pwd is not None else os.environ.get('CAP_PWD')
         self._custom_token = custom_token if custom_token is not None else os.environ.get('CAP_TOKEN')
         self._token: str = None
         self._token_expiry_time: time = None
         self._error_status: str = None
+        self.auth_url = auth_url
 
     def _request (
             self,
-            url: str, 
+            base_url: str, 
+            url: str,
             body: dict
         ) -> bool: 
-        connection = http.client.HTTPSConnection(url)
+        connection = http.client.HTTPSConnection(base_url)
         headers = {'Content-type': 'application/json'}
-        connection.request("POST", url="",  body=json.dumps(body), headers=headers)
+        connection.request("POST", url = url,  body=json.dumps(body), headers=headers)
         response = connection.getresponse()
         if (response.status == 200):
             try:
@@ -84,11 +86,11 @@ class Cap(Client):
         # try authenticate by custom token first
         if self._custom_token is not None:
             body = {'token':self._custom_token}
-            if (self._request(CAP_AUTHENTICATE_TOKEN_URL, body)):
+            if (self._request(base_url= self.auth_url, url = "/authenticate-token", body = body)):
                 return True
         if self._login is not None and self._pwd is not None:    
             body = {'email':self._login, 'password': self._pwd}
-            if (self._request(CAP_AUTHENTICATE_USER_URL, body)):
+            if (self._request(base_url = self.auth_url, url = "/authenticate-user", body = body)):
                 return True
         self._error_status = "Missing CAP client authetication settings. Check CAP_LOGIN, CAP_PWD or CAP_TOKEN enviroment variables."
         return False
