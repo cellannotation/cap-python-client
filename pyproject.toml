@@ -35,4 +35,5 @@ queries_path="queries.graphql"
 async_client=false
 include_all_inputs=false
 include_all_enums=false
-target_package_name="cap_client/client"
+target_package_path="./cap_client/"
+target_package_name="client"

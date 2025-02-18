@@ -132,3 +132,360 @@ query DownloadUrls($datasetId: ID!) {
     __typename
   }
 }
+
+query DatasetInitialStateQuery($datasetId: ID!) {
+  dataset(datasetId: $datasetId) {
+    id
+    name
+    project {
+      version
+      __typename
+    }
+    ...DatasetInitialState
+    __typename
+  }
+}
+
+fragment CommentContent_explanationData on FeedbackExplanationDataComment {
+  comment
+  __typename
+}
+
+fragment MergeContent_explanationData on FeedbackExplanationDataMerge {
+  comment
+  labels {
+    id
+    name
+    __typename
+  }
+  __typename
+}
+
+fragment SplitContent_explanationData on FeedbackExplanationDataSplit {
+  groupsNumber: labelsNumber
+  groups: labels {
+    name
+    markerGenes
+    __typename
+  }
+  comment
+  __typename
+}
+
+fragment RefineContent_explanationData on FeedbackExplanationDataRefine {
+  changes {
+    attribute
+    originalValue
+    newValue
+    __typename
+  }
+  __typename
+}
+
+fragment FeedbackCard_feedback on LabelFeedback {
+  createdAt
+  user {
+    uid
+    tempDisplayName
+    displayName
+    avatarUrl
+    __typename
+  }
+  explanation {
+    type
+    data {
+      ... on FeedbackExplanationDataComment {
+        comment
+        __typename
+      }
+      ...CommentContent_explanationData
+      ...MergeContent_explanationData
+      ...SplitContent_explanationData
+      ...RefineContent_explanationData
+      __typename
+    }
+    __typename
+  }
+  __typename
+}
+
+fragment FeedbackCard_organismLabelset on Labelset {
+  ...GeneLink_labelset
+  __typename
+}
+
+fragment DatasetInitialState on Dataset {
+  id
+  name
+  description
+  datasetType
+  defaultEmbedding
+  cellCount
+  labelsets {
+    id
+    name
+    mode
+    description
+    annotationMethod
+    algorithmName
+    algorithmVersion
+    algorithmRepoUrl
+    referenceDescription
+    referenceLocation
+    labels {
+      id
+      name
+      count
+      color
+      fullName
+      ontologyTermExists
+      ontologyTerm
+      ontologyTermId
+      categoryFullName
+      categoryOntologyTermExists
+      categoryOntologyTerm
+      categoryOntologyTermId
+      markerGenes
+      canonicalMarkerGenes
+      synonyms
+      rationale
+      rationaleDois
+      ontologyAssessment
+      scores {
+        agree
+        disagree
+        idk
+        __typename
+      }
+      feedbacks {
+        isUpdated
+        user {
+          uid
+          __typename
+        }
+        score
+        explanation {
+          data {
+            ... on FeedbackExplanationDataMerge {
+              comment
+              labelIds
+              __typename
+            }
+            ... on FeedbackExplanationDataRefine {
+              changes {
+                attribute
+                newValue
+                originalValue
+                __typename
+              }
+              __typename
+            }
+            ... on FeedbackExplanationDataComment {
+              comment
+              __typename
+            }
+            __typename
+          }
+          type
+          __typename
+        }
+        ...FeedbackCard_feedback
+        __typename
+      }
+      __typename
+    }
+    ...FeedbackCard_organismLabelset
+    __typename
+  }
+  __typename
+}
+
+query ClusterTypes($datasetId: ID!) {
+  dataset(datasetId: $datasetId) {
+    id
+    embeddingClusterTypes {
+      name
+      cellCount
+      __typename
+    }
+    __typename
+  }
+}
+
+mutation CreateSession($data: PostSaveEmbeddingSessionInput!) {
+  saveEmbeddingSession(data: $data) {
+    id
+    name
+    datasetType
+    description
+    cellCount
+    labelsets {
+      id
+      name
+      mode
+      description
+      annotationMethod
+      algorithmName
+      algorithmVersion
+      algorithmRepoUrl
+      referenceLocation
+      referenceDescription
+      labels {
+        id
+        name
+        count
+        color
+        fullName
+        ontologyTermExists
+        ontologyTerm
+        ontologyTermId
+        categoryFullName
+        categoryOntologyTermExists
+        categoryOntologyTerm
+        categoryOntologyTermId
+        markerGenes
+        canonicalMarkerGenes
+        synonyms
+        rationale
+        rationaleDois
+        ontologyAssessment
+        __typename
+      }
+      __typename
+    }
+    __typename
+  }
+}
+
+query MDCommonsQuery($datasetId: ID!) {
+  dataset(datasetId: $datasetId) {
+    id
+    ...CurrentEmbeddingProvider_AvailableEmbeddings
+    __typename
+  }
+}
+
+fragment CurrentEmbeddingProvider_AvailableEmbeddings on Dataset {
+  embeddings {
+    name
+    __typename
+  }
+  __typename
+}
+
+query EmbeddingData($datasetId: ID!, $options: GetDatasetEmbeddingDataInput!) {
+  dataset(datasetId: $datasetId) {
+    id
+    embeddingData(options: $options) {
+      obsIds
+      inSelectionMajor
+      inSelectionMinor
+      embeddings {
+        x
+        y
+        __typename
+      }
+      annotations {
+        name
+        items
+        __typename
+      }
+      geneExpression
+      __typename
+    }
+    __typename
+  }
+}
+
+query HighlyVariableGenes($options: GetHighlyVariableGenesInput!, $datasetId: ID!) {
+  dataset(datasetId: $datasetId) {
+    id
+    embeddingHighlyVariableGenes(options: $options) {
+      name
+      dispersion
+      __typename
+    }
+    __typename
+  }
+}
+
+query FilesStatus($datasetId: ID!) {
+  dataset(datasetId: $datasetId) {
+    id
+    getMdFilesStatus
+    __typename
+  }
+}
+
+query GeneralDE($options: GetGeneralDiffInput!, $datasetId: ID!) {
+  dataset(datasetId: $datasetId) {
+    id
+    generalDiff(options: $options)
+    __typename
+  }
+}
+
+query Heatmap($options: PostHeatmapInput!, $datasetId: ID!) {
+  dataset(datasetId: $datasetId) {
+    id
+    embeddingDiffHeatMap(options: $options) {
+      obsIds {
+        data
+        __typename
+      }
+      annotations {
+        data
+        __typename
+      }
+      isInSelections {
+        data
+        __typename
+      }
+      genes {
+        data
+        __typename
+      }
+      scores {
+        data
+        __typename
+      }
+      topGenesBySelection {
+        genes
+        selectionName
+        __typename
+      }
+      __typename
+    }
+    __typename
+  }
+}
+
+query EmbeddingClusters($cluster: GetDatasetClustersDataInput!, $datasetId: ID!) {
+  dataset(datasetId: $datasetId) {
+    id
+    embeddingClusters(cluster: $cluster) {
+      clusterId
+      cellCount
+      color
+      __typename
+    }
+    __typename
+  }
+}
+
+query DatasetReady($datasetId: ID!) {
+  dataset(datasetId: $datasetId) {
+    id
+    isAnnDataUpToDate
+    isEmbeddingsUpToDate
+    __typename
+  }
+}
+
+query MDReady($datasetId: ID!) {
+  dataset(datasetId: $datasetId) {
+    id
+    isEmbeddingsUpToDate
+    __typename
+  }
+}

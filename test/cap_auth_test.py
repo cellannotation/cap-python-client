@@ -2,8 +2,7 @@ import pytest
 from unittest.mock import patch, Mock
 from cap_client import Cap
 
-CAP_AUTHENTICATE_USER_URL  = "authenticate-user-wg6qkl5yea-uc.a.run.app"
-CAP_AUTHENTICATE_TOKEN_URL = "authenticate-token-wg6qkl5yea-uc.a.run.app"
+CAP_AUTHENTICATE_URL = "us-central1-capv2-gke-prod.cloudfunctions.net" 
 
 def test_authenticate_with_custom_token_success():
     cap = Cap()
@@ -15,8 +14,9 @@ def test_authenticate_with_custom_token_success():
 
         assert result is True
         mock_request.assert_called_once_with(
-            CAP_AUTHENTICATE_TOKEN_URL,
-            {'token': 'dummy_token'}
+            base_url='us-central1-capv2-gke-prod.cloudfunctions.net', 
+            url='/authenticate-token', 
+            body={'token': 'dummy_token'}
         )
 
 def test_authenticate_with_custom_token_failure():
@@ -45,8 +45,9 @@ def test_authenticate_with_credentials_success():
         # Assert
         assert result is True
         mock_request.assert_called_once_with(
-            CAP_AUTHENTICATE_USER_URL,
-            {'email': 'test@example.com', 'password': 'password123'}
+           base_url='us-central1-capv2-gke-prod.cloudfunctions.net', 
+           url='/authenticate-user', 
+           body={'email': 'test@example.com', 'password': 'password123'}
         )
 
 def test_authenticate_with_credentials_failure():
