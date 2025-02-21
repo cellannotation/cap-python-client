@@ -227,31 +227,16 @@ class Cap(Client):
     def download_urls_json(self, dataset_id: str) -> str:
         response = super().download_urls(dataset_id)
         return response.model_dump_json()
-    
-    def files_status_json(self, dataset_id: str) -> str:
-        response = super().files_status(dataset_id)
-        return response.model_dump_json()
-    
+        
     def md_commons_query_json(self, dataset_id: str) -> str:
         response = super().md_commons_query(dataset_id)
         return response.model_dump_json()
     
-    def dataset_initial_state_query_json(self, dataset_id: str) -> str:
-        response = super().dataset_initial_state_query(dataset_id)
-        return response.model_dump_json()
     
     def cluster_types_json(self, dataset_id: str) -> str:
         response = super().cluster_types(dataset_id)
         return response.model_dump_json()
-    
-    def dataset_ready_json(self, dataset_id: str) -> str:
-        response = super().dataset_ready(dataset_id)
-        return response.model_dump_json()
-    
-    def md_ready_json(self, dataset_id: str) -> str:
-        response = super().md_ready(dataset_id)
-        return response.model_dump_json()
-    
+       
     def embeddings_clusters(
             self, 
             dataset_id: str, 
@@ -264,18 +249,6 @@ class Cap(Client):
         )
         return response
     
-    def embeddings_clusters_json(
-            self, 
-            dataset_id: str, 
-            cluster: str
-        ) -> str:
-
-        response = self.embedding_clusters(
-            dataset_id = dataset_id, 
-            cluster = GetDatasetClustersDataInput(cluster) 
-        )
-        return response.model_dump_json()
-
     def embedding_data(
             self, 
             dataset_id: str,
@@ -302,31 +275,7 @@ class Cap(Client):
             options = options
         )
         return response
-    
-    def embedding_data_json(
-            self, 
-            dataset_id: str,
-            embedding: str,
-            scale_max_plan: float,
-            session_id: str = None,
-            labelsets: List[str] = None,
-            selection_gene: str = None,
-            selection_key_major: str = None,
-            selection_key_minor: str = None
-        ) -> str:
- 
-        response = self.embedding_data(
-            dataset_id = dataset_id,
-            embedding = embedding,
-            scale_max_plan = scale_max_plan,
-            session_id = session_id,
-            labelsets = labelsets,
-            selection_gene = selection_gene,
-            selection_key_major = selection_key_major,
-            selection_key_minor = selection_key_minor
-        )
-        return response.model_dump_json()
-    
+        
     def general_de(
             self, 
             dataset_id: str,
@@ -345,78 +294,6 @@ class Cap(Client):
             options = options
         )
         return response
-
-    def general_de_json(
-            self, 
-            dataset_id: str,
-            labelset_id: str,
-            random_seed: float = 123,
-            session_id: str = None
-        ) -> GeneralDE:
- 
-        response = self.general_de(
-            dataset_id = dataset_id,
-            labelset_id = labelset_id,
-            random_seed = random_seed,
-            session_id = session_id
-        )
-        return response.model_dump_json()
-    
-    def heatmap(
-            self, 
-            dataset_id: str,
-            diff_key: str,
-            n_genes: int = None,
-            scale_max_plan: float = None,
-            genes_filter: List[str] = None,
-            use_genes_pattern: bool = None,
-            session_id: str = None,
-            include_reference_selection: bool = None,
-            selection_key: str = None
-        ) -> Heatmap:
- 
-        options = PostHeatmapInput(
-            diff_key = diff_key,
-            n_genes = n_genes,
-            scale_max_plan = scale_max_plan,
-            genes_filter = genes_filter,
-            use_genes_pattern = use_genes_pattern,
-            session_id = session_id,
-            include_reference_selection = include_reference_selection,
-            selection_key = selection_key
-        )
-        response = super().heatmap(
-            dataset_id = dataset_id,
-            options = options
-        )
-        return response
-
-    def heatmap_json(
-            self, 
-            dataset_id: str,
-            diff_key: str,
-            n_genes: int = None,
-            scale_max_plan: float = None,
-            genes_filter: List[str] = None,
-            use_genes_pattern: bool = None,
-            session_id: str = None,
-            include_reference_selection: bool = None,
-            selection_key: str = None
-        ) -> Heatmap:
- 
-        response = self.heatmap(
-            dataset_id = dataset_id,
-            diff_key = diff_key,
-            n_genes = n_genes,
-            scale_max_plan = scale_max_plan,
-            genes_filter = genes_filter,
-            use_genes_pattern = use_genes_pattern,
-            session_id = session_id,
-            include_reference_selection = include_reference_selection,
-            selection_key = selection_key
-        )
-        
-        return response.model_dump_json()
     
     def highly_variable_genes(
             self, 
@@ -442,30 +319,7 @@ class Cap(Client):
             options = options
         )
         return response
-    
-    def highly_variable_genes_json(
-            self, 
-            dataset_id: str,
-            offset: float,
-            limit: float,
-            gene_name_filter: str = None,
-            use_genes_pattern:bool = None,
-            sort_by: str = None,
-            sort_order:str = None
-        ) -> HighlyVariableGenes:
- 
-        response = self.highly_variable_genes(
-            dataset_id = dataset_id,
-            offset = offset,
-            limit = limit,
-            gene_name_filter = gene_name_filter,
-            use_genes_pattern = use_genes_pattern,
-            sort_by = sort_by,
-            sort_order = sort_order
-        )
-    
-        return response.model_dump_json()
-    
+        
     def create_session(
             self, 
             session_id: str,
@@ -480,17 +334,4 @@ class Cap(Client):
             data = data
         )
         return response
-    
-    def create_session_json(
-            self, 
-            session_id: str,
-            dataset: dict = None
-        ) -> CreateSession:
- 
-        response = self.create_session(
-            session_id = session_id,
-            dataset = dataset
-        )
-        
-        return response.model_dump_json()
     
