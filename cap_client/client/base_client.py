@@ -14,10 +14,10 @@ from .exceptions import (
     GraphQLClientInvalidResponseError,
 )
 
-Self = TypeVar("Self", bound="BaseClient")
+Self = TypeVar("Self", bound="_BaseClient")
 
 
-class BaseClient:
+class _BaseClient:
     def __init__(
         self,
         url: str = "",

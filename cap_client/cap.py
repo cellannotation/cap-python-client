@@ -4,9 +4,10 @@ import http.client
 import json
 import jwt
 import os
+from uuid import uuid4
 
-from .client.client import Client
-from .client.input_types import (
+from client.client import _Client
+from client.input_types import (
     DatasetSearchOptions,
     LookupDatasetsFiltersInput,
     LookupDatasetsSearchInput,
@@ -17,37 +18,163 @@ from .client.input_types import (
     LookupCellsSearch,
     SearchLabelByMetadataArgs,
     CellLabelsSearchSort,
-    GetDatasetClustersDataInput,
     GetDatasetEmbeddingDataInput,
     GetGeneralDiffInput,
-    PostHeatmapInput,
     GetHighlyVariableGenesInput,
     PostSaveEmbeddingSessionInput,
     DatasetObjectInput
 )
-from .client.search_datasets import SearchDatasets
-from .client.lookup_cells import LookupCells
-from .client.download_urls import DownloadUrls
-from .client.embedding_clusters import EmbeddingClusters
-from .client.embedding_data import EmbeddingData
-from .client.general_de import GeneralDE
-from .client.heatmap import Heatmap
-from .client.highly_variable_genes import HighlyVariableGenes
-from .client.create_session import CreateSession
+from client.search_datasets import SearchDatasets
+from client.lookup_cells import LookupCells
+from client.embedding_data import EmbeddingData
+from client.general_de import GeneralDE
+from client.highly_variable_genes import HighlyVariableGenes
+from client.create_session import CreateSession
 
 
 CAP_API_URL = "https://celltype.info/graphql"
 CAP_AUTHENTICATE_URL = "us-central1-capv2-gke-prod.cloudfunctions.net" # https://${var.gcp_region}-${var.gcp_project_id}.cloudfunctions.net/authenticate-token
-class Cap(Client):
-    def __init__(
+
+
+class MDSession:
+    def __init__(self, dataset_id: str, _client: _Client):
+        self.__client: _Client = _client
+        self._dataset_id: str = dataset_id
+        self._session_id: str = None
+        self._dataset_shapshot = None
+        self._embeddings: list[str] = None
+        self._labelsets: list[str] = None
+        self._clusterings: list[str] = None
+        self._metadata: list[str] = None
+    
+    def __repr__(self) -> str:
+        return f"Molecular Data page session for dataset id: {self.dataset_id}"
+    
+    def _sanity_check(self):
+        ready = self.__client.dataset_ready(self.dataset_id)
+        if not ready.dataset.is_embeddings_up_to_date:
+            raise RuntimeError(f"The Molecular Data for the dataset {self.dataset_id} is not ready!")
+        ds = self.__client.dataset_initial_state_query(self.dataset_id)
+        self._dataset_shapshot = ds.dataset
+        self._session_id = self.__client.create_session(data=self._dataset_shapshot)
+
+    @property
+    def dataset_id(self):
+        return self._dataset_id
+   
+    def embedding_data(
             self, 
+            embedding: str,
+            scale_max_plan: float,
+            session_id: str = None,
+            labelsets: List[str] = None,
+            selection_gene: str = None,
+            selection_key_major: str = None,
+            selection_key_minor: str = None,
+        ) -> EmbeddingData:
+        """
+        # TODO: fill
+        """
+
+        # TODO: validate embeddings
+        
+        options =  GetDatasetEmbeddingDataInput(
+            embedding = embedding,
+            selection_gene = selection_gene,
+            scale_max_plan = scale_max_plan,
+            selection_key_major = selection_key_major,
+            selection_key_minor = selection_key_minor,
+            session_id = session_id,
+            labelsets = labelsets
+        )
+
+        response = self.__client.embedding_data(
+            dataset_id = self.dataset_id,
+            options = options
+        )
+        return response
+        
+    def general_de(
+            self, 
+            dataset_id: str,
+            labelset_id: str,
+            random_seed: float = 123,
+            session_id: str = None
+        ) -> GeneralDE:
+        """
+        # TODO: fill
+        """
+ 
+        options = GetGeneralDiffInput(
+            random_seed = random_seed,
+            session_id = session_id,
+            labelset_id = labelset_id
+        )
+        response = self.__client.general_de(
+            dataset_id = dataset_id,
+            options = options
+        )
+        return response
+    
+    def highly_variable_genes(
+            self, 
+            dataset_id: str,
+            offset: float,
+            limit: float,
+            gene_name_filter: str = None,
+            use_genes_pattern:bool = None,
+            sort_by: str = None,
+            sort_order:str = None
+        ) -> HighlyVariableGenes:
+        """
+        # TODO: fill
+        """
+ 
+        options = GetHighlyVariableGenesInput(
+            offset = offset,
+            limit = limit,
+            gene_name_filter = gene_name_filter,
+            use_genes_pattern = use_genes_pattern,
+            sort_by = sort_by,
+            sort_order = sort_order
+        )
+        response = self.__client.highly_variable_genes(
+            dataset_id = dataset_id,
+            options = options
+        )
+        return response
+        
+    def create_session(
+            self,
+        ) -> CreateSession:
+        """
+        # TODO: fill
+        """
+
+        self._sanity_check()
+        session_id = uuid4()
+ 
+        data = PostSaveEmbeddingSessionInput(
+            session_id = session_id,
+            dataset = self._dataset_shapshot
+        )
+        response = self.__client.create_session(
+            data = data
+        )
+        self._session_id = session_id
+        return response
+
+
+class CapClient:
+    def __init__(
+            self,
             url: str = CAP_API_URL, 
             auth_url: str = CAP_AUTHENTICATE_URL,
             login: str = None,
             pwd: str = None,
             custom_token: str = None  
         ) -> None:
-        super().__init__(url)
+        self.__client = _Client(url)
         self._login = login if login is not None else os.environ.get('CAP_LOGIN')
         self._pwd = pwd if pwd is not None else os.environ.get('CAP_PWD')
         self._custom_token = custom_token if custom_token is not None else os.environ.get('CAP_TOKEN')
@@ -56,7 +183,7 @@ class Cap(Client):
         self._error_status: str = None
         self.auth_url = auth_url
 
-    def _request (
+    def _auth_request (
             self,
             base_url: str, 
             url: str,
@@ -80,17 +207,17 @@ class Cap(Client):
         self._error_status = "Failed to get ID token " + response.reason 
         return False
     
-    def _authenticate(
+    def authenticate(
         self
      ) -> bool:
         # try authenticate by custom token first
         if self._custom_token is not None:
             body = {'token':self._custom_token}
-            if (self._request(base_url= self.auth_url, url = "/authenticate-token", body = body)):
+            if (self._auth_request(base_url= self.auth_url, url = "/authenticate-token", body = body)):
                 return True
         if self._login is not None and self._pwd is not None:    
             body = {'email':self._login, 'password': self._pwd}
-            if (self._request(base_url = self.auth_url, url = "/authenticate-user", body = body)):
+            if (self._auth_request(base_url = self.auth_url, url = "/authenticate-user", body = body)):
                 return True
         self._error_status = "Missing CAP client authetication settings. Check CAP_LOGIN, CAP_PWD or CAP_TOKEN enviroment variables."
         return False
@@ -106,7 +233,7 @@ class Cap(Client):
     @property
     def token_expiry_time(self) -> time:
         return self._token_expiry_time
-    
+
     def search_datasets(
         self,
         search: List[str] = None,
@@ -137,31 +264,10 @@ class Cap(Client):
         if search:
             search_input = LookupDatasetsSearchInput(name=search)
 
-        response = super().search_datasets(
+        response = self.__client.search_datasets(
             options=search_options, filter=search_filter, search=search_input
         )
         return response
-
-    def search_datasets_json(
-        self,
-        search: List[str] = None,
-        organism: List[str] = None,
-        tissue: List[str] = None,
-        assay: List[str] = None,
-        limit: int = 50,
-        offset: int = 0,
-        sort: List[Dict[str, str]] = []
-    ) -> str:
-        response = self.search_datasets(
-            search,
-            organism,
-            tissue,
-            assay,
-            limit,
-            offset,
-            sort
-        )
-        return response.model_dump_json()
 
     def search_cell_labels(
         self,
@@ -197,141 +303,19 @@ class Cap(Client):
         if search:
             search_input = LookupCellsSearch(name=search)
 
-        response = super().lookup_cells(
+        response = self.__client.lookup_cells(
             options=search_options, filter=search_filter, search=search_input
         )
         return response
     
-    def search_cell_labels_json(
-        self,
-        search: List[str] = None,
-        organism: List[str] = None,
-        tissue: List[str] = None,
-        assay: List[str] = None,
-        limit: int = 50,
-        offset: int = 0,
-        sort: List[Dict[str, str]] = [],
-    ) -> str:
-        response = self.search_cell_labels(
-            self,
-            search,
-            organism,
-            tissue,
-            assay,
-            limit,
-            offset,
-            sort
-        )
-        return response.model_dump_json()
-    
-    def download_urls_json(self, dataset_id: str) -> str:
-        response = super().download_urls(dataset_id)
-        return response.model_dump_json()
-        
-    def md_commons_query_json(self, dataset_id: str) -> str:
-        response = super().md_commons_query(dataset_id)
-        return response.model_dump_json()
-    
-    
-    def cluster_types_json(self, dataset_id: str) -> str:
-        response = super().cluster_types(dataset_id)
-        return response.model_dump_json()
-       
-    def embeddings_clusters(
-            self, 
-            dataset_id: str, 
-            cluster: str
-        ) -> EmbeddingClusters:
+    def open_md_session(self, dataset_id: str) -> MDSession:
+        return MDSession(dataset_id=dataset_id, _client=self.__client)
 
-        response = super().embedding_clusters(
-            dataset_id = dataset_id, 
-            cluster = GetDatasetClustersDataInput(cluster)
-        )
-        return response
-    
-    def embedding_data(
-            self, 
-            dataset_id: str,
-            embedding: str,
-            scale_max_plan: float,
-            session_id: str = None,
-            labelsets: List[str] = None,
-            selection_gene: str = None,
-            selection_key_major: str = None,
-            selection_key_minor: str = None
-        ) -> EmbeddingData:
- 
-        options = GetDatasetEmbeddingDataInput(
-            embedding = embedding,
-            selection_gene = selection_gene,
-            scale_max_plan = scale_max_plan,
-            selection_key_major = selection_key_major,
-            selection_key_minor = selection_key_minor,
-            session_id = session_id,
-            labelsets = labelsets
-        )
-        response = super().embedding_data(
-            dataset_id = dataset_id,
-            options = options
-        )
-        return response
-        
-    def general_de(
-            self, 
-            dataset_id: str,
-            labelset_id: str,
-            random_seed: float = 123,
-            session_id: str = None
-        ) -> GeneralDE:
- 
-        options = GetGeneralDiffInput(
-            random_seed = random_seed,
-            session_id = session_id,
-            labelset_id = labelset_id
-        )
-        response = super().general_de(
-            dataset_id = dataset_id,
-            options = options
-        )
-        return response
-    
-    def highly_variable_genes(
-            self, 
-            dataset_id: str,
-            offset: float,
-            limit: float,
-            gene_name_filter: str = None,
-            use_genes_pattern:bool = None,
-            sort_by: str = None,
-            sort_order:str = None
-        ) -> HighlyVariableGenes:
- 
-        options = GetHighlyVariableGenesInput(
-            offset = offset,
-            limit = limit,
-            gene_name_filter = gene_name_filter,
-            use_genes_pattern = use_genes_pattern,
-            sort_by = sort_by,
-            sort_order = sort_order
-        )
-        response = super().highly_variable_genes(
-            dataset_id = dataset_id,
-            options = options
-        )
-        return response
-        
-    def create_session(
-            self, 
-            session_id: str,
-            dataset: DatasetObjectInput
-        ) -> CreateSession:
- 
-        data = PostSaveEmbeddingSessionInput(
-            session_id = session_id,
-            dataset = dataset
-        )
-        response = super().create_session(
-            data = data
-        )
-        return response
+
+if __name__ ==  "__main__":
+    cap = CapClient()
+    md = cap.open_md_session("825")
+    sid = md.create_session()
+
+    print(sid)
     

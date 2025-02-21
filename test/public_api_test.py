@@ -1,16 +1,16 @@
 import pytest
 import json
 from unittest.mock import patch, Mock
-from cap_client import Cap
+from cap_client import CapClient
 
 CAP_AUTHENTICATE_USER_URL  = "authenticate-user-wg6qkl5yea-uc.a.run.app"
 CAP_AUTHENTICATE_TOKEN_URL = "authenticate-token-wg6qkl5yea-uc.a.run.app"
 
 def test_search_datasets():
     # Arrange
-    cap = Cap()
+    cap = CapClient()
     sample_dataset_response = '{"results": [{"id": "123", "name": "Test Dataset"}]}'
-    with patch.object(Cap, 'search_datasets_json') as search_request_mock:
+    with patch.object(CapClient, 'search_datasets_json') as search_request_mock:
         search_request_mock.return_value = sample_dataset_response
 
         # Act
@@ -30,9 +30,9 @@ def test_search_datasets():
 
 def test_search_datasets_no_params():
     # Arrange
-    cap = Cap()
+    cap = CapClient()
     sample_dataset_response = '{"results": [{"id": "123", "name": "Test Dataset"}]}'
-    with patch.object(Cap, 'search_datasets_json') as search_request_mock:
+    with patch.object(CapClient, 'search_datasets_json') as search_request_mock:
         search_request_mock.return_value = sample_dataset_response
 
         # Act
@@ -44,9 +44,9 @@ def test_search_datasets_no_params():
 
 def test_download_urls():
     # Arrange
-    cap = Cap()
+    cap = CapClient()
     sample_url_response = '{"download_urls": [{"annDataUrl": "gs://test_bucket/dataset.h5ad"}]}'
-    with patch.object(Cap, 'download_urls_json') as download_request_mock:
+    with patch.object(CapClient, 'download_urls_json') as download_request_mock:
         download_request_mock.return_value = sample_url_response
 
         # Act
@@ -58,9 +58,9 @@ def test_download_urls():
 
 def test_download_urls_no_params():
     # Arrange
-    cap = Cap()
+    cap = CapClient()
     sample_url_response = '{"errors": [{"message": "Failed to get download urls"}]}'
-    with patch.object(Cap, 'download_urls_json') as download_request_mock:
+    with patch.object(CapClient, 'download_urls_json') as download_request_mock:
         download_request_mock.return_value = sample_url_response
 
         # Act
@@ -71,9 +71,9 @@ def test_download_urls_no_params():
         download_request_mock.assert_called_once()
 
 def test_search_cells():
-    cap = Cap()
+    cap = CapClient()
     sample_cell_labels_response = '{"lookup_cells": [{"id": "123", "name": "Test Cell Label"}]}'
-    with patch.object(Cap, 'search_cell_labels_json') as search_request_mock:
+    with patch.object(CapClient, 'search_cell_labels_json') as search_request_mock:
         search_request_mock.return_value = sample_cell_labels_response
 
         # Act
@@ -92,9 +92,9 @@ def test_search_cells():
         search_request_mock.assert_called_once()
  
 def test_search_cells_no_params():
-    cap = Cap()
+    cap = CapClient()
     sample_dataset_response = '{"lookup_cells": [{"id": "123", "name": "Test Cell Label"}]}'
-    with patch.object(Cap, 'search_cell_labels_json') as search_request_mock:
+    with patch.object(CapClient, 'search_cell_labels_json') as search_request_mock:
         search_request_mock.return_value = sample_dataset_response
 
         # Act
@@ -105,9 +105,9 @@ def test_search_cells_no_params():
         search_request_mock.assert_called_once()
 
 def test_files_status_json():
-    cap = Cap()
+    cap = CapClient()
     sample_dataset_response = '{"data": { "dataset": { "id": "123", "getMdFilesStatus": "ready" } } }'
-    with patch.object(Cap, 'files_status_json') as files_status_request_mock:
+    with patch.object(CapClient, 'files_status_json') as files_status_request_mock:
         files_status_request_mock.return_value = sample_dataset_response
 
         # Act
@@ -118,7 +118,7 @@ def test_files_status_json():
         files_status_request_mock.assert_called_once()
 
 def test_files_status_json_no_params():
-    cap = Cap()
+    cap = CapClient()
     try:
         # Act and Assert
         cap.files_status_json()
@@ -127,9 +127,9 @@ def test_files_status_json_no_params():
        assert True
 
 def test_md_commons_query_json():
-    cap = Cap()
+    cap = CapClient()
     sample_dataset_response = '{"data": { "dataset": { "id": "123", "embeddings": [] } } }'
-    with patch.object(Cap, 'md_commons_query_json') as md_commons_query_request_mock:
+    with patch.object(CapClient, 'md_commons_query_json') as md_commons_query_request_mock:
         md_commons_query_request_mock.return_value = sample_dataset_response
 
         # Act
@@ -140,7 +140,7 @@ def test_md_commons_query_json():
         md_commons_query_request_mock.assert_called_once()
 
 def test_md_commons_query_json_no_params():
-    cap = Cap()
+    cap = CapClient()
     try:
         # Act and Assert
         cap.md_commons_query_json()
@@ -149,9 +149,9 @@ def test_md_commons_query_json_no_params():
        assert True
     
 def test_dataset_initial_state_query_json():
-    cap = Cap()
+    cap = CapClient()
     sample_dataset_response = '{"data": { "dataset": { "id": "123", "name": "dataset"} } }'
-    with patch.object(Cap, 'dataset_initial_state_query_json') as dataset_initial_state_query_request_mock:
+    with patch.object(CapClient, 'dataset_initial_state_query_json') as dataset_initial_state_query_request_mock:
         dataset_initial_state_query_request_mock.return_value = sample_dataset_response
 
         # Act
@@ -162,7 +162,7 @@ def test_dataset_initial_state_query_json():
         dataset_initial_state_query_request_mock.assert_called_once()
 
 def test_dataset_initial_state_query_json_no_params():
-    cap = Cap()
+    cap = CapClient()
     try:
         # Act and Assert
         cap.dataset_initial_state_query_json()
@@ -171,9 +171,9 @@ def test_dataset_initial_state_query_json_no_params():
        assert True
     
 def test_cluster_types_json():
-    cap = Cap()
+    cap = CapClient()
     sample_dataset_response = '{"data": { "dataset": { "id": "123", "embeddingClusterTypes": [] } } }'
-    with patch.object(Cap, 'cluster_types_json') as cluster_types_request_mock:
+    with patch.object(CapClient, 'cluster_types_json') as cluster_types_request_mock:
         cluster_types_request_mock.return_value = sample_dataset_response
 
         # Act
@@ -184,7 +184,7 @@ def test_cluster_types_json():
         cluster_types_request_mock.assert_called_once()
 
 def test_cluster_types_json_no_params():
-    cap = Cap()
+    cap = CapClient()
     try:
         # Act and Assert
         cap.cluster_types_json()
@@ -193,9 +193,9 @@ def test_cluster_types_json_no_params():
        assert True
 
 def test_embeddings_clusters_json():
-    cap = Cap()
+    cap = CapClient()
     sample_dataset_response = '{"data": { "dataset": { "id": "123", "embeddingCluster": [] } } }'
-    with patch.object(Cap, 'embeddings_clusters_json') as embeddings_clusters_request_mock:
+    with patch.object(CapClient, 'embeddings_clusters_json') as embeddings_clusters_request_mock:
         embeddings_clusters_request_mock.return_value = sample_dataset_response
 
         # Act
@@ -206,7 +206,7 @@ def test_embeddings_clusters_json():
         embeddings_clusters_request_mock.assert_called_once()
 
 def test_embeddings_clusters_json_no_params():
-    cap = Cap()
+    cap = CapClient()
     try:
         # Act and Assert
         cap.embeddings_clusters_json()
@@ -215,9 +215,9 @@ def test_embeddings_clusters_json_no_params():
        assert True
 
 def test_embedding_data_json():
-    cap = Cap()
+    cap = CapClient()
     sample_dataset_response = '{"data": { "dataset": { "id": "123", "embeddingData": {} } } } }'
-    with patch.object(Cap, 'embedding_data_json') as embedding_data_request_mock:
+    with patch.object(CapClient, 'embedding_data_json') as embedding_data_request_mock:
         embedding_data_request_mock.return_value = sample_dataset_response
 
         # Act
@@ -228,7 +228,7 @@ def test_embedding_data_json():
         embedding_data_request_mock.assert_called_once()
 
 def test_embedding_data_json_no_params():
-    cap = Cap()
+    cap = CapClient()
     try:
         # Act and Assert
         cap.embedding_data_json()
@@ -237,9 +237,9 @@ def test_embedding_data_json_no_params():
        assert True
 
 def test_general_de_json():
-    cap = Cap()
+    cap = CapClient()
     sample_dataset_response = '{"data": { "dataset": { "id": "123", "generalDiff": "" } } } }'
-    with patch.object(Cap, 'general_de_json') as general_de_request_mock:
+    with patch.object(CapClient, 'general_de_json') as general_de_request_mock:
         general_de_request_mock.return_value = sample_dataset_response
 
         # Act
@@ -250,7 +250,7 @@ def test_general_de_json():
         general_de_request_mock.assert_called_once()
 
 def test_general_de_json_no_params():
-    cap = Cap()
+    cap = CapClient()
     try:
         # Act and Assert
         cap.general_de_json()
@@ -259,9 +259,9 @@ def test_general_de_json_no_params():
        assert True
 
 def test_heatmap_json():
-    cap = Cap()
+    cap = CapClient()
     sample_dataset_response = '{"data": { "dataset": { "id": "123", "embeddingDiffHeatMap": {} } } } }'
-    with patch.object(Cap, 'heatmap_json') as heatmap_request_mock:
+    with patch.object(CapClient, 'heatmap_json') as heatmap_request_mock:
         heatmap_request_mock.return_value = sample_dataset_response
 
         # Act
@@ -272,7 +272,7 @@ def test_heatmap_json():
         heatmap_request_mock.assert_called_once()
 
 def test_heatmap_json_no_params():
-    cap = Cap()
+    cap = CapClient()
     try:
         # Act and Assert
         cap.heatmap_json()
@@ -281,9 +281,9 @@ def test_heatmap_json_no_params():
        assert True
 
 def test_highly_variable_genes_json():
-    cap = Cap()
+    cap = CapClient()
     sample_dataset_response = '{"data": { "dataset": { "id": "123", "embeddingHighlyVariableGenes": [] } } } }'
-    with patch.object(Cap, 'highly_variable_genes_json') as highly_variable_genes_request_mock:
+    with patch.object(CapClient, 'highly_variable_genes_json') as highly_variable_genes_request_mock:
         highly_variable_genes_request_mock.return_value = sample_dataset_response
 
         # Act
@@ -294,7 +294,7 @@ def test_highly_variable_genes_json():
         highly_variable_genes_request_mock.assert_called_once()
 
 def test_highly_variable_genes_json_no_params():
-    cap = Cap()
+    cap = CapClient()
     try:
         # Act and Assert
         cap.highly_variable_genes_json()
@@ -303,9 +303,9 @@ def test_highly_variable_genes_json_no_params():
        assert True
 
 def test_dataset_ready_json():
-    cap = Cap()
+    cap = CapClient()
     sample_dataset_response = '{"data": { "dataset": { "id": "123" } } }'
-    with patch.object(Cap, 'dataset_ready_json') as dataset_ready_request_mock:
+    with patch.object(CapClient, 'dataset_ready_json') as dataset_ready_request_mock:
         dataset_ready_request_mock.return_value = sample_dataset_response
 
         # Act
@@ -316,7 +316,7 @@ def test_dataset_ready_json():
         dataset_ready_request_mock.assert_called_once()
 
 def test_dataset_ready_json_no_params():
-    cap = Cap()
+    cap = CapClient()
     try:
         # Act and Assert
         cap.dataset_ready_json()
@@ -325,9 +325,9 @@ def test_dataset_ready_json_no_params():
        assert True
 
 def test_md_ready_json():
-    cap = Cap()
+    cap = CapClient()
     sample_dataset_response = '{"data": { "dataset": { "id": "123" } } }'
-    with patch.object(Cap, 'md_ready_json') as md_ready_request_mock:
+    with patch.object(CapClient, 'md_ready_json') as md_ready_request_mock:
         md_ready_request_mock.return_value = sample_dataset_response
 
         # Act
@@ -338,7 +338,7 @@ def test_md_ready_json():
         md_ready_request_mock.assert_called_once()
 
 def test_md_ready_json_no_params():
-    cap = Cap()
+    cap = CapClient()
     try:
         # Act and Assert
         cap.md_ready_json()
@@ -347,9 +347,9 @@ def test_md_ready_json_no_params():
        assert True
 
 def test_create_session_json():
-    cap = Cap()
+    cap = CapClient()
     sample_dataset_response = '{"data": { "saveEmbeddingSession": { "id": "123", "name": "test" } } }'
-    with patch.object(Cap, 'create_session_json') as create_session_request_mock:
+    with patch.object(CapClient, 'create_session_json') as create_session_request_mock:
         create_session_request_mock.return_value = sample_dataset_response
 
         # Act
@@ -360,7 +360,7 @@ def test_create_session_json():
         create_session_request_mock.assert_called_once()
 
 def test_create_session_json_no_params():
-    cap = Cap()
+    cap = CapClient()
     try:
         # Act and Assert
         cap.create_session_json()

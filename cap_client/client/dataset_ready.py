@@ -14,7 +14,7 @@ class DatasetReady(BaseModel):
 
 class DatasetReadyDataset(BaseModel):
     id: str
-    is_ann_data_up_to_date: bool = Field(alias="isAnnDataUpToDate")
+    is_anndata_up_to_date: bool = Field(alias="isAnnDataUpToDate")
     is_embeddings_up_to_date: bool = Field(alias="isEmbeddingsUpToDate")
     typename__: Literal["Dataset"] = Field(alias="__typename")
 
