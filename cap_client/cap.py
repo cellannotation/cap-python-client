@@ -130,13 +130,37 @@ class MDSession:
             self,
             dataset_id: str,
             gene_name_filter: str = None,
-            pseudogenes_filter: bool = None,
+            pseudogenes_filter: bool = True,
             offset: int = 0,
             limit: int = 50,
-            sort_order: Literal["desc", "asc"] = "desk"
+            sort_order: Literal["desc", "asc"] = "desc"
         ) -> pd.DataFrame:
         """
-        # TODO: fill
+        Retrieves a list of highly variable genes from the specified dataset.
+
+        This method queries the dataset for highly variable genes based on dispersion values.
+        It supports filtering by gene name, excluding pseudogenes, and sorting the results.
+        The retrieved genes are returned as a Pandas DataFrame with columns for gene names
+        and their respective dispersion values.
+
+        Args:
+            dataset_id (str): The unique identifier of the dataset.
+            gene_name_filter (str, optional): A filter to include only genes matching a given prefix.
+            pseudogenes_filter (bool, optional): If True, filters out genes which are often
+                over-expressed but biologically non-informative. Defaults to True.
+                See https://github.com/cellannotation/cap-gene-filtering for details.
+            offset (int, optional): The starting index for pagination. Defaults to 0.
+            limit (int, optional): The maximum number of genes to return. Defaults to 50.
+            sort_order (Literal["desc", "asc"], optional): The sorting order for dispersion values.
+                Defaults to "desc" (descending).
+
+        Returns:
+            pd.DataFrame: A DataFrame containing highly variable genes with two columns:
+                - "gene_symbol" (str): The gene symbol.
+                - "dispersion" (float): The dispersion value of the gene. Initially, the gene
+                    dispersion values are calculated over the log-transformed count matrix,
+                    these dispersion values are then log-transformed again before being displayed
+                    in the gene table
         """
  
         options = GetHighlyVariableGenesInput(
@@ -147,11 +171,22 @@ class MDSession:
             sort_by = "dispersion",
             sort_order = sort_order
         )
-        response = self.__client.highly_variable_genes(
+        res = self.__client.highly_variable_genes(
             dataset_id = dataset_id,
             options = options
         )
-        return response
+        hvg_list = res.dataset.embedding_highly_variable_genes
+        names = []
+        dispersions = []
+        for gene in hvg_list:
+            names.append(gene.name)
+            dispersions.append(gene.dispersion)
+        
+        df = pd.DataFrame()
+        df["gene_symbol"] = names
+        df["dispersion"] = dispersions
+
+        return df
         
     def create_session(
             self,
@@ -340,10 +375,12 @@ if __name__ ==  "__main__":
     
     cap = CapClient(url)
     md = cap.open_md_session("3223")
-    sid = md.create_session()
-
-    print(sid)
-    print(md._dataset_shapshot.model_dump_json()[:100])
+    # sid = md.create_session()
+    # print(sid)
+    hvg = md.highly_variable_genes("3223", limit=5)
+    print(hvg)
+    
+    # print(md._dataset_shapshot.model_dump_json()[:100])
     # cl = _Client(url=url)
     # res = cl.md_commons_query("3223")
     # print(res)
