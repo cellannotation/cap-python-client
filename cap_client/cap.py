@@ -157,7 +157,14 @@ class MDSession:
             self,
         ) -> str:
         """
-        # TODO: fill
+        Creates a new session for embedding processing.
+
+        This method performs a sanity check, retrieves the initial state of the dataset, 
+        fetches clusterings and embeddings, and then initializes a new session with a 
+        unique session ID. The session information is saved via the client.
+
+        Returns:
+            str: The unique session ID of the newly created embedding session.
         """
 
         self._sanity_check()
