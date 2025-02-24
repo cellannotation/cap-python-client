@@ -7,7 +7,6 @@ import os
 from uuid import uuid4
 import pandas as pd
 
-from client import Dataset
 from client.client import _Client
 from client.input_types import (
     DatasetSearchOptions,
@@ -41,7 +40,7 @@ class MDSession:
         self.__client: _Client = _client
         self._dataset_id: str = dataset_id
         self._session_id: str = None
-        self._dataset_shapshot: Dataset = None
+        self._dataset_shapshot = None
         self._embeddings: list[str] = None
         self._labelsets: list[str] = None
         self._clusterings: list[str] = None
