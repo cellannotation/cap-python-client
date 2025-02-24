@@ -1,10 +1,11 @@
-from typing import List, Dict
+from typing import List, Dict, Literal
 import time
 import http.client
 import json
 import jwt
 import os
 from uuid import uuid4
+import pandas as pd
 
 from client.client import _Client
 from client.input_types import (
@@ -29,8 +30,6 @@ from client.lookup_cells import LookupCells
 from client.embedding_data import EmbeddingData
 from client.general_de import GeneralDE
 from client.highly_variable_genes import HighlyVariableGenes
-from client.create_session import CreateSession
-
 
 CAP_API_URL = "https://celltype.info/graphql"
 CAP_AUTHENTICATE_URL = "us-central1-capv2-gke-prod.cloudfunctions.net" # https://${var.gcp_region}-${var.gcp_project_id}.cloudfunctions.net/authenticate-token
@@ -54,9 +53,20 @@ class MDSession:
         ready = self.__client.dataset_ready(self.dataset_id)
         if not ready.dataset.is_embeddings_up_to_date:
             raise RuntimeError(f"The Molecular Data for the dataset {self.dataset_id} is not ready!")
-        ds = self.__client.dataset_initial_state_query(self.dataset_id)
-        self._dataset_shapshot = ds.dataset
-        self._session_id = self.__client.create_session(data=self._dataset_shapshot)
+        
+    def _get_clusterings(self) -> list[str]:
+        res = self.__client.cluster_types(self.dataset_id)
+        res = res.dataset
+        clusters = res.embedding_cluster_types
+        cluster_names = [cl.name for cl in clusters]
+        return cluster_names
+    
+    def _get_embeddings(self) -> list[str]:
+        res = self.__client.md_commons_query(self.dataset_id)
+        res = res.dataset
+        embeddings = res.embeddings
+        emb_names = [e.name for e in embeddings]
+        return emb_names
 
     @property
     def dataset_id(self):
@@ -117,15 +127,14 @@ class MDSession:
         return response
     
     def highly_variable_genes(
-            self, 
+            self,
             dataset_id: str,
-            offset: float,
-            limit: float,
             gene_name_filter: str = None,
-            use_genes_pattern:bool = None,
-            sort_by: str = None,
-            sort_order:str = None
-        ) -> HighlyVariableGenes:
+            pseudogenes_filter: bool = None,
+            offset: int = 0,
+            limit: int = 50,
+            sort_order: Literal["desc", "asc"] = "desk"
+        ) -> pd.DataFrame:
         """
         # TODO: fill
         """
@@ -134,8 +143,8 @@ class MDSession:
             offset = offset,
             limit = limit,
             gene_name_filter = gene_name_filter,
-            use_genes_pattern = use_genes_pattern,
-            sort_by = sort_by,
+            use_genes_pattern = pseudogenes_filter,
+            sort_by = "dispersion",
             sort_order = sort_order
         )
         response = self.__client.highly_variable_genes(
@@ -146,23 +155,30 @@ class MDSession:
         
     def create_session(
             self,
-        ) -> CreateSession:
+        ) -> str:
         """
         # TODO: fill
         """
 
         self._sanity_check()
-        session_id = uuid4()
+
+        ds = self.__client.dataset_initial_state_query(self.dataset_id)
+        self._dataset_shapshot = ds.dataset
+        self._clusterings = self._get_clusterings()
+        self._embeddings = self._get_embeddings()
+
+        session_id = str(uuid4())
  
         data = PostSaveEmbeddingSessionInput(
             session_id = session_id,
-            dataset = self._dataset_shapshot
+            dataset = self._dataset_shapshot.model_dump()
         )
         response = self.__client.create_session(
             data = data
         )
+        self._dataset_shapshot = response.save_embedding_session
         self._session_id = session_id
-        return response
+        return self._session_id
 
 
 class CapClient:
@@ -313,9 +329,14 @@ class CapClient:
 
 
 if __name__ ==  "__main__":
-    cap = CapClient()
-    md = cap.open_md_session("825")
+    url = "https://rc1.celltype.info/graphql"
+    
+    cap = CapClient(url)
+    md = cap.open_md_session("3223")
     sid = md.create_session()
 
     print(sid)
-    
+    print(md._dataset_shapshot.model_dump_json()[:100])
+    # cl = _Client(url=url)
+    # res = cl.md_commons_query("3223")
+    # print(res)
