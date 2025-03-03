@@ -27,7 +27,7 @@ from client.input_types import (
 )
 from client.search_datasets import SearchDatasets
 from client.lookup_cells import LookupCells
-from client.embedding_data import EmbeddingData
+from client.embedding_data import EmbeddingDataDatasetEmbeddingData
 from client.general_de import GeneralDE
 from client.highly_variable_genes import HighlyVariableGenes
 
@@ -71,6 +71,10 @@ class MDSession:
     @property
     def labelsets(self) -> list[str]:
         return self._labelsets
+    
+    @property
+    def session_id(self) -> str:
+        return self._session_id
 
     def _check_md_ready(self):
         ready = self.__client.dataset_ready(self.dataset_id)
@@ -140,35 +144,64 @@ class MDSession:
     def embedding_data(
             self, 
             embedding: str,
-            scale_max_plan: float,
-            session_id: str = None,
+            max_points: int,
             labelsets: List[str] = None,
             selection_gene: str = None,
             selection_key_major: str = None,
             selection_key_minor: str = None,
-        ) -> EmbeddingData:
+        ) -> EmbeddingDataDatasetEmbeddingData:
         """
-        # TODO: fill
+        Retrieves embedding data for the specified embedding type, with optional filtering and downsampling.
+
+        Parameters:
+        -----------
+        embedding : str
+            The name of the embedding to retrieve. Must be present in `self.embeddings`.
+        max_points : int
+            The maximum number of points to include in the response. Data may be downsampled to meet this limit.
+        labelsets : List[str], optional
+            A list of label sets to include in the embedding data. Defaults to None.
+        selection_gene : str, optional
+            If provided, returns a list of expression values for the specified gene. Defaults to None.
+        selection_key_major : str, optional
+            If provided, returns a list of boolean markers indicating whether each point is within the major selection. Defaults to None.
+        selection_key_minor : str, optional
+            If provided, returns a list of boolean markers indicating whether each point is within the minor selection. Defaults to None.
+
+        Returns:
+        --------
+        EmbeddingDataDatasetEmbeddingData
+            An object containing the embedding data, including observation IDs, selections, embeddings, annotations, 
+            and gene expression values.
+
+        Raises:
+        -------
+        ValueError
+            If the specified embedding is not found in `self.embeddings`.
         """
 
-        # TODO: validate embeddings
+        if embedding not in self.embeddings:
+            raise ValueError(f"Embedding '{embedding}' is not found in the list of '{self.embeddings}'")
         
         options =  GetDatasetEmbeddingDataInput(
             embedding = embedding,
+            scale_max_plan = max_points,
+            session_id = self.session_id,
+            labelsets = labelsets,
             selection_gene = selection_gene,
-            scale_max_plan = scale_max_plan,
             selection_key_major = selection_key_major,
             selection_key_minor = selection_key_minor,
-            session_id = session_id,
-            labelsets = labelsets
         )
-
+        
+        # TODO: is not workgin with new rc1
+        # update request later
         response = self.__client.embedding_data(
             dataset_id = self.dataset_id,
             options = options
         )
-        return response
-        
+        data = response.dataset.embedding_data
+        return data
+
     def general_de(
             self, 
             dataset_id: str,
@@ -412,6 +445,10 @@ if __name__ ==  "__main__":
     print(md.labelsets)
     print(md.clusterings)
     print(md.embeddings)
+
+
+    res = md.embedding_data("umap", max_points=10, labelsets=["cluster2"])
+    print(res)
 
     # hvg = md.highly_variable_genes("3223", limit=5)
     # print(hvg)
