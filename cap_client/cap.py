@@ -34,6 +34,8 @@ from client.highly_variable_genes import HighlyVariableGenes
 CAP_API_URL = "https://celltype.info/graphql"
 CAP_AUTHENTICATE_URL = "us-central1-capv2-gke-prod.cloudfunctions.net" # https://${var.gcp_region}-${var.gcp_project_id}.cloudfunctions.net/authenticate-token
 
+SESSION_ID = str
+DIFF_KEY = str
 
 class MDSession:
     def __init__(self, dataset_id: str, _client: _Client):
@@ -108,7 +110,7 @@ class MDSession:
 
     def create_session(
             self,
-        ) -> str:
+        ) -> SESSION_ID:
         """
         Creates a new session for embedding processing.
 
@@ -139,7 +141,7 @@ class MDSession:
         )
         self._dataset_shapshot = response.save_embedding_session
         self._session_id = session_id
-        return self._session_id
+        return self.session_id
     
     def embedding_data(
             self, 
@@ -202,27 +204,61 @@ class MDSession:
         data = response.dataset.embedding_data
         return data
 
+    def _labelset_id_from_name(self, labelset_name) -> str:
+        if self.dataset_snapshot is None:
+            raise RuntimeError("Dataset snapshot is not ready, create session first!")
+        
+        for lbst in self.dataset_snapshot.labelsets:
+            if lbst.name == labelset_name:
+                return lbst.id
+        
+        raise ValueError(f"Can't find labelset '{labelset_name}' in dataset snapshot!")
+
     def general_de(
             self, 
-            dataset_id: str,
-            labelset_id: str,
-            random_seed: float = 123,
-            session_id: str = None
-        ) -> GeneralDE:
+            labelset: str,
+            random_seed: int = 42,
+        ) -> DIFF_KEY:
         """
-        # TODO: fill
+        Performs a general differential expression (DE) analysis.
+
+        This method conducts a differential expression analysis, comparing each of the 
+        top 10 largest labels within the specified label set against all other data points.
+
+        Parameters:
+        -----------
+        labelset : str
+            The name of the label set to use for differential expression analysis. 
+            Must be present in `self.labelsets`.
+        random_seed : int, optional
+            The random seed for reproducibility. Defaults to 42.
+
+        Returns:
+        --------
+        DIFF_KEY
+            A srting key associated with the results of the differential expression analysis.
+
+        Raises:
+        -------
+        ValueError
+            If the specified label set is not found in `self.labelsets`.
         """
- 
+        if labelset not in self.labelsets:
+            raise ValueError(f"Labelset '{labelset}' is not found in the list of '{self.labelsets}'")
+        
+        labelset_id = self._labelset_id_from_name(labelset)
+
         options = GetGeneralDiffInput(
             random_seed = random_seed,
-            session_id = session_id,
+            session_id = self.session_id,
             labelset_id = labelset_id
         )
         response = self.__client.general_de(
-            dataset_id = dataset_id,
-            options = options
+            dataset_id = self.dataset_id,
+            options = options,
         )
-        return response
+        diff_key = response.dataset.general_diff
+        return diff_key
     
     def highly_variable_genes(
             self,
@@ -447,7 +483,7 @@ if __name__ ==  "__main__":
     print(md.embeddings)
 
 
-    res = md.embedding_data("umap", max_points=10, labelsets=["cluster2"])
+    res = md.general_de(labelset="cluster2")
     print(res)
 
     # hvg = md.highly_variable_genes("3223", limit=5)
