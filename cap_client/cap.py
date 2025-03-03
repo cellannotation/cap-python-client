@@ -23,19 +23,19 @@ from client.input_types import (
     GetGeneralDiffInput,
     GetHighlyVariableGenesInput,
     PostSaveEmbeddingSessionInput,
-    DatasetObjectInput
+    PostHeatmapInput
 )
 from client.search_datasets import SearchDatasets
 from client.lookup_cells import LookupCells
 from client.embedding_data import EmbeddingDataDatasetEmbeddingData
-from client.general_de import GeneralDE
-from client.highly_variable_genes import HighlyVariableGenes
+from client.heatmap import HeatmapDatasetEmbeddingDiffHeatMap
 
 CAP_API_URL = "https://celltype.info/graphql"
 CAP_AUTHENTICATE_URL = "us-central1-capv2-gke-prod.cloudfunctions.net" # https://${var.gcp_region}-${var.gcp_project_id}.cloudfunctions.net/authenticate-token
 
 SESSION_ID = str
 DIFF_KEY = str
+SELECTION_KEY = str
 
 class MDSession:
     def __init__(self, dataset_id: str, _client: _Client):
@@ -338,6 +338,37 @@ class MDSession:
         status = res.dataset.get_md_files_status
         return status == "ready"
 
+    def heatmap(
+            self,
+            diff_key: DIFF_KEY,
+            n_top_genes: int = 3,
+            max_cells_displayed: int = 1000,
+            gene_name_filter: str = None,
+            pseudogenes_filter: bool = True,
+            selection_key: SELECTION_KEY = None,
+            include_reference: bool = True
+        ) -> HeatmapDatasetEmbeddingDiffHeatMap:
+        
+        options=PostHeatmapInput(
+            diff_key = diff_key,
+            n_genes = n_top_genes,
+            scale_max_plan = max_cells_displayed,
+            genes_filter = gene_name_filter,
+            use_genes_pattern = pseudogenes_filter,
+            session_id = self.session_id,
+            include_reference_selection = include_reference,
+            selection_key = selection_key,
+        )
+
+        # TODO: update api, it was changed on rc1
+        res = self.__client.heatmap(
+            dataset_id=self.dataset_id,
+            options=options,
+        )
+        heatmap = res.dataset.embedding_diff_heat_map
+        return heatmap
+
+
 class CapClient:
     def __init__(
             self,
@@ -496,8 +527,9 @@ if __name__ ==  "__main__":
     print(md.clusterings)
     print(md.embeddings)
 
-
-    res = md.is_md_cache_ready()
+    diff_key = md.general_de("cluster2")
+    print(diff_key)
+    res = md.heatmap(diff_key=diff_key, max_cells_displayed=10)
     print(res)
 
     # hvg = md.highly_variable_genes("3223", limit=5)
