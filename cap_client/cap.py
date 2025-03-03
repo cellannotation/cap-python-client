@@ -36,13 +36,15 @@ CAP_AUTHENTICATE_URL = "us-central1-capv2-gke-prod.cloudfunctions.net" # https:/
 SESSION_ID = str
 DIFF_KEY = str
 SELECTION_KEY = str
+CELL_LABELS_MODE = "cell-labels"
+
 
 class MDSession:
     def __init__(self, dataset_id: str, _client: _Client):
         self.__client: _Client = _client
         self._dataset_id: str = dataset_id
         self._session_id: str = None
-        self._dataset_shapshot = None
+        self._dataset_snapshot = None
         self._embeddings: list[str] = None
         self._labelsets: list[str] = None
         self._clusterings: list[str] = None
@@ -60,7 +62,7 @@ class MDSession:
     
     @property
     def dataset_snapshot(self):
-        return self._dataset_shapshot
+        return self._dataset_snapshot
     
     @property
     def embeddings(self) -> list[str]:
@@ -99,12 +101,11 @@ class MDSession:
 
     def _get_cell_type_labelsets(self) -> list[str]:
         if self.dataset_snapshot is None:
-            raise RuntimeError("The dataset snapshor is not ready, call MDSession.create_session first!")
+            raise RuntimeError("The dataset snapshot is not ready, call MDSession.create_session first!")
         
-        cell_labels = "cell-labels"
         labelsets = []
         for lbst in self.dataset_snapshot.labelsets:
-            if lbst.mode == cell_labels:
+            if lbst.mode == CELL_LABELS_MODE:
                 labelsets.append(lbst.name)
         return labelsets
 
@@ -125,7 +126,7 @@ class MDSession:
         self._check_md_ready()
 
         ds = self.__client.dataset_initial_state_query(self.dataset_id)
-        self._dataset_shapshot = ds.dataset
+        self._dataset_snapshot = ds.dataset
         self._clusterings = self._get_clusterings()
         self._embeddings = self._get_embeddings()
         self._labelsets = self._get_cell_type_labelsets()
@@ -134,12 +135,12 @@ class MDSession:
  
         data = PostSaveEmbeddingSessionInput(
             session_id = session_id,
-            dataset = self._dataset_shapshot.model_dump()
+            dataset = self._dataset_snapshot.model_dump()
         )
         response = self.__client.create_session(
             data = data
         )
-        self._dataset_shapshot = response.save_embedding_session
+        self._dataset_snapshot = response.save_embedding_session
         self._session_id = session_id
         return self.session_id
     
@@ -236,7 +237,7 @@ class MDSession:
         Returns:
         --------
         DIFF_KEY
-            A srting key associated with the results of the differential expression analysis.
+            A string key associated with the results of the differential expression analysis.
 
         Raises:
         -------
@@ -262,7 +263,6 @@ class MDSession:
     
     def highly_variable_genes(
             self,
-            dataset_id: str,
             gene_name_filter: str = None,
             pseudogenes_filter: bool = True,
             offset: int = 0,
@@ -306,20 +306,15 @@ class MDSession:
             sort_order = sort_order
         )
         res = self.__client.highly_variable_genes(
-            dataset_id = dataset_id,
+            dataset_id = self.dataset_id,
             options = options
         )
         hvg_list = res.dataset.embedding_highly_variable_genes
-        names = []
-        dispersions = []
-        for gene in hvg_list:
-            names.append(gene.name)
-            dispersions.append(gene.dispersion)
         
-        df = pd.DataFrame()
-        df["gene_symbol"] = names
-        df["dispersion"] = dispersions
-
+        df = pd.DataFrame({
+            "gene_symbol": [g.name for g in hvg_list],
+            "dispersion": [g.dispersion for g in hvg_list],
+        })
         return df
 
     def is_md_cache_ready(self) -> bool:
@@ -405,9 +400,9 @@ class CapClient:
                 self._token_expiry_time = jwt.decode(self._token, options={"verify_signature": False})['exp']
                 self._error_status = None
                 return True
-            except: 
+            except: # TODO: implement appropriate error handling
                 self._error_status = "Failed to parse 200 OK response to get ID token"
-                return False  
+                return False
         self._error_status = "Failed to get ID token " + response.reason 
         return False
     
