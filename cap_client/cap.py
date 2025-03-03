@@ -322,7 +322,21 @@ class MDSession:
 
         return df
 
+    def is_md_cache_ready(self) -> bool:
+        """
+        Checks whether the molecular data cache is ready.
 
+        This method queries the dataset's file status and determines if the 
+        molecular data page files are fully prepared and available.
+
+        Returns:
+        --------
+        bool
+            True if the metadata cache is ready, otherwise False.
+        """
+        res = self.__client.files_status(self.dataset_id)
+        status = res.dataset.get_md_files_status
+        return status == "ready"
 
 class CapClient:
     def __init__(
@@ -483,7 +497,7 @@ if __name__ ==  "__main__":
     print(md.embeddings)
 
 
-    res = md.general_de(labelset="cluster2")
+    res = md.is_md_cache_ready()
     print(res)
 
     # hvg = md.highly_variable_genes("3223", limit=5)
