@@ -49,7 +49,30 @@ class MDSession:
     def __repr__(self) -> str:
         return f"Molecular Data page session for dataset id: {self.dataset_id}"
     
-    def _sanity_check(self):
+    def __str__(self) -> str:
+        return self.__repr__()
+    
+    @property
+    def dataset_id(self) -> str:
+        return self._dataset_id
+    
+    @property
+    def dataset_snapshot(self):
+        return self._dataset_shapshot
+    
+    @property
+    def embeddings(self) -> list[str]:
+        return self._embeddings
+    
+    @property
+    def clusterings(self) -> list[str]:
+        return self._clusterings
+    
+    @property
+    def labelsets(self) -> list[str]:
+        return self._labelsets
+
+    def _check_md_ready(self):
         ready = self.__client.dataset_ready(self.dataset_id)
         if not ready.dataset.is_embeddings_up_to_date:
             raise RuntimeError(f"The Molecular Data for the dataset {self.dataset_id} is not ready!")
@@ -68,10 +91,52 @@ class MDSession:
         emb_names = [e.name for e in embeddings]
         return emb_names
 
-    @property
-    def dataset_id(self):
-        return self._dataset_id
-   
+    def _get_cell_type_labelsets(self) -> list[str]:
+        if self.dataset_snapshot is None:
+            raise RuntimeError("The dataset snapshor is not ready, call MDSession.create_session first!")
+        
+        cell_labels = "cell-labels"
+        labelsets = []
+        for lbst in self.dataset_snapshot.labelsets:
+            if lbst.mode == cell_labels:
+                labelsets.append(lbst.name)
+        return labelsets
+
+    def create_session(
+            self,
+        ) -> str:
+        """
+        Creates a new session for embedding processing.
+
+        This method performs a sanity check, retrieves the initial state of the dataset, 
+        fetches clusterings and embeddings, and then initializes a new session with a 
+        unique session ID. The session information is saved via the client.
+
+        Returns:
+            str: The unique session ID of the newly created embedding session.
+        """
+
+        self._check_md_ready()
+
+        ds = self.__client.dataset_initial_state_query(self.dataset_id)
+        self._dataset_shapshot = ds.dataset
+        self._clusterings = self._get_clusterings()
+        self._embeddings = self._get_embeddings()
+        self._labelsets = self._get_cell_type_labelsets()
+
+        session_id = str(uuid4())
+ 
+        data = PostSaveEmbeddingSessionInput(
+            session_id = session_id,
+            dataset = self._dataset_shapshot.model_dump()
+        )
+        response = self.__client.create_session(
+            data = data
+        )
+        self._dataset_shapshot = response.save_embedding_session
+        self._session_id = session_id
+        return self._session_id
+    
     def embedding_data(
             self, 
             embedding: str,
@@ -160,7 +225,7 @@ class MDSession:
                 - "dispersion" (float): The dispersion value of the gene. Initially, the gene
                     dispersion values are calculated over the log-transformed count matrix,
                     these dispersion values are then log-transformed again before being displayed
-                    in the gene table
+                    in the gene table.
         """
  
         options = GetHighlyVariableGenesInput(
@@ -187,40 +252,7 @@ class MDSession:
         df["dispersion"] = dispersions
 
         return df
-        
-    def create_session(
-            self,
-        ) -> str:
-        """
-        Creates a new session for embedding processing.
 
-        This method performs a sanity check, retrieves the initial state of the dataset, 
-        fetches clusterings and embeddings, and then initializes a new session with a 
-        unique session ID. The session information is saved via the client.
-
-        Returns:
-            str: The unique session ID of the newly created embedding session.
-        """
-
-        self._sanity_check()
-
-        ds = self.__client.dataset_initial_state_query(self.dataset_id)
-        self._dataset_shapshot = ds.dataset
-        self._clusterings = self._get_clusterings()
-        self._embeddings = self._get_embeddings()
-
-        session_id = str(uuid4())
- 
-        data = PostSaveEmbeddingSessionInput(
-            session_id = session_id,
-            dataset = self._dataset_shapshot.model_dump()
-        )
-        response = self.__client.create_session(
-            data = data
-        )
-        self._dataset_shapshot = response.save_embedding_session
-        self._session_id = session_id
-        return self._session_id
 
 
 class CapClient:
@@ -375,10 +407,14 @@ if __name__ ==  "__main__":
     
     cap = CapClient(url)
     md = cap.open_md_session("3223")
-    # sid = md.create_session()
-    # print(sid)
-    hvg = md.highly_variable_genes("3223", limit=5)
-    print(hvg)
+    sid = md.create_session()
+    print(sid)
+    print(md.labelsets)
+    print(md.clusterings)
+    print(md.embeddings)
+
+    # hvg = md.highly_variable_genes("3223", limit=5)
+    # print(hvg)
     
     # print(md._dataset_shapshot.model_dump_json()[:100])
     # cl = _Client(url=url)
