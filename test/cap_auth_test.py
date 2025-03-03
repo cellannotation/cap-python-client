@@ -6,7 +6,7 @@ CAP_AUTHENTICATE_URL = "us-central1-capv2-gke-prod.cloudfunctions.net"
 
 def test_authenticate_with_custom_token_success():
     cap = CapClient()
-    with patch.object(CapClient, '_request') as mock_request:
+    with patch.object(CapClient, '_auth_request') as mock_request:
         mock_request.return_value = True
         cap._custom_token = "dummy_token"
 
@@ -21,7 +21,7 @@ def test_authenticate_with_custom_token_success():
 
 def test_authenticate_with_custom_token_failure():
     cap = CapClient()
-    with patch.object(CapClient, '_request') as mock_request:
+    with patch.object(CapClient, '_auth_request') as mock_request:
         mock_request.return_value = False
         cap._custom_token = "dummy_token"
 
@@ -32,7 +32,7 @@ def test_authenticate_with_custom_token_failure():
 
 def test_authenticate_with_credentials_success():
     cap = CapClient()
-    with patch.object(CapClient, '_request') as mock_request:
+    with patch.object(CapClient, '_auth_request') as mock_request:
         # Arrange
         mock_request.return_value = True
         cap._custom_token = None
@@ -52,7 +52,7 @@ def test_authenticate_with_credentials_success():
 
 def test_authenticate_with_credentials_failure():
     cap = CapClient()
-    with patch.object(CapClient, '_request') as mock_request:
+    with patch.object(CapClient, '_auth_request') as mock_request:
         # Arrange
         mock_request.return_value = False
         cap._custom_token = None
