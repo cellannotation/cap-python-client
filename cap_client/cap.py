@@ -509,28 +509,3 @@ class CapClient:
     
     def md_session(self, dataset_id: str) -> MDSession:
         return MDSession(dataset_id=dataset_id, _client=self.__client)
-
-
-if __name__ ==  "__main__":
-    url = "https://rc1.celltype.info/graphql"
-    
-    cap = CapClient(url)
-    md = cap.md_session("3223")
-    sid = md.create_session()
-    print(sid)
-    print(md.labelsets)
-    print(md.clusterings)
-    print(md.embeddings)
-
-    diff_key = md.general_de("cluster2")
-    print(diff_key)
-    res = md.heatmap(diff_key=diff_key, max_cells_displayed=10)
-    print(res)
-
-    # hvg = md.highly_variable_genes("3223", limit=5)
-    # print(hvg)
-    
-    # print(md._dataset_shapshot.model_dump_json()[:100])
-    # cl = _Client(url=url)
-    # res = cl.md_commons_query("3223")
-    # print(res)
