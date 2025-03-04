@@ -2,7 +2,7 @@
 
 from .base_client import BaseClient
 from .base_model import BaseModel, Upload
-from .client import Client
+from .client import _Client
 from .cluster_types import (
     ClusterTypes,
     ClusterTypesDataset,
@@ -142,7 +142,7 @@ __all__ = [
     "CellLabelResultLabelsetDatasetProject",
     "CellLabelsSearchOptions",
     "CellLabelsSearchSort",
-    "Client",
+    "_Client",
     "ClusterTypes",
     "ClusterTypesDataset",
     "ClusterTypesDatasetEmbeddingClusterTypes",

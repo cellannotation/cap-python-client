@@ -40,7 +40,7 @@ def gql(q: str) -> str:
     return q
 
 
-class Client(BaseClient):
+class _Client(BaseClient):
     def search_datasets(
         self,
         options: Union[Optional[DatasetSearchOptions], UnsetType] = UNSET,

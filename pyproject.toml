@@ -37,3 +37,9 @@ include_all_inputs=false
 include_all_enums=false
 target_package_path="./cap_client/"
 target_package_name="client"
+client_name="_Client"
+base_client_name="_BaseClient"
+
+[tool.pytest.ini_options]
+pythonpath = ["cap_client"]
+log_level = "DEBUG"
