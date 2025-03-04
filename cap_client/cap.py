@@ -197,7 +197,7 @@ class MDSession:
         )
         
         # TODO: is not workgin with new rc1
-        # update request later
+        # update request later https://capdevelopment.atlassian.net/browse/MVP-6489
         response = self.__client.embedding_data(
             dataset_id = self.dataset_id,
             options = options
@@ -355,7 +355,7 @@ class MDSession:
             selection_key = selection_key,
         )
 
-        # TODO: update api, it was changed on rc1
+        # TODO: update api, it was changed on rc1 https://capdevelopment.atlassian.net/browse/MVP-6489
         res = self.__client.heatmap(
             dataset_id=self.dataset_id,
             options=options,
@@ -396,11 +396,11 @@ class CapClient:
             try:
                 response = response.read().decode()
                 self._token = json.loads(response)['idToken']
-                # TODO : Add signature verification 
+                # TODO : Add signature verification https://capdevelopment.atlassian.net/browse/MVP-6392
                 self._token_expiry_time = jwt.decode(self._token, options={"verify_signature": False})['exp']
                 self._error_status = None
                 return True
-            except: # TODO: implement appropriate error handling
+            except: # TODO: implement appropriate error handling https://capdevelopment.atlassian.net/browse/MVP-6489
                 self._error_status = "Failed to parse 200 OK response to get ID token"
                 return False
         self._error_status = "Failed to get ID token " + response.reason 
