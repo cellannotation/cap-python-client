@@ -1,5 +1,6 @@
-from .cap import CapClient
+from .cap import CapClient, MDSession
 
 __all__ = [
-    "CapClient"
+    "CapClient",
+    "MDSession",
 ]

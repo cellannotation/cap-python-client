@@ -1,369 +1,278 @@
 import pytest
-import json
-from unittest.mock import patch, Mock
-from cap_client import CapClient
+from unittest.mock import patch, MagicMock, ANY
+from cap_client import CapClient, MDSession
+import pandas as pd
+
 
 CAP_AUTHENTICATE_USER_URL  = "authenticate-user-wg6qkl5yea-uc.a.run.app"
 CAP_AUTHENTICATE_TOKEN_URL = "authenticate-token-wg6qkl5yea-uc.a.run.app"
 
-def test_search_datasets():
-    # Arrange
-    cap = CapClient()
-    sample_dataset_response = '{"results": [{"id": "123", "name": "Test Dataset"}]}'
-    with patch.object(CapClient, 'search_datasets_json') as search_request_mock:
-        search_request_mock.return_value = sample_dataset_response
+# ------------------------------
+# Tests for CapClient methods
+# ------------------------------
 
-        # Act
-        result = cap.search_datasets_json(
-            search=["blood"],
+def test_search_datasets():
+    cap = CapClient()
+    dummy_response = MagicMock()
+    # Patch the internal client (name-mangled as _CapClient__client)
+    with patch.object(cap, "_CapClient__client") as mock_client:
+        mock_client.search_datasets.return_value = dummy_response
+
+        response = cap.search_datasets(
+            search="name",
             organism=["Homo sapiens"],
             tissue=["stomach"],
             assay=["10x 3' v1"],
-            sort=[{"name":"ASC"}],
             limit=10,
-            offset=0
+            offset=0,
+            sort=[{"name": "ASC"}]
+        )
+        assert response == dummy_response
+        mock_client.search_datasets.assert_called_once()
+
+
+def test_search_cell_labels():
+    cap = CapClient()
+    dummy_response = MagicMock()
+    with patch.object(cap, "_CapClient__client") as mock_client:
+        mock_client.lookup_cells.return_value = dummy_response
+
+        response = cap.search_cell_labels(
+            search="name",
+            organism=["Homo sapiens"],
+            tissue=["brain"],
+            assay=["10x 3' v1"],
+            limit=5,
+            offset=0,
+            sort=[{"name": "ASC"}]
+        )
+        assert response == dummy_response
+        mock_client.lookup_cells.assert_called_once()
+
+
+def test_open_md_session():
+    cap = CapClient()
+    dataset_id = "1234"
+    md_session = cap.md_session(dataset_id)
+    assert isinstance(md_session, MDSession)
+    assert md_session.dataset_id == dataset_id
+
+
+# ------------------------------
+# Tests for MDSession methods
+# ------------------------------
+
+@pytest.fixture
+def dummy_md_session():
+    """
+    Returns an MDSession instance along with a dummy client (a MagicMock)
+    so we can patch its methods.
+    """
+    dummy_client = MagicMock()
+    md_session = MDSession(dataset_id="1234", _client=dummy_client)
+    return md_session, dummy_client
+
+
+@pytest.mark.parametrize("ready", [True, False])
+def test_check_md_ready(ready, dummy_md_session):
+    md_session, client = dummy_md_session
+    dataset_mock = MagicMock()
+    dataset_mock.is_embeddings_up_to_date = ready
+    client.dataset_ready.return_value = MagicMock(dataset=dataset_mock)
+
+    if ready:
+        md_session._check_md_ready()
+    else:
+        with pytest.raises(RuntimeError):
+            md_session._check_md_ready()
+
+
+def test_create_session(dummy_md_session):
+    md_session, dummy_client = dummy_md_session
+
+    # Setup dummy response for dataset_ready (should be "ready")
+    dummy_ready = MagicMock()
+    dummy_ready.dataset = MagicMock(is_embeddings_up_to_date=True)
+    dummy_client.dataset_ready.return_value = dummy_ready
+
+    # Setup dummy response for dataset_initial_state_query
+    dummy_initial_state = MagicMock()
+    dummy_dataset = MagicMock()
+    dummy_label = MagicMock()
+    dummy_label.mode = "cell-labels"
+    dummy_label.name = "Test Label"
+    dummy_label.id = "label1"
+    dummy_dataset.labelsets = [dummy_label]
+    dummy_initial_state.dataset = dummy_dataset
+    dummy_client.dataset_initial_state_query.return_value = dummy_initial_state
+
+    # Setup dummy response for cluster_types
+    dummy_cluster_types = MagicMock()
+    dummy_cluster_dataset = MagicMock()
+    dummy_cluster = MagicMock()
+    dummy_cluster.name = "cluster1"
+    dummy_cluster_dataset.embedding_cluster_types = [dummy_cluster]
+    dummy_cluster_types.dataset = dummy_cluster_dataset
+    dummy_client.cluster_types.return_value = dummy_cluster_types
+
+    # Setup dummy response for md_commons_query (for embeddings)
+    dummy_embeddings = MagicMock()
+    dummy_embeddings_dataset = MagicMock()
+    dummy_embedding = MagicMock()
+    dummy_embedding.name = "embedding1"
+    dummy_embeddings_dataset.embeddings = [dummy_embedding]
+    dummy_embeddings.dataset = dummy_embeddings_dataset
+    dummy_client.md_commons_query.return_value = dummy_embeddings
+
+    # Setup dummy response for create_session
+    dummy_create_session = MagicMock()
+    dummy_create_session.save_embedding_session = "snapshot_updated"
+    dummy_client.create_session.return_value = dummy_create_session
+
+    session_id = md_session.create_session()
+
+    # Check that the returned session_id matches the session property
+    assert md_session.session_id == session_id
+
+    # Verify that the expected internal client calls were made
+    dummy_client.dataset_ready.assert_called_once_with(md_session.dataset_id)
+    dummy_client.dataset_initial_state_query.assert_called_once_with(md_session.dataset_id)
+    dummy_client.cluster_types.assert_called_once_with(md_session.dataset_id)
+    dummy_client.md_commons_query.assert_called_once_with(md_session.dataset_id)
+    dummy_client.create_session.assert_called_once()
+
+
+def test_create_session_not_ready(dummy_md_session):
+    md_session, dummy_client = dummy_md_session
+
+    # Simulate dataset not ready (is_embeddings_up_to_date is False)
+    dummy_ready = MagicMock()
+    dummy_ready.dataset = MagicMock(is_embeddings_up_to_date=False)
+    dummy_client.dataset_ready.return_value = dummy_ready
+
+    with pytest.raises(RuntimeError, match="is not ready"):
+        md_session.create_session()
+
+
+def test_embedding_data_success(dummy_md_session):
+    md_session, dummy_client = dummy_md_session
+    # Set available embeddings so that "embedding1" is valid.
+    md_session._embeddings = ["embedding1"]
+
+    # Setup dummy response for embedding_data
+    dummy_embedding_data = MagicMock()
+    dummy_embedding_data.dataset = MagicMock(embedding_data="embedding_data_response")
+    dummy_client.embedding_data.return_value = dummy_embedding_data
+
+    result = md_session.embedding_data(
+        embedding="embedding1",
+        max_points=1000,
+        labelsets=["label1"],
+        selection_gene="geneA",
+        selection_key_major="sel_major",
+        selection_key_minor="sel_minor"
+    )
+    assert result == "embedding_data_response"
+    dummy_client.embedding_data.assert_called_once_with(
+        dataset_id=md_session.dataset_id,
+        options=ANY  # We use ANY because the input options object is complex
+    )
+
+
+def test_embedding_data_invalid_embedding(dummy_md_session):
+    md_session, dummy_client = dummy_md_session
+    md_session._embeddings = ["embedding1"]
+
+    with pytest.raises(ValueError, match="is not found"):
+        md_session.embedding_data(
+            embedding="nonexistent",
+            max_points=1000
         )
 
-        # Assert
-        assert result == '{"results": [{"id": "123", "name": "Test Dataset"}]}'
-        search_request_mock.assert_called_once()
 
-def test_search_datasets_no_params():
-    # Arrange
-    cap = CapClient()
-    sample_dataset_response = '{"results": [{"id": "123", "name": "Test Dataset"}]}'
-    with patch.object(CapClient, 'search_datasets_json') as search_request_mock:
-        search_request_mock.return_value = sample_dataset_response
+def test_general_de_success(dummy_md_session):
+    md_session, dummy_client = dummy_md_session
+    # Set available labelsets so that "Test Label" is valid.
+    md_session._labelsets = ["Test Label"]
 
-        # Act
-        result = cap.search_datasets_json()
+    # Patch the internal helper to return a dummy labelset id.
+    md_session._labelset_id_from_name = MagicMock(return_value="label1")
 
-        # Assert
-        assert result == '{"results": [{"id": "123", "name": "Test Dataset"}]}'
-        search_request_mock.assert_called_once()
+    dummy_general_de = MagicMock()
+    dummy_general_de.dataset = MagicMock(general_diff="diff_key")
+    dummy_client.general_de.return_value = dummy_general_de
 
-def test_download_urls():
-    # Arrange
-    cap = CapClient()
-    sample_url_response = '{"download_urls": [{"annDataUrl": "gs://test_bucket/dataset.h5ad"}]}'
-    with patch.object(CapClient, 'download_urls_json') as download_request_mock:
-        download_request_mock.return_value = sample_url_response
+    result = md_session.general_de(labelset="Test Label", random_seed=42)
+    assert result == "diff_key"
+    md_session._labelset_id_from_name.assert_called_once_with("Test Label")
+    dummy_client.general_de.assert_called_once_with(
+        dataset_id=md_session.dataset_id,
+        options=ANY
+    )
 
-        # Act
-        result = cap.download_urls_json(1)
 
-        # Assert
-        assert result == '{"download_urls": [{"annDataUrl": "gs://test_bucket/dataset.h5ad"}]}'
-        download_request_mock.assert_called_once()
+def test_general_de_invalid_labelset(dummy_md_session):
+    md_session, dummy_client = dummy_md_session
+    md_session._labelsets = ["Test Label"]
 
-def test_download_urls_no_params():
-    # Arrange
-    cap = CapClient()
-    sample_url_response = '{"errors": [{"message": "Failed to get download urls"}]}'
-    with patch.object(CapClient, 'download_urls_json') as download_request_mock:
-        download_request_mock.return_value = sample_url_response
+    with pytest.raises(ValueError, match="is not found"):
+        md_session.general_de(labelset="Nonexistent")
 
-        # Act
-        result = cap.download_urls_json()
 
-        # Assert
-        assert result == '{"errors": [{"message": "Failed to get download urls"}]}'
-        download_request_mock.assert_called_once()
+def test_highly_variable_genes(dummy_md_session):
+    md_session, dummy_client = dummy_md_session
 
-def test_search_cells():
-    cap = CapClient()
-    sample_cell_labels_response = '{"lookup_cells": [{"id": "123", "name": "Test Cell Label"}]}'
-    with patch.object(CapClient, 'search_cell_labels_json') as search_request_mock:
-        search_request_mock.return_value = sample_cell_labels_response
+    # Setup dummy response for highly_variable_genes
+    dummy_gene = MagicMock()
+    dummy_gene.name = "gene1"
+    dummy_gene.dispersion = 0.5
+    dummy_hvg = MagicMock()
+    dummy_hvg.dataset = MagicMock(embedding_highly_variable_genes=[dummy_gene])
+    dummy_client.highly_variable_genes.return_value = dummy_hvg
 
-        # Act
-        result = cap.search_cell_labels_json(
-            search="blood", 
-            organism=["Homo sapiens"], 
-            tissue=["parietal cortex"],
-            assay=["10x 3' v1"], 
-            sort=[{"name":"ASC"}],
-            limit=10,
-            offset=0
-        )
+    df = md_session.highly_variable_genes(
+        gene_name_filter="g",
+        pseudogenes_filter=True,
+        offset=0,
+        limit=10,
+        sort_order="desc"
+    )
 
-        # Assert
-        assert result == '{"lookup_cells": [{"id": "123", "name": "Test Cell Label"}]}'
-        search_request_mock.assert_called_once()
- 
-def test_search_cells_no_params():
-    cap = CapClient()
-    sample_dataset_response = '{"lookup_cells": [{"id": "123", "name": "Test Cell Label"}]}'
-    with patch.object(CapClient, 'search_cell_labels_json') as search_request_mock:
-        search_request_mock.return_value = sample_dataset_response
+    # Check that the returned DataFrame contains the expected columns and values.
+    assert isinstance(df, pd.DataFrame)
+    assert "gene_symbol" in df.columns
+    assert "dispersion" in df.columns
+    assert df.iloc[0]["gene_symbol"] == "gene1"
+    assert df.iloc[0]["dispersion"] == 0.5
 
-        # Act
-        result = cap.search_cell_labels_json()
+    dummy_client.highly_variable_genes.assert_called_once_with(
+        dataset_id=md_session.dataset_id,
+        options=ANY
+    )
 
-        # Assert
-        assert result == '{"lookup_cells": [{"id": "123", "name": "Test Cell Label"}]}'
-        search_request_mock.assert_called_once()
 
-def test_files_status_json():
-    cap = CapClient()
-    sample_dataset_response = '{"data": { "dataset": { "id": "123", "getMdFilesStatus": "ready" } } }'
-    with patch.object(CapClient, 'files_status_json') as files_status_request_mock:
-        files_status_request_mock.return_value = sample_dataset_response
+def test_is_md_cache_ready(dummy_md_session):
+    md_session, dummy_client = dummy_md_session
+    dummy_files_status = MagicMock()
+    dummy_files_status.dataset = MagicMock(get_md_files_status="ready")
+    dummy_client.files_status.return_value = dummy_files_status
 
-        # Act
-        result = cap.files_status_json("1")
+    assert md_session.is_md_cache_ready() is True
+    dummy_client.files_status.assert_called_once_with(md_session.dataset_id)
 
-        # Assert
-        assert result == '{"data": { "dataset": { "id": "123", "getMdFilesStatus": "ready" } } }'
-        files_status_request_mock.assert_called_once()
 
-def test_files_status_json_no_params():
-    cap = CapClient()
-    try:
-        # Act and Assert
-        cap.files_status_json()
-        assert False
-    except TypeError as e:
-       assert True
+def test_heatmap(dummy_md_session):
+    md_session, dummy_client = dummy_md_session
+    # Assume that create_session was already called so session_id is set.
+    md_session._session_id = "session123"
 
-def test_md_commons_query_json():
-    cap = CapClient()
-    sample_dataset_response = '{"data": { "dataset": { "id": "123", "embeddings": [] } } }'
-    with patch.object(CapClient, 'md_commons_query_json') as md_commons_query_request_mock:
-        md_commons_query_request_mock.return_value = sample_dataset_response
+    dummy_heatmap = MagicMock()
+    dummy_heatmap.dataset = MagicMock(embedding_diff_heat_map="heatmap_response")
+    dummy_client.heatmap.return_value = dummy_heatmap
 
-        # Act
-        result = cap.md_commons_query_json("1")
-
-        # Assert
-        assert result == '{"data": { "dataset": { "id": "123", "embeddings": [] } } }'
-        md_commons_query_request_mock.assert_called_once()
-
-def test_md_commons_query_json_no_params():
-    cap = CapClient()
-    try:
-        # Act and Assert
-        cap.md_commons_query_json()
-        assert False
-    except TypeError as e:
-       assert True
-    
-def test_dataset_initial_state_query_json():
-    cap = CapClient()
-    sample_dataset_response = '{"data": { "dataset": { "id": "123", "name": "dataset"} } }'
-    with patch.object(CapClient, 'dataset_initial_state_query_json') as dataset_initial_state_query_request_mock:
-        dataset_initial_state_query_request_mock.return_value = sample_dataset_response
-
-        # Act
-        result = cap.dataset_initial_state_query_json("1")
-
-        # Assert
-        assert result == '{"data": { "dataset": { "id": "123", "name": "dataset"} } }'
-        dataset_initial_state_query_request_mock.assert_called_once()
-
-def test_dataset_initial_state_query_json_no_params():
-    cap = CapClient()
-    try:
-        # Act and Assert
-        cap.dataset_initial_state_query_json()
-        assert False
-    except TypeError as e:
-       assert True
-    
-def test_cluster_types_json():
-    cap = CapClient()
-    sample_dataset_response = '{"data": { "dataset": { "id": "123", "embeddingClusterTypes": [] } } }'
-    with patch.object(CapClient, 'cluster_types_json') as cluster_types_request_mock:
-        cluster_types_request_mock.return_value = sample_dataset_response
-
-        # Act
-        result = cap.cluster_types_json("1")
-
-        # Assert
-        assert result == '{"data": { "dataset": { "id": "123", "embeddingClusterTypes": [] } } }'
-        cluster_types_request_mock.assert_called_once()
-
-def test_cluster_types_json_no_params():
-    cap = CapClient()
-    try:
-        # Act and Assert
-        cap.cluster_types_json()
-        assert False
-    except TypeError as e:
-       assert True
-
-def test_embeddings_clusters_json():
-    cap = CapClient()
-    sample_dataset_response = '{"data": { "dataset": { "id": "123", "embeddingCluster": [] } } }'
-    with patch.object(CapClient, 'embeddings_clusters_json') as embeddings_clusters_request_mock:
-        embeddings_clusters_request_mock.return_value = sample_dataset_response
-
-        # Act
-        result = cap.embeddings_clusters_json(dataset_id = "1", cluster = "cluster")
-
-        # Assert
-        assert result == '{"data": { "dataset": { "id": "123", "embeddingCluster": [] } } }'
-        embeddings_clusters_request_mock.assert_called_once()
-
-def test_embeddings_clusters_json_no_params():
-    cap = CapClient()
-    try:
-        # Act and Assert
-        cap.embeddings_clusters_json()
-        assert False
-    except TypeError as e:
-       assert True
-
-def test_embedding_data_json():
-    cap = CapClient()
-    sample_dataset_response = '{"data": { "dataset": { "id": "123", "embeddingData": {} } } } }'
-    with patch.object(CapClient, 'embedding_data_json') as embedding_data_request_mock:
-        embedding_data_request_mock.return_value = sample_dataset_response
-
-        # Act
-        result = cap.embedding_data_json(dataset_id = "1", embedding = "embedding", scale_max_plan = 1000, session_id = "123")
-
-        # Assert
-        assert result == '{"data": { "dataset": { "id": "123", "embeddingData": {} } } } }'
-        embedding_data_request_mock.assert_called_once()
-
-def test_embedding_data_json_no_params():
-    cap = CapClient()
-    try:
-        # Act and Assert
-        cap.embedding_data_json()
-        assert False
-    except TypeError as e:
-       assert True
-
-def test_general_de_json():
-    cap = CapClient()
-    sample_dataset_response = '{"data": { "dataset": { "id": "123", "generalDiff": "" } } } }'
-    with patch.object(CapClient, 'general_de_json') as general_de_request_mock:
-        general_de_request_mock.return_value = sample_dataset_response
-
-        # Act
-        result = cap.general_de_json(dataset_id = "1", labelset_id = "1", random_seed = 1, session_id = "123")
-
-        # Assert
-        assert result == '{"data": { "dataset": { "id": "123", "generalDiff": "" } } } }'
-        general_de_request_mock.assert_called_once()
-
-def test_general_de_json_no_params():
-    cap = CapClient()
-    try:
-        # Act and Assert
-        cap.general_de_json()
-        assert False
-    except TypeError as e:
-       assert True
-
-def test_heatmap_json():
-    cap = CapClient()
-    sample_dataset_response = '{"data": { "dataset": { "id": "123", "embeddingDiffHeatMap": {} } } } }'
-    with patch.object(CapClient, 'heatmap_json') as heatmap_request_mock:
-        heatmap_request_mock.return_value = sample_dataset_response
-
-        # Act
-        result = cap.heatmap_json(dataset_id = "1", diff_key = "kgjgjgk")
-
-        # Assert
-        assert result == '{"data": { "dataset": { "id": "123", "embeddingDiffHeatMap": {} } } } }'
-        heatmap_request_mock.assert_called_once()
-
-def test_heatmap_json_no_params():
-    cap = CapClient()
-    try:
-        # Act and Assert
-        cap.heatmap_json()
-        assert False
-    except TypeError as e:
-       assert True
-
-def test_highly_variable_genes_json():
-    cap = CapClient()
-    sample_dataset_response = '{"data": { "dataset": { "id": "123", "embeddingHighlyVariableGenes": [] } } } }'
-    with patch.object(CapClient, 'highly_variable_genes_json') as highly_variable_genes_request_mock:
-        highly_variable_genes_request_mock.return_value = sample_dataset_response
-
-        # Act
-        result = cap.highly_variable_genes_json(dataset_id = "1", offset = 1, limit = 10)
-
-        # Assert
-        assert result == '{"data": { "dataset": { "id": "123", "embeddingHighlyVariableGenes": [] } } } }'
-        highly_variable_genes_request_mock.assert_called_once()
-
-def test_highly_variable_genes_json_no_params():
-    cap = CapClient()
-    try:
-        # Act and Assert
-        cap.highly_variable_genes_json()
-        assert False
-    except TypeError as e:
-       assert True
-
-def test_dataset_ready_json():
-    cap = CapClient()
-    sample_dataset_response = '{"data": { "dataset": { "id": "123" } } }'
-    with patch.object(CapClient, 'dataset_ready_json') as dataset_ready_request_mock:
-        dataset_ready_request_mock.return_value = sample_dataset_response
-
-        # Act
-        result = cap.dataset_ready_json("1")
-
-        # Assert
-        assert result == '{"data": { "dataset": { "id": "123" } } }'
-        dataset_ready_request_mock.assert_called_once()
-
-def test_dataset_ready_json_no_params():
-    cap = CapClient()
-    try:
-        # Act and Assert
-        cap.dataset_ready_json()
-        assert False
-    except TypeError as e:
-       assert True
-
-def test_md_ready_json():
-    cap = CapClient()
-    sample_dataset_response = '{"data": { "dataset": { "id": "123" } } }'
-    with patch.object(CapClient, 'md_ready_json') as md_ready_request_mock:
-        md_ready_request_mock.return_value = sample_dataset_response
-
-        # Act
-        result = cap.md_ready_json("1")
-
-        # Assert
-        assert result == '{"data": { "dataset": { "id": "123" } } }'
-        md_ready_request_mock.assert_called_once()
-
-def test_md_ready_json_no_params():
-    cap = CapClient()
-    try:
-        # Act and Assert
-        cap.md_ready_json()
-        assert False
-    except TypeError as e:
-       assert True
-
-def test_create_session_json():
-    cap = CapClient()
-    sample_dataset_response = '{"data": { "saveEmbeddingSession": { "id": "123", "name": "test" } } }'
-    with patch.object(CapClient, 'create_session_json') as create_session_request_mock:
-        create_session_request_mock.return_value = sample_dataset_response
-
-        # Act
-        result = cap.create_session_json(session_id = "1")
-
-        # Assert
-        assert result == '{"data": { "saveEmbeddingSession": { "id": "123", "name": "test" } } }'
-        create_session_request_mock.assert_called_once()
-
-def test_create_session_json_no_params():
-    cap = CapClient()
-    try:
-        # Act and Assert
-        cap.create_session_json()
-        assert False
-    except TypeError as e:
-       assert True
+    result = md_session.heatmap(diff_key="diff_key", n_top_genes=3, max_cells_displayed=1000)
+    assert result == "heatmap_response"
+    dummy_client.heatmap.assert_called_once_with(
+        dataset_id=md_session.dataset_id,
+        options=ANY
+    )

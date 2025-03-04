@@ -507,7 +507,7 @@ class CapClient:
         )
         return response
     
-    def open_md_session(self, dataset_id: str) -> MDSession:
+    def md_session(self, dataset_id: str) -> MDSession:
         return MDSession(dataset_id=dataset_id, _client=self.__client)
 
 
@@ -515,7 +515,7 @@ if __name__ ==  "__main__":
     url = "https://rc1.celltype.info/graphql"
     
     cap = CapClient(url)
-    md = cap.open_md_session("3223")
+    md = cap.md_session("3223")
     sid = md.create_session()
     print(sid)
     print(md.labelsets)
