@@ -98,11 +98,12 @@ def test_create_session(dummy_md_session):
     # Setup dummy response for dataset_initial_state_query
     dummy_initial_state = MagicMock()
     dummy_dataset = MagicMock()
-    dummy_label = MagicMock()
-    dummy_label.mode = "cell-labels"
-    dummy_label.name = "Test Label"
-    dummy_label.id = "label1"
-    dummy_dataset.labelsets = [dummy_label]
+    dummy_labelset = MagicMock()
+    dummy_labelset.mode = "cell-labels"
+    dummy_labelset.name = "Test Labelset"
+    dummy_labelset.id = "label1"
+    dummy_dataset.labelsets = [dummy_labelset]
+    dummy_dataset.model_dump.return_value = dict(dummy_dataset)
     dummy_initial_state.dataset = dummy_dataset
     dummy_client.dataset_initial_state_query.return_value = dummy_initial_state
 
@@ -202,6 +203,7 @@ def test_general_de_success(dummy_md_session):
     dummy_general_de.dataset = MagicMock(general_diff="diff_key")
     dummy_client.general_de.return_value = dummy_general_de
 
+    md_session._session_id = "session-id"
     result = md_session.general_de(labelset="Test Label", random_seed=42)
     assert result == "diff_key"
     md_session._labelset_id_from_name.assert_called_once_with("Test Label")
