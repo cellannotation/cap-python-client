@@ -3,7 +3,7 @@
 
 from typing import Any, Dict, Optional, Union
 
-from .base_client import _BaseClient
+from .base_client import BaseClient
 from .base_model import UNSET, UnsetType
 from .cluster_types import ClusterTypes
 from .create_session import CreateSession
@@ -40,7 +40,7 @@ def gql(q: str) -> str:
     return q
 
 
-class _Client(_BaseClient):
+class _Client(BaseClient):
     def search_datasets(
         self,
         options: Union[Optional[DatasetSearchOptions], UnsetType] = UNSET,
