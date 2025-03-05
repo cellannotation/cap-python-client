@@ -12,24 +12,12 @@ from .fragments import CellLabelResult
 class LookupCells(BaseModel):
     lookup_cells: List["LookupCellsLookupCells"] = Field(alias="lookupCells")
 
-    def serialize(self):
-        return {
-            "lookup_cells": [c.serialize() for c in self.lookup_cells],
-        }
-
 
 class LookupCellsLookupCells(CellLabelResult):
     id: str
     full_name: Optional[str] = Field(alias="fullName")
     name: str
     typename__: Literal["Label"] = Field(alias="__typename")
-
-    def serialize(self):
-        return {
-            "id": self.id,
-            "full_name": self.full_name,
-            "name": self.name,
-        }
 
 
 LookupCells.model_rebuild()

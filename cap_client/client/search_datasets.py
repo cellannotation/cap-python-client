@@ -12,22 +12,11 @@ from .fragments import DatasetResult
 class SearchDatasets(BaseModel):
     results: List["SearchDatasetsResults"]
 
-    def serialize(self):
-        return {
-            "results": [r.serialize() for r in self.results],
-        }
-
 
 class SearchDatasetsResults(DatasetResult):
     id: str
     name: str
     typename__: Literal["Dataset"] = Field(alias="__typename")
-
-    def serialize(self):
-        return {
-            "id": self.id,
-            "name": self.name,
-        }
 
 
 SearchDatasets.model_rebuild()
