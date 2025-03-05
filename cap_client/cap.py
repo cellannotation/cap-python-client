@@ -466,7 +466,7 @@ class CapClient:
         response = self.__client.search_datasets(
             options=search_options, filter=search_filter, search=search_input
         )
-        return response
+        return json.dumps(response.serialize())
 
     def search_cell_labels(
         self,
@@ -505,7 +505,7 @@ class CapClient:
         response = self.__client.lookup_cells(
             options=search_options, filter=search_filter, search=search_input
         )
-        return response
+        return json.dumps(response.serialize())
     
     def md_session(self, dataset_id: str) -> MDSession:
         return MDSession(dataset_id=dataset_id, _client=self.__client)

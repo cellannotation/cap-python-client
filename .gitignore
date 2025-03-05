@@ -4,3 +4,4 @@ cap_client.egg-info/*
 dist/*
 test/__pycache__
 tmp/*
+*.DS_Store

@@ -72,12 +72,38 @@ class CellLabelResult(BaseModel):
     labelset: "CellLabelResultLabelset"
     typename__: str = Field(alias="__typename")
 
+    def serialize(self):
+        return {
+            "id": self.id,
+            "full_name": self.full_name,
+            "name": self.name,
+            "ontology_term_exists": self.ontology_term_exists,
+            "ontology_term_id": self.ontology_term_id,
+            "ontology_term": self.ontology_term,
+            "synonyms": self.synonyms,
+            "category_ontology_term_exists": self.category_ontology_term_exists,
+            "category_ontology_term_id": self.category_ontology_term_id,
+            "category_ontology_term": self.category_ontology_term,
+            "category_full_name": self.category_full_name,
+            "marker_genes": self.marker_genes,
+            "canonical_marker_genes": self.canonical_marker_genes,
+            "count": self.count,
+            "labelset": self.labelset.serialize(),
+        }
+
 
 class CellLabelResultLabelset(BaseModel):
     id: str
     name: str
     dataset: "CellLabelResultLabelsetDataset"
     typename__: Literal["Labelset"] = Field(alias="__typename")
+
+    def serialize(self):
+        return {
+            "id": self.id,
+            "name": self.name,
+            "dataset": self.dataset.serialize(),
+        }
 
 
 class CellLabelResultLabelsetDataset(BaseModel):
@@ -86,6 +112,14 @@ class CellLabelResultLabelsetDataset(BaseModel):
     labelsets: Optional[List["CellLabelResultLabelsetDatasetLabelsets"]]
     project: "CellLabelResultLabelsetDatasetProject"
     typename__: Literal["Dataset"] = Field(alias="__typename")
+
+    def serialize(self):
+        return {
+            "id": self.id,
+            "name": self.name,
+            "labelsets": [l.serialize() for l in self.labelsets] if self.labelsets is not None else [],
+            "project": self.project.serialize(),
+        }
 
 
 class CellLabelResultLabelsetDatasetLabelsets(GeneLinkLabelset):
@@ -106,6 +140,12 @@ class CellLabelResultLabelsetDatasetProject(ProjectAuthorsProject):
     id: str
     name: str
     typename__: Literal["Project"] = Field(alias="__typename")
+
+    def serialize(self):
+        return {
+            "id": self.id,
+            "name": self.name,
+        }
 
 
 class CommentContentExplanationData(BaseModel):
@@ -348,7 +388,6 @@ class DatasetInitialStateLabelsetsLabelsFeedbacksExplanationDataFeedbackExplanat
 ):
     comment: Optional[str]
     typename__: Literal["FeedbackExplanationDataComment"] = Field(alias="__typename")
-    typename__: Literal["FeedbackExplanationDataComment"] = Field(alias="__typename")
 
 
 class DatasetInitialStateLabelsetsLabelsFeedbacksExplanationDataFeedbackExplanationDataSplit(
@@ -365,12 +404,28 @@ class DatasetResult(BaseModel):
     project: "DatasetResultProject"
     typename__: str = Field(alias="__typename")
 
+    def serialize(self):
+        return {
+            "id": self.id,
+            "name": self.name,
+            "cell_count": self.cell_count,
+            "labelsets": [l.serialize() for l in self.labelsets] if self.labelsets is not None else [],
+            "project": self.project,
+        }
+
 
 class DatasetResultLabelsets(BaseModel):
     id: str
     name: str
     labels: Optional[List["DatasetResultLabelsetsLabels"]]
     typename__: Literal["Labelset"] = Field(alias="__typename")
+
+    def serialize(self):
+        return {
+            "id": self.id,
+            "name": self.name,
+            "labels": [l.serialize() for l in self.labels] if self.labels is not None else [],
+        }
 
 
 class DatasetResultLabelsetsLabels(BaseModel):
@@ -379,11 +434,24 @@ class DatasetResultLabelsetsLabels(BaseModel):
     count: int
     typename__: Literal["Label"] = Field(alias="__typename")
 
+    def serialize(self):
+        return {
+            "id": self.id,
+            "name": self.name,
+            "count": self.count,
+        }
+
 
 class DatasetResultProject(ProjectAuthorsProject):
     id: str
     name: str
     typename__: Literal["Project"] = Field(alias="__typename")
+
+    def serialize(self):
+        return {
+            "id": self.id,
+            "name": self.name,
+        }
 
 
 ProjectAuthorsProject.model_rebuild()
