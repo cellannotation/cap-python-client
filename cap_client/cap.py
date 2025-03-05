@@ -442,7 +442,7 @@ class CapClient:
         limit: int = 50,
         offset: int = 0,
         sort: List[Dict[str, str]] = [],
-    ) -> SearchDatasets:
+    ) -> str:
         sorting = []
         for item in sort:
             key = list(item.keys())[0]
@@ -470,14 +470,14 @@ class CapClient:
 
     def search_cell_labels(
         self,
-        search: List[str] = None,
+        search: str = None,
         organism: List[str] = None,
         tissue: List[str] = None,
         assay: List[str] = None,
         limit: int = 50,
         offset: int = 0,
         sort: List[Dict[str, str]] = [],
-    ) -> LookupCells:
+    ) -> str:
         sorting = []
         for item in sort:
             key = list(item.keys())[0]

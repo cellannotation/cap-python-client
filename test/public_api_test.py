@@ -1,5 +1,5 @@
 import pytest
-from unittest.mock import patch, MagicMock, ANY
+from unittest.mock import MagicMock, ANY
 from cap_client import CapClient, MDSession
 import pandas as pd
 
@@ -13,41 +13,32 @@ CAP_AUTHENTICATE_TOKEN_URL = "authenticate-token-wg6qkl5yea-uc.a.run.app"
 
 def test_search_datasets():
     cap = CapClient()
-    dummy_response = MagicMock()
-    # Patch the internal client (name-mangled as _CapClient__client)
-    with patch.object(cap, "_CapClient__client") as mock_client:
-        mock_client.search_datasets.return_value = dummy_response
 
-        response = cap.search_datasets(
-            search="name",
-            organism=["Homo sapiens"],
-            tissue=["stomach"],
-            assay=["10x 3' v1"],
-            limit=10,
-            offset=0,
-            sort=[{"name": "ASC"}]
-        )
-        assert response == dummy_response
-        mock_client.search_datasets.assert_called_once()
+    response = cap.search_datasets(
+        search="name",
+        organism=["Homo sapiens"],
+        tissue=["stomach"],
+        assay=["10x 3' v1"],
+        limit=10,
+        offset=0,
+        sort=[{"name": "ASC"}]
+    )
+    assert "results" in response, "Wrong response data!"
 
 
 def test_search_cell_labels():
     cap = CapClient()
-    dummy_response = MagicMock()
-    with patch.object(cap, "_CapClient__client") as mock_client:
-        mock_client.lookup_cells.return_value = dummy_response
 
-        response = cap.search_cell_labels(
-            search="name",
-            organism=["Homo sapiens"],
-            tissue=["brain"],
-            assay=["10x 3' v1"],
-            limit=5,
-            offset=0,
-            sort=[{"name": "ASC"}]
-        )
-        assert response == dummy_response
-        mock_client.lookup_cells.assert_called_once()
+    response = cap.search_cell_labels(
+        search="name",
+        organism=["Homo sapiens"],
+        tissue=["brain"],
+        assay=["10x 3' v1"],
+        limit=5,
+        offset=0,
+        sort=[{"name": "ASC"}]
+    )
+    assert "lookup_cells" in response, "Wrong response data!"
 
 
 def test_open_md_session():
