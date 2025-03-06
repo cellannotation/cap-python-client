@@ -440,7 +440,7 @@ class CapClient:
         limit: int = 50,
         offset: int = 0,
         sort: List[Dict[str, str]] = [],
-    ) -> str:
+    ) -> pd.DataFrame:
         sorting = []
         for item in sort:
             key = list(item.keys())[0]
