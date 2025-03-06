@@ -130,7 +130,6 @@ from .lookup_cells import LookupCells, LookupCellsLookupCells
 from .md_commons_query import MDCommonsQuery, MDCommonsQueryDataset
 from .md_ready import MDReady, MDReadyDataset
 from .search_datasets import SearchDatasets, SearchDatasetsResults
-from .serialize import *
 
 __all__ = [
     "BaseClient",

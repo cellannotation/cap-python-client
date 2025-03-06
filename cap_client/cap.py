@@ -25,8 +25,6 @@ from client.input_types import (
     PostSaveEmbeddingSessionInput,
     PostHeatmapInput
 )
-from client.search_datasets import SearchDatasets
-from client.lookup_cells import LookupCells
 from client.embedding_data import EmbeddingDataDatasetEmbeddingData
 from client.heatmap import HeatmapDatasetEmbeddingDiffHeatMap
 
@@ -466,7 +464,9 @@ class CapClient:
         response = self.__client.search_datasets(
             options=search_options, filter=search_filter, search=search_input
         )
-        return json.dumps(response.serialize())
+        df = pd.DataFrame([r.model_dump() for r in response.results])
+        df = df.drop(columns=["labelsets", "project", "typename__"], errors='ignore')
+        return df
 
     def search_cell_labels(
         self,
@@ -477,7 +477,7 @@ class CapClient:
         limit: int = 50,
         offset: int = 0,
         sort: List[Dict[str, str]] = [],
-    ) -> str:
+    ) -> pd.DataFrame:
         sorting = []
         for item in sort:
             key = list(item.keys())[0]
@@ -505,7 +505,9 @@ class CapClient:
         response = self.__client.lookup_cells(
             options=search_options, filter=search_filter, search=search_input
         )
-        return json.dumps(response.serialize())
-    
+        df = pd.DataFrame([lc.model_dump() for lc in response.lookup_cells])
+        df = df.drop(columns=["labelset", "typename__"], errors='ignore')
+        return df
+
     def md_session(self, dataset_id: str) -> MDSession:
         return MDSession(dataset_id=dataset_id, _client=self.__client)

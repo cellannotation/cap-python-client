@@ -14,7 +14,7 @@ CAP_AUTHENTICATE_TOKEN_URL = "authenticate-token-wg6qkl5yea-uc.a.run.app"
 def test_search_datasets():
     cap = CapClient()
 
-    response = cap.search_datasets(
+    df = cap.search_datasets(
         search="name",
         organism=["Homo sapiens"],
         tissue=["stomach"],
@@ -23,13 +23,13 @@ def test_search_datasets():
         offset=0,
         sort=[{"name": "ASC"}]
     )
-    assert "results" in response, "Wrong response data!"
+    assert type(df) is pd.DataFrame, "Wrong response type!"
 
 
 def test_search_cell_labels():
     cap = CapClient()
 
-    response = cap.search_cell_labels(
+    df = cap.search_cell_labels(
         search="name",
         organism=["Homo sapiens"],
         tissue=["brain"],
@@ -38,7 +38,7 @@ def test_search_cell_labels():
         offset=0,
         sort=[{"name": "ASC"}]
     )
-    assert "lookup_cells" in response, "Wrong response data!"
+    assert type(df) is pd.DataFrame, "Wrong response type!"
 
 
 def test_open_md_session():
