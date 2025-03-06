@@ -348,7 +348,6 @@ class DatasetInitialStateLabelsetsLabelsFeedbacksExplanationDataFeedbackExplanat
 ):
     comment: Optional[str]
     typename__: Literal["FeedbackExplanationDataComment"] = Field(alias="__typename")
-    typename__: Literal["FeedbackExplanationDataComment"] = Field(alias="__typename")
 
 
 class DatasetInitialStateLabelsetsLabelsFeedbacksExplanationDataFeedbackExplanationDataSplit(
