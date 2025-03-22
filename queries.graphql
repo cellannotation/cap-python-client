@@ -375,25 +375,12 @@ fragment CurrentEmbeddingProvider_AvailableEmbeddings on Dataset {
 
 query EmbeddingData($datasetId: ID!, $options: GetDatasetEmbeddingDataInput!) {
   dataset(datasetId: $datasetId) {
-    id
     embeddingData(options: $options) {
-      obsIds
-      inSelectionMajor
-      inSelectionMinor
-      embeddings {
-        x
-        y
-        __typename
-      }
-      annotations {
-        name
-        items
-        __typename
-      }
-      geneExpression
-      __typename
+      
+      positions: embeddings
+      annotations { name labelIds }
+      
     }
-    __typename
   }
 }
 

@@ -127,6 +127,21 @@ class FeedbackCardOrganismLabelset(GeneLinkLabelset):
     typename__: str = Field(alias="__typename")
 
 
+class SplitContentExplanationData(BaseModel):
+    groups_number: float = Field(alias="groupsNumber")
+    groups: Optional[List["SplitContentExplanationDataGroups"]]
+    comment: Optional[str]
+    typename__: str = Field(alias="__typename")
+
+
+class SplitContentExplanationDataGroups(BaseModel):
+    name: str
+    marker_genes: List[str] = Field(alias="markerGenes")
+    typename__: Literal["FeedbackExplanationDataSplitLabels"] = Field(
+        alias="__typename"
+    )
+
+
 class MergeContentExplanationData(BaseModel):
     comment: Optional[str]
     labels: List["MergeContentExplanationDataLabels"]
@@ -149,21 +164,6 @@ class RefineContentExplanationDataChanges(BaseModel):
     original_value: Any = Field(alias="originalValue")
     new_value: Any = Field(alias="newValue")
     typename__: Literal["FeedbackExplanationDataRefineChanges"] = Field(
-        alias="__typename"
-    )
-
-
-class SplitContentExplanationData(BaseModel):
-    groups_number: float = Field(alias="groupsNumber")
-    groups: Optional[List["SplitContentExplanationDataGroups"]]
-    comment: Optional[str]
-    typename__: str = Field(alias="__typename")
-
-
-class SplitContentExplanationDataGroups(BaseModel):
-    name: str
-    marker_genes: List[str] = Field(alias="markerGenes")
-    typename__: Literal["FeedbackExplanationDataSplitLabels"] = Field(
         alias="__typename"
     )
 
@@ -348,6 +348,7 @@ class DatasetInitialStateLabelsetsLabelsFeedbacksExplanationDataFeedbackExplanat
 ):
     comment: Optional[str]
     typename__: Literal["FeedbackExplanationDataComment"] = Field(alias="__typename")
+    typename__: Literal["FeedbackExplanationDataComment"] = Field(alias="__typename")
 
 
 class DatasetInitialStateLabelsetsLabelsFeedbacksExplanationDataFeedbackExplanationDataSplit(
@@ -391,9 +392,9 @@ CellLabelResult.model_rebuild()
 CommentContentExplanationData.model_rebuild()
 CurrentEmbeddingProviderAvailableEmbeddings.model_rebuild()
 FeedbackCardOrganismLabelset.model_rebuild()
+SplitContentExplanationData.model_rebuild()
 MergeContentExplanationData.model_rebuild()
 RefineContentExplanationData.model_rebuild()
-SplitContentExplanationData.model_rebuild()
 FeedbackCardFeedback.model_rebuild()
 DatasetInitialState.model_rebuild()
 DatasetResult.model_rebuild()

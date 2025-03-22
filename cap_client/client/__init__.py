@@ -31,7 +31,6 @@ from .embedding_data import (
     EmbeddingDataDataset,
     EmbeddingDataDatasetEmbeddingData,
     EmbeddingDataDatasetEmbeddingDataAnnotations,
-    EmbeddingDataDatasetEmbeddingDataEmbeddings,
 )
 from .exceptions import (
     GraphQLClientError,
@@ -142,7 +141,6 @@ __all__ = [
     "CellLabelResultLabelsetDatasetProject",
     "CellLabelsSearchOptions",
     "CellLabelsSearchSort",
-    "_Client",
     "ClusterTypes",
     "ClusterTypesDataset",
     "ClusterTypesDatasetEmbeddingClusterTypes",
@@ -186,7 +184,6 @@ __all__ = [
     "EmbeddingDataDataset",
     "EmbeddingDataDatasetEmbeddingData",
     "EmbeddingDataDatasetEmbeddingDataAnnotations",
-    "EmbeddingDataDatasetEmbeddingDataEmbeddings",
     "FeedbackCardFeedback",
     "FeedbackCardFeedbackExplanation",
     "FeedbackCardFeedbackExplanationDataFeedbackExplanationDataComment",
@@ -251,4 +248,5 @@ __all__ = [
     "SplitContentExplanationData",
     "SplitContentExplanationDataGroups",
     "Upload",
+    "_Client",
 ]

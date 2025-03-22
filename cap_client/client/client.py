@@ -563,25 +563,13 @@ class _Client(BaseClient):
             """
             query EmbeddingData($datasetId: ID!, $options: GetDatasetEmbeddingDataInput!) {
               dataset(datasetId: $datasetId) {
-                id
                 embeddingData(options: $options) {
-                  obsIds
-                  inSelectionMajor
-                  inSelectionMinor
-                  embeddings {
-                    x
-                    y
-                    __typename
-                  }
+                  positions: embeddings
                   annotations {
                     name
-                    items
-                    __typename
+                    labelIds
                   }
-                  geneExpression
-                  __typename
                 }
-                __typename
               }
             }
             """
