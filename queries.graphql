@@ -36,6 +36,10 @@ fragment DatasetResult on Dataset {
   id
   name
   cellCount
+  project {
+    id
+    name
+  }
 }
 
 query LookupCells($options: CellLabelsSearchOptions!, $filter: LookupLabelsFilters, $search: LookupCellsSearch) {

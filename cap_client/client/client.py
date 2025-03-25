@@ -63,49 +63,10 @@ class _Client(BaseClient):
               id
               name
               cellCount
-              labelsets {
-                id
-                name
-                labels {
-                  id
-                  name
-                  count
-                  __typename
-                }
-                __typename
-              }
               project {
                 id
                 name
-                ...ProjectAuthors_project
-                __typename
               }
-              __typename
-            }
-
-            fragment ProjectAuthors_project on Project {
-              version
-              owner {
-                uid
-                tempDisplayName
-                displayName
-                avatarUrl
-                __typename
-              }
-              permissions {
-                id
-                isActive
-                role
-                user {
-                  uid
-                  tempDisplayName
-                  displayName
-                  avatarUrl
-                  __typename
-                }
-                __typename
-              }
-              __typename
             }
             """
         )
@@ -154,71 +115,6 @@ class _Client(BaseClient):
               markerGenes
               canonicalMarkerGenes
               count
-              labelset {
-                id
-                name
-                dataset {
-                  id
-                  name
-                  labelsets {
-                    id
-                    name
-                    labels {
-                      id
-                      name
-                      count
-                      __typename
-                    }
-                    ...GeneLink_labelset
-                    __typename
-                  }
-                  project {
-                    id
-                    name
-                    ...ProjectAuthors_project
-                    __typename
-                  }
-                  __typename
-                }
-                __typename
-              }
-              __typename
-            }
-
-            fragment GeneLink_labelset on Labelset {
-              id
-              labels {
-                id
-                name
-                count
-                __typename
-              }
-              __typename
-            }
-
-            fragment ProjectAuthors_project on Project {
-              version
-              owner {
-                uid
-                tempDisplayName
-                displayName
-                avatarUrl
-                __typename
-              }
-              permissions {
-                id
-                isActive
-                role
-                user {
-                  uid
-                  tempDisplayName
-                  displayName
-                  avatarUrl
-                  __typename
-                }
-                __typename
-              }
-              __typename
             }
             """
         )
