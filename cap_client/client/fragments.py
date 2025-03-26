@@ -8,50 +8,6 @@ from pydantic import Field
 from .base_model import BaseModel
 
 
-class ProjectAuthorsProject(BaseModel):
-    version: float
-    owner: "ProjectAuthorsProjectOwner"
-    permissions: List["ProjectAuthorsProjectPermissions"]
-    typename__: str = Field(alias="__typename")
-
-
-class ProjectAuthorsProjectOwner(BaseModel):
-    uid: str
-    temp_display_name: str = Field(alias="tempDisplayName")
-    display_name: str = Field(alias="displayName")
-    avatar_url: str = Field(alias="avatarUrl")
-    typename__: Literal["CapUser"] = Field(alias="__typename")
-
-
-class ProjectAuthorsProjectPermissions(BaseModel):
-    id: str
-    is_active: bool = Field(alias="isActive")
-    role: Any
-    user: "ProjectAuthorsProjectPermissionsUser"
-    typename__: Literal["ProjectPermission"] = Field(alias="__typename")
-
-
-class ProjectAuthorsProjectPermissionsUser(BaseModel):
-    uid: str
-    temp_display_name: str = Field(alias="tempDisplayName")
-    display_name: str = Field(alias="displayName")
-    avatar_url: str = Field(alias="avatarUrl")
-    typename__: Literal["CapUser"] = Field(alias="__typename")
-
-
-class GeneLinkLabelset(BaseModel):
-    id: str
-    labels: Optional[List["GeneLinkLabelsetLabels"]]
-    typename__: str = Field(alias="__typename")
-
-
-class GeneLinkLabelsetLabels(BaseModel):
-    id: str
-    name: str
-    count: int
-    typename__: Literal["Label"] = Field(alias="__typename")
-
-
 class CellLabelResult(BaseModel):
     id: str
     full_name: Optional[str] = Field(alias="fullName")
@@ -69,43 +25,6 @@ class CellLabelResult(BaseModel):
     marker_genes: List[str] = Field(alias="markerGenes")
     canonical_marker_genes: Optional[List[str]] = Field(alias="canonicalMarkerGenes")
     count: int
-    labelset: "CellLabelResultLabelset"
-    typename__: str = Field(alias="__typename")
-
-
-class CellLabelResultLabelset(BaseModel):
-    id: str
-    name: str
-    dataset: "CellLabelResultLabelsetDataset"
-    typename__: Literal["Labelset"] = Field(alias="__typename")
-
-
-class CellLabelResultLabelsetDataset(BaseModel):
-    id: str
-    name: str
-    labelsets: Optional[List["CellLabelResultLabelsetDatasetLabelsets"]]
-    project: "CellLabelResultLabelsetDatasetProject"
-    typename__: Literal["Dataset"] = Field(alias="__typename")
-
-
-class CellLabelResultLabelsetDatasetLabelsets(GeneLinkLabelset):
-    id: str
-    name: str
-    labels: Optional[List["CellLabelResultLabelsetDatasetLabelsetsLabels"]]
-    typename__: Literal["Labelset"] = Field(alias="__typename")
-
-
-class CellLabelResultLabelsetDatasetLabelsetsLabels(BaseModel):
-    id: str
-    name: str
-    count: int
-    typename__: Literal["Label"] = Field(alias="__typename")
-
-
-class CellLabelResultLabelsetDatasetProject(ProjectAuthorsProject):
-    id: str
-    name: str
-    typename__: Literal["Project"] = Field(alias="__typename")
 
 
 class CommentContentExplanationData(BaseModel):
@@ -121,6 +40,19 @@ class CurrentEmbeddingProviderAvailableEmbeddings(BaseModel):
 class CurrentEmbeddingProviderAvailableEmbeddingsEmbeddings(BaseModel):
     name: str
     typename__: Literal["EmbeddingGroup"] = Field(alias="__typename")
+
+
+class GeneLinkLabelset(BaseModel):
+    id: str
+    labels: Optional[List["GeneLinkLabelsetLabels"]]
+    typename__: str = Field(alias="__typename")
+
+
+class GeneLinkLabelsetLabels(BaseModel):
+    id: str
+    name: str
+    count: int
+    typename__: Literal["Label"] = Field(alias="__typename")
 
 
 class FeedbackCardOrganismLabelset(GeneLinkLabelset):
@@ -139,20 +71,6 @@ class MergeContentExplanationDataLabels(BaseModel):
     typename__: Literal["Label"] = Field(alias="__typename")
 
 
-class RefineContentExplanationData(BaseModel):
-    changes: List["RefineContentExplanationDataChanges"]
-    typename__: str = Field(alias="__typename")
-
-
-class RefineContentExplanationDataChanges(BaseModel):
-    attribute: str
-    original_value: Any = Field(alias="originalValue")
-    new_value: Any = Field(alias="newValue")
-    typename__: Literal["FeedbackExplanationDataRefineChanges"] = Field(
-        alias="__typename"
-    )
-
-
 class SplitContentExplanationData(BaseModel):
     groups_number: float = Field(alias="groupsNumber")
     groups: Optional[List["SplitContentExplanationDataGroups"]]
@@ -164,6 +82,20 @@ class SplitContentExplanationDataGroups(BaseModel):
     name: str
     marker_genes: List[str] = Field(alias="markerGenes")
     typename__: Literal["FeedbackExplanationDataSplitLabels"] = Field(
+        alias="__typename"
+    )
+
+
+class RefineContentExplanationData(BaseModel):
+    changes: List["RefineContentExplanationDataChanges"]
+    typename__: str = Field(alias="__typename")
+
+
+class RefineContentExplanationDataChanges(BaseModel):
+    attribute: str
+    original_value: Any = Field(alias="originalValue")
+    new_value: Any = Field(alias="newValue")
+    typename__: Literal["FeedbackExplanationDataRefineChanges"] = Field(
         alias="__typename"
     )
 
@@ -348,6 +280,7 @@ class DatasetInitialStateLabelsetsLabelsFeedbacksExplanationDataFeedbackExplanat
 ):
     comment: Optional[str]
     typename__: Literal["FeedbackExplanationDataComment"] = Field(alias="__typename")
+    typename__: Literal["FeedbackExplanationDataComment"] = Field(alias="__typename")
 
 
 class DatasetInitialStateLabelsetsLabelsFeedbacksExplanationDataFeedbackExplanationDataSplit(
@@ -360,40 +293,54 @@ class DatasetResult(BaseModel):
     id: str
     name: str
     cell_count: float = Field(alias="cellCount")
-    labelsets: Optional[List["DatasetResultLabelsets"]]
     project: "DatasetResultProject"
+
+
+class DatasetResultProject(BaseModel):
+    id: str
+    name: str
+
+
+class ProjectAuthorsProject(BaseModel):
+    version: float
+    owner: "ProjectAuthorsProjectOwner"
+    permissions: List["ProjectAuthorsProjectPermissions"]
     typename__: str = Field(alias="__typename")
 
 
-class DatasetResultLabelsets(BaseModel):
+class ProjectAuthorsProjectOwner(BaseModel):
+    uid: str
+    temp_display_name: str = Field(alias="tempDisplayName")
+    display_name: str = Field(alias="displayName")
+    avatar_url: str = Field(alias="avatarUrl")
+    typename__: Literal["CapUser"] = Field(alias="__typename")
+
+
+class ProjectAuthorsProjectPermissions(BaseModel):
     id: str
-    name: str
-    labels: Optional[List["DatasetResultLabelsetsLabels"]]
-    typename__: Literal["Labelset"] = Field(alias="__typename")
+    is_active: bool = Field(alias="isActive")
+    role: Any
+    user: "ProjectAuthorsProjectPermissionsUser"
+    typename__: Literal["ProjectPermission"] = Field(alias="__typename")
 
 
-class DatasetResultLabelsetsLabels(BaseModel):
-    id: str
-    name: str
-    count: int
-    typename__: Literal["Label"] = Field(alias="__typename")
+class ProjectAuthorsProjectPermissionsUser(BaseModel):
+    uid: str
+    temp_display_name: str = Field(alias="tempDisplayName")
+    display_name: str = Field(alias="displayName")
+    avatar_url: str = Field(alias="avatarUrl")
+    typename__: Literal["CapUser"] = Field(alias="__typename")
 
 
-class DatasetResultProject(ProjectAuthorsProject):
-    id: str
-    name: str
-    typename__: Literal["Project"] = Field(alias="__typename")
-
-
-ProjectAuthorsProject.model_rebuild()
-GeneLinkLabelset.model_rebuild()
 CellLabelResult.model_rebuild()
 CommentContentExplanationData.model_rebuild()
 CurrentEmbeddingProviderAvailableEmbeddings.model_rebuild()
+GeneLinkLabelset.model_rebuild()
 FeedbackCardOrganismLabelset.model_rebuild()
 MergeContentExplanationData.model_rebuild()
-RefineContentExplanationData.model_rebuild()
 SplitContentExplanationData.model_rebuild()
+RefineContentExplanationData.model_rebuild()
 FeedbackCardFeedback.model_rebuild()
 DatasetInitialState.model_rebuild()
 DatasetResult.model_rebuild()
+ProjectAuthorsProject.model_rebuild()

@@ -33,6 +33,8 @@ class PostHeatmapInput(BaseModel):
         alias="includeReferenceSelection", default=None
     )
     selection_key: Optional[str] = Field(alias="selectionKey", default=None)
+    max_p_value: Optional[float] = Field(alias="maxPValue", default=None)
+    focus_labels: Optional[List[str]] = Field(alias="focusLabels", default=None)
 
 
 class GetHighlyVariableGenesInput(BaseModel):
@@ -113,7 +115,6 @@ class DatasetObjectInput(BaseModel):
     dataset_type: Optional[str] = Field(alias="datasetType", default=None)
     cell_count: Optional[float] = Field(alias="cellCount", default=None)
     description: Optional[str] = None
-    labelsets_count: Optional[float] = Field(alias="labelsetsCount", default=None)
     name: Optional[str] = None
     labelsets: Optional[List["LabelsetWithLabelsObjectInput"]] = None
 
@@ -130,7 +131,7 @@ class LabelsetWithLabelsObjectInput(BaseModel):
     reference_description: Optional[str] = Field(
         alias="referenceDescription", default=None
     )
-    reference_url: Optional[str] = Field(alias="referenceUrl", default=None)
+    reference_location: Optional[str] = Field(alias="referenceLocation", default=None)
     embedding: Optional[str] = None
     labels: Optional[List["LabelObjectInput"]] = None
 

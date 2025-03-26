@@ -36,24 +36,10 @@ fragment DatasetResult on Dataset {
   id
   name
   cellCount
-  labelsets {
-    id
-    name
-    labels {
-      id
-      name
-      count
-      __typename
-    }
-    __typename
-  }
   project {
     id
     name
-    ...ProjectAuthors_project
-    __typename
   }
-  __typename
 }
 
 query LookupCells($options: CellLabelsSearchOptions!, $filter: LookupLabelsFilters, $search: LookupCellsSearch) {
@@ -91,36 +77,7 @@ fragment CellLabelResult on Label {
   categoryFullName
   markerGenes
   canonicalMarkerGenes
-  count
-  labelset {
-    id
-    name
-    dataset {
-      id
-      name
-      labelsets {
-        id
-        name
-        labels {
-          id
-          name
-          count
-          __typename
-        }
-        ...GeneLink_labelset
-        __typename
-      }
-      project {
-        id
-        name
-        ...ProjectAuthors_project
-        __typename
-      }
-      __typename
-    }
-    __typename
-  }
-  __typename
+  count  
 }
 
 query DownloadUrls($datasetId: ID!) {
@@ -375,25 +332,12 @@ fragment CurrentEmbeddingProvider_AvailableEmbeddings on Dataset {
 
 query EmbeddingData($datasetId: ID!, $options: GetDatasetEmbeddingDataInput!) {
   dataset(datasetId: $datasetId) {
-    id
     embeddingData(options: $options) {
-      obsIds
-      inSelectionMajor
-      inSelectionMinor
-      embeddings {
-        x
-        y
-        __typename
-      }
-      annotations {
-        name
-        items
-        __typename
-      }
-      geneExpression
-      __typename
+      
+      positions: embeddings
+      annotations { name labelIds }
+      
     }
-    __typename
   }
 }
 
