@@ -6,9 +6,10 @@ import jwt
 import os
 from uuid import uuid4
 import pandas as pd
+import httpx
 
-from client.client import _Client
-from client.input_types import (
+from .client.client import _Client
+from .client.input_types import (
     DatasetSearchOptions,
     LookupDatasetsFiltersInput,
     LookupDatasetsSearchInput,
@@ -25,8 +26,8 @@ from client.input_types import (
     PostSaveEmbeddingSessionInput,
     PostHeatmapInput
 )
-from client.embedding_data import EmbeddingDataDatasetEmbeddingData
-from client.heatmap import HeatmapDatasetEmbeddingDiffHeatMap
+from .client.embedding_data import EmbeddingDataDatasetEmbeddingData
+from .client.heatmap import HeatmapDatasetEmbeddingDiffHeatMap
 
 CAP_API_URL = "https://celltype.info/graphql"
 CAP_AUTHENTICATE_URL = "us-central1-capv2-gke-prod.cloudfunctions.net" # https://${var.gcp_region}-${var.gcp_project_id}.cloudfunctions.net/authenticate-token
@@ -371,7 +372,9 @@ class CapClient:
             pwd: str = None,
             custom_token: str = None  
         ) -> None:
-        self.__client = _Client(url)
+        headers = None
+        client = httpx.Client(timeout=300, headers=headers)
+        self.__client = _Client(url, headers=headers, http_client=client)
         self._login = login if login is not None else os.environ.get('CAP_LOGIN')
         self._pwd = pwd if pwd is not None else os.environ.get('CAP_PWD')
         self._custom_token = custom_token if custom_token is not None else os.environ.get('CAP_TOKEN')

@@ -42,35 +42,6 @@ class CurrentEmbeddingProviderAvailableEmbeddingsEmbeddings(BaseModel):
     typename__: Literal["EmbeddingGroup"] = Field(alias="__typename")
 
 
-class GeneLinkLabelset(BaseModel):
-    id: str
-    labels: Optional[List["GeneLinkLabelsetLabels"]]
-    typename__: str = Field(alias="__typename")
-
-
-class GeneLinkLabelsetLabels(BaseModel):
-    id: str
-    name: str
-    count: int
-    typename__: Literal["Label"] = Field(alias="__typename")
-
-
-class FeedbackCardOrganismLabelset(GeneLinkLabelset):
-    typename__: str = Field(alias="__typename")
-
-
-class MergeContentExplanationData(BaseModel):
-    comment: Optional[str]
-    labels: List["MergeContentExplanationDataLabels"]
-    typename__: str = Field(alias="__typename")
-
-
-class MergeContentExplanationDataLabels(BaseModel):
-    id: str
-    name: str
-    typename__: Literal["Label"] = Field(alias="__typename")
-
-
 class SplitContentExplanationData(BaseModel):
     groups_number: float = Field(alias="groupsNumber")
     groups: Optional[List["SplitContentExplanationDataGroups"]]
@@ -98,6 +69,18 @@ class RefineContentExplanationDataChanges(BaseModel):
     typename__: Literal["FeedbackExplanationDataRefineChanges"] = Field(
         alias="__typename"
     )
+
+
+class MergeContentExplanationData(BaseModel):
+    comment: Optional[str]
+    labels: List["MergeContentExplanationDataLabels"]
+    typename__: str = Field(alias="__typename")
+
+
+class MergeContentExplanationDataLabels(BaseModel):
+    id: str
+    name: str
+    typename__: Literal["Label"] = Field(alias="__typename")
 
 
 class FeedbackCardFeedback(BaseModel):
@@ -155,6 +138,23 @@ class FeedbackCardFeedbackExplanationDataFeedbackExplanationDataSplit(
     SplitContentExplanationData
 ):
     typename__: Literal["FeedbackExplanationDataSplit"] = Field(alias="__typename")
+
+
+class GeneLinkLabelset(BaseModel):
+    id: str
+    labels: Optional[List["GeneLinkLabelsetLabels"]]
+    typename__: str = Field(alias="__typename")
+
+
+class GeneLinkLabelsetLabels(BaseModel):
+    id: str
+    name: str
+    count: int
+    typename__: Literal["Label"] = Field(alias="__typename")
+
+
+class FeedbackCardOrganismLabelset(GeneLinkLabelset):
+    typename__: str = Field(alias="__typename")
 
 
 class DatasetInitialState(BaseModel):
@@ -335,12 +335,12 @@ class ProjectAuthorsProjectPermissionsUser(BaseModel):
 CellLabelResult.model_rebuild()
 CommentContentExplanationData.model_rebuild()
 CurrentEmbeddingProviderAvailableEmbeddings.model_rebuild()
-GeneLinkLabelset.model_rebuild()
-FeedbackCardOrganismLabelset.model_rebuild()
-MergeContentExplanationData.model_rebuild()
 SplitContentExplanationData.model_rebuild()
 RefineContentExplanationData.model_rebuild()
+MergeContentExplanationData.model_rebuild()
 FeedbackCardFeedback.model_rebuild()
+GeneLinkLabelset.model_rebuild()
+FeedbackCardOrganismLabelset.model_rebuild()
 DatasetInitialState.model_rebuild()
 DatasetResult.model_rebuild()
 ProjectAuthorsProject.model_rebuild()
