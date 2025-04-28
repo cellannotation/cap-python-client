@@ -5,3 +5,4 @@ dist/*
 test/__pycache__
 tmp/*
 *.DS_Store
+.vscode/*
