@@ -90,7 +90,7 @@ query DownloadUrls($datasetId: ID!) {
   }
 }
 
-query DatasetInitialStateQuery($datasetId: ID!) {
+query DatasetInitialStateQuery($datasetId: ID!, $labelsetOrder: ResolveDatasetLabelsetOrder) {
   dataset(datasetId: $datasetId) {
     id
     name
@@ -144,7 +144,6 @@ fragment FeedbackCard_feedback on LabelFeedback {
   user {
     uid
     displayName
-    displayName
     avatarUrl
     __typename
   }
@@ -178,10 +177,12 @@ fragment DatasetInitialState on Dataset {
   datasetType
   defaultEmbedding
   cellCount
-  labelsets {
+  inReview
+  labelsets(order: $labelsetOrder) {
     id
     name
     mode
+    order
     description
     annotationMethod
     algorithmName
