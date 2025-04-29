@@ -1,17 +1,25 @@
 [project]
-name="cap_client"
-version="0.0.4"
-license = {file = "LICENSE"}
+name="cap_sc_client"
+version="0.0.10"
+license = "MIT"
 authors= [
-  { name="M. Sokolov", email="maxim.sokolov@ebookapplications.com" },
+  { name="M. Sokolov"     },
+  { name="R. Mukhin"      },
+  { name="A. Isaev"       },
+  { name="E. Biederstedt" },
 ]
-description = "Python client for CAP GraphQL API."
+description = "Python client for Cell-Annotation-Platform (CAP) GraphQL API."
 readme = {file = "README.txt", content-type = "text/markdown"}
-
 classifiers = [
     "Programming Language :: Python :: 3",
-    "License :: OSI Approved :: MIT License",
     "Operating System :: OS Independent",
+]
+dependencies = [
+    "httpx>=0.27.2",
+    "pydantic>=2.10.3",
+    "pydantic_core>=2.27.1",
+    "PyJWT>=2.10.1",
+    "pandas>=2.0.0",
 ]
 
 [project.urls]
@@ -42,3 +50,6 @@ client_name="_Client"
 [tool.pytest.ini_options]
 pythonpath = ["cap_client"]
 log_level = "DEBUG"
+
+[tool.setuptools.packages.find]
+exclude = ["tmp*", "test*", "examples*"]
