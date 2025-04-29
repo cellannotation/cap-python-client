@@ -29,6 +29,7 @@ from .input_types import (
     LookupLabelsFilters,
     PostHeatmapInput,
     PostSaveEmbeddingSessionInput,
+    ResolveDatasetLabelsetOrder,
 )
 from .lookup_cells import LookupCells
 from .md_commons_query import MDCommonsQuery
@@ -151,11 +152,14 @@ class _Client(BaseClient):
         return DownloadUrls.model_validate(data)
 
     def dataset_initial_state_query(
-        self, dataset_id: str, **kwargs: Any
+        self,
+        dataset_id: str,
+        labelset_order: Union[Optional[ResolveDatasetLabelsetOrder], UnsetType] = UNSET,
+        **kwargs: Any
     ) -> DatasetInitialStateQuery:
         query = gql(
             """
-            query DatasetInitialStateQuery($datasetId: ID!) {
+            query DatasetInitialStateQuery($datasetId: ID!, $labelsetOrder: ResolveDatasetLabelsetOrder) {
               dataset(datasetId: $datasetId) {
                 id
                 name
@@ -180,10 +184,12 @@ class _Client(BaseClient):
               datasetType
               defaultEmbedding
               cellCount
-              labelsets {
+              inReview
+              labelsets(order: $labelsetOrder) {
                 id
                 name
                 mode
+                order
                 description
                 annotationMethod
                 algorithmName
@@ -263,7 +269,6 @@ class _Client(BaseClient):
               createdAt
               user {
                 uid
-                tempDisplayName
                 displayName
                 avatarUrl
                 __typename
@@ -334,7 +339,10 @@ class _Client(BaseClient):
             }
             """
         )
-        variables: Dict[str, object] = {"datasetId": dataset_id}
+        variables: Dict[str, object] = {
+            "datasetId": dataset_id,
+            "labelsetOrder": labelset_order,
+        }
         response = self.execute(
             query=query,
             operation_name="DatasetInitialStateQuery",

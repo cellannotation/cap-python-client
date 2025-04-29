@@ -8,6 +8,11 @@ from pydantic import Field, PlainSerializer
 from .base_model import BaseModel, Upload
 
 
+class ResolveDatasetLabelsetOrder(BaseModel):
+    field: str
+    order: str
+
+
 class GetDatasetEmbeddingDataInput(BaseModel):
     embedding: str
     selection_gene: Optional[str] = Field(alias="selectionGene", default=None)
@@ -133,6 +138,7 @@ class LabelsetWithLabelsObjectInput(BaseModel):
     )
     reference_location: Optional[str] = Field(alias="referenceLocation", default=None)
     embedding: Optional[str] = None
+    order: Optional[float] = None
     labels: Optional[List["LabelObjectInput"]] = None
 
 
@@ -171,6 +177,7 @@ class LabelObjectInput(BaseModel):
     marker_genes: Optional[List[str]] = Field(alias="markerGenes", default=None)
     rationale_dois: Optional[List[str]] = Field(alias="rationaleDois", default=None)
     synonyms: Optional[List[str]] = None
+    average_conf_score: Optional[float] = Field(alias="averageConfScore", default=None)
 
 
 CellLabelsSearchOptions.model_rebuild()
