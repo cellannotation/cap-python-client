@@ -11,7 +11,7 @@ fragment ProjectAuthors_project on Project {
   version
   owner {
     uid
-    tempDisplayName
+    displayName
     displayName
     avatarUrl
     __typename
@@ -22,7 +22,7 @@ fragment ProjectAuthors_project on Project {
     role
     user {
       uid
-      tempDisplayName
+      displayName
       displayName
       avatarUrl
       __typename
@@ -90,7 +90,7 @@ query DownloadUrls($datasetId: ID!) {
   }
 }
 
-query DatasetInitialStateQuery($datasetId: ID!) {
+query DatasetInitialStateQuery($datasetId: ID!, $labelsetOrder: ResolveDatasetLabelsetOrder) {
   dataset(datasetId: $datasetId) {
     id
     name
@@ -143,7 +143,6 @@ fragment FeedbackCard_feedback on LabelFeedback {
   createdAt
   user {
     uid
-    tempDisplayName
     displayName
     avatarUrl
     __typename
@@ -178,10 +177,12 @@ fragment DatasetInitialState on Dataset {
   datasetType
   defaultEmbedding
   cellCount
-  labelsets {
+  inReview
+  labelsets(order: $labelsetOrder) {
     id
     name
     mode
+    order
     description
     annotationMethod
     algorithmName

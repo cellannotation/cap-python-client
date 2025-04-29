@@ -115,6 +115,7 @@ from .input_types import (
     LookupLabelsFilters,
     PostHeatmapInput,
     PostSaveEmbeddingSessionInput,
+    ResolveDatasetLabelsetOrder,
     SearchByMetadataArgs,
     SearchLabelByMetadataArgs,
 )
@@ -227,6 +228,7 @@ __all__ = [
     "ProjectAuthorsProjectPermissionsUser",
     "RefineContentExplanationData",
     "RefineContentExplanationDataChanges",
+    "ResolveDatasetLabelsetOrder",
     "SearchByMetadataArgs",
     "SearchDatasets",
     "SearchDatasetsResults",

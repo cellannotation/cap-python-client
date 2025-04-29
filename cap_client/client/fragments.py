@@ -57,6 +57,18 @@ class SplitContentExplanationDataGroups(BaseModel):
     )
 
 
+class MergeContentExplanationData(BaseModel):
+    comment: Optional[str]
+    labels: List["MergeContentExplanationDataLabels"]
+    typename__: str = Field(alias="__typename")
+
+
+class MergeContentExplanationDataLabels(BaseModel):
+    id: str
+    name: str
+    typename__: Literal["Label"] = Field(alias="__typename")
+
+
 class RefineContentExplanationData(BaseModel):
     changes: List["RefineContentExplanationDataChanges"]
     typename__: str = Field(alias="__typename")
@@ -71,18 +83,6 @@ class RefineContentExplanationDataChanges(BaseModel):
     )
 
 
-class MergeContentExplanationData(BaseModel):
-    comment: Optional[str]
-    labels: List["MergeContentExplanationDataLabels"]
-    typename__: str = Field(alias="__typename")
-
-
-class MergeContentExplanationDataLabels(BaseModel):
-    id: str
-    name: str
-    typename__: Literal["Label"] = Field(alias="__typename")
-
-
 class FeedbackCardFeedback(BaseModel):
     created_at: Any = Field(alias="createdAt")
     user: Optional["FeedbackCardFeedbackUser"]
@@ -92,7 +92,6 @@ class FeedbackCardFeedback(BaseModel):
 
 class FeedbackCardFeedbackUser(BaseModel):
     uid: str
-    temp_display_name: str = Field(alias="tempDisplayName")
     display_name: str = Field(alias="displayName")
     avatar_url: str = Field(alias="avatarUrl")
     typename__: Literal["CapUser"] = Field(alias="__typename")
@@ -164,6 +163,7 @@ class DatasetInitialState(BaseModel):
     dataset_type: str = Field(alias="datasetType")
     default_embedding: Optional[str] = Field(alias="defaultEmbedding")
     cell_count: float = Field(alias="cellCount")
+    in_review: bool = Field(alias="inReview")
     labelsets: Optional[List["DatasetInitialStateLabelsets"]]
     typename__: str = Field(alias="__typename")
 
@@ -172,6 +172,7 @@ class DatasetInitialStateLabelsets(FeedbackCardOrganismLabelset):
     id: str
     name: str
     mode: str
+    order: float
     description: Optional[str]
     annotation_method: Optional[str] = Field(alias="annotationMethod")
     algorithm_name: Optional[str] = Field(alias="algorithmName")
@@ -310,7 +311,7 @@ class ProjectAuthorsProject(BaseModel):
 
 class ProjectAuthorsProjectOwner(BaseModel):
     uid: str
-    temp_display_name: str = Field(alias="tempDisplayName")
+    display_name: str = Field(alias="displayName")
     display_name: str = Field(alias="displayName")
     avatar_url: str = Field(alias="avatarUrl")
     typename__: Literal["CapUser"] = Field(alias="__typename")
@@ -320,13 +321,13 @@ class ProjectAuthorsProjectPermissions(BaseModel):
     id: str
     is_active: bool = Field(alias="isActive")
     role: Any
-    user: "ProjectAuthorsProjectPermissionsUser"
+    user: Optional["ProjectAuthorsProjectPermissionsUser"]
     typename__: Literal["ProjectPermission"] = Field(alias="__typename")
 
 
 class ProjectAuthorsProjectPermissionsUser(BaseModel):
     uid: str
-    temp_display_name: str = Field(alias="tempDisplayName")
+    display_name: str = Field(alias="displayName")
     display_name: str = Field(alias="displayName")
     avatar_url: str = Field(alias="avatarUrl")
     typename__: Literal["CapUser"] = Field(alias="__typename")
@@ -336,8 +337,8 @@ CellLabelResult.model_rebuild()
 CommentContentExplanationData.model_rebuild()
 CurrentEmbeddingProviderAvailableEmbeddings.model_rebuild()
 SplitContentExplanationData.model_rebuild()
-RefineContentExplanationData.model_rebuild()
 MergeContentExplanationData.model_rebuild()
+RefineContentExplanationData.model_rebuild()
 FeedbackCardFeedback.model_rebuild()
 GeneLinkLabelset.model_rebuild()
 FeedbackCardOrganismLabelset.model_rebuild()
