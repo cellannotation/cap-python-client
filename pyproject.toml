@@ -34,7 +34,6 @@ requires = ["setuptools"]
 
 [project.optional-dependencies]
 dev = ["ariadne"]
-test = ["pytest"]
 
 [tool.ariadne-codegen]
 remote_schema_url = "https://celltype.info/graphql"
@@ -45,10 +44,6 @@ include_all_enums=false
 target_package_path="./cap_client/"
 target_package_name="client"
 client_name="_Client"
-
-[tool.pytest.ini_options]
-pythonpath = ["cap_client"]
-log_level = "DEBUG"
 
 [tool.setuptools.packages.find]
 exclude = ["tmp*", "test*", "examples*"]
