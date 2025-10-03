@@ -30,7 +30,6 @@ from .client.embedding_data import EmbeddingDataDatasetEmbeddingData
 from .client.heatmap import HeatmapDatasetEmbeddingDiffHeatMap
 
 CAP_API_URL = "https://celltype.info/graphql"
-CAP_AUTHENTICATE_URL = "us-central1-capv2-gke-prod.cloudfunctions.net" # https://${var.gcp_region}-${var.gcp_project_id}.cloudfunctions.net/authenticate-token
 
 SESSION_ID = str
 DIFF_KEY = str
@@ -195,8 +194,6 @@ class MDSession:
             selection_key_minor = selection_key_minor,
         )
         
-        # TODO: is not workgin with new rc1
-        # update request later https://capdevelopment.atlassian.net/browse/MVP-6489
         response = self.__client.embedding_data(
             dataset_id = self.dataset_id,
             options = options
@@ -354,7 +351,6 @@ class MDSession:
             selection_key = selection_key,
         )
 
-        # TODO: update api, it was changed on rc1 https://capdevelopment.atlassian.net/browse/MVP-6489
         res = self.__client.heatmap(
             dataset_id=self.dataset_id,
             options=options,
@@ -367,73 +363,11 @@ class CapClient:
     def __init__(
             self,
             url: str = CAP_API_URL, 
-            auth_url: str = CAP_AUTHENTICATE_URL,
-            login: str = None,
-            pwd: str = None,
-            custom_token: str = None  
         ) -> None:
         headers = None
         client = httpx.Client(timeout=300, headers=headers)
         self.__client = _Client(url, headers=headers, http_client=client)
-        self._login = login if login is not None else os.environ.get('CAP_LOGIN')
-        self._pwd = pwd if pwd is not None else os.environ.get('CAP_PWD')
-        self._custom_token = custom_token if custom_token is not None else os.environ.get('CAP_TOKEN')
-        self._token: str = None
-        self._token_expiry_time: time = None
-        self._error_status: str = None
-        self.auth_url = auth_url
-
-    def _auth_request (
-            self,
-            base_url: str, 
-            url: str,
-            body: dict
-        ) -> bool: 
-        connection = http.client.HTTPSConnection(base_url)
-        headers = {'Content-type': 'application/json'}
-        connection.request("POST", url = url,  body=json.dumps(body), headers=headers)
-        response = connection.getresponse()
-        if (response.status == 200):
-            try:
-                response = response.read().decode()
-                self._token = json.loads(response)['idToken']
-                # TODO : Add signature verification https://capdevelopment.atlassian.net/browse/MVP-6392
-                self._token_expiry_time = jwt.decode(self._token, options={"verify_signature": False})['exp']
-                self._error_status = None
-                return True
-            except: # TODO: implement appropriate error handling https://capdevelopment.atlassian.net/browse/MVP-6489
-                self._error_status = "Failed to parse 200 OK response to get ID token"
-                return False
-        self._error_status = "Failed to get ID token " + response.reason 
-        return False
-    
-    def authenticate(
-        self
-     ) -> bool:
-        # try authenticate by custom token first
-        if self._custom_token is not None:
-            body = {'token':self._custom_token}
-            if (self._auth_request(base_url= self.auth_url, url = "/authenticate-token", body = body)):
-                return True
-        if self._login is not None and self._pwd is not None:    
-            body = {'email':self._login, 'password': self._pwd}
-            if (self._auth_request(base_url = self.auth_url, url = "/authenticate-user", body = body)):
-                return True
-        self._error_status = "Missing CAP client authetication settings. Check CAP_LOGIN, CAP_PWD or CAP_TOKEN enviroment variables."
-        return False
-
-    @property     
-    def error_status(self) -> str:
-        return self._error_status
-    
-    @property
-    def id_token(self) -> str:
-        return self._token
-    
-    @property
-    def token_expiry_time(self) -> time:
-        return self._token_expiry_time
-
+        
     def search_datasets(
         self,
         search: List[str] = None,
