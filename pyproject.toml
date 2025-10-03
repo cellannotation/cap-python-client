@@ -3,10 +3,10 @@ name="cap_sc_client"
 version="0.0.10"
 license = "MIT"
 authors= [
-  { name="M. Sokolov"     },
   { name="R. Mukhin"      },
   { name="A. Isaev"       },
   { name="E. Biederstedt" },
+  { name="M. Sokolov"     },
 ]
 description = "Python client for Cell-Annotation-Platform (CAP) GraphQL API."
 readme = {file = "README.txt", content-type = "text/markdown"}
@@ -18,7 +18,6 @@ dependencies = [
     "httpx>=0.27.2",
     "pydantic>=2.10.3",
     "pydantic_core>=2.27.1",
-    "PyJWT>=2.10.1",
     "pandas>=2.0.0",
 ]
 
