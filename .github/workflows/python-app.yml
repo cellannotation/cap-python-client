@@ -18,7 +18,6 @@ jobs:
     strategy:
       matrix:
         python-version: ['3.9', '3.10', '3.11']
-        constrain: ["-c constrain_min.txt", ""]
     steps:
     - uses: actions/checkout@v4
     - name: Set up Python ${{ matrix.python-version }}
@@ -30,7 +29,7 @@ jobs:
         python -m pip install --upgrade pip
         python -m pip install --upgrade uv
         uv pip install --system flake8 pytest
-        if [ -f requirements.txt ]; then uv pip install --system -U -r requirements.txt; fi
+        uv pip install --system -r pyproject.toml
     - name: Lint with flake8
       run: |
         # stop the build if there are Python syntax errors or undefined names
