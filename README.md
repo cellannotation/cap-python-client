@@ -12,7 +12,8 @@ pip install -U cap-sc-client
 
 ## Basic usage
 
-The main goal of the package is to provide an interface to access CAP datasets and cell label annotations collection via standard python toolings like pandas dataframes.
+The main goal of this package is to provide an interace to access CAP datasets and cell annotation metadata (including marker genes, synonyms, rationales, etc.) via standard python tooling. The outputs are in the format [pandas DataFrame](https://pandas.pydata.org/docs/reference/api/pandas.DataFrame.html), which could be converted to other formats (csv, JSON, etc.) if the user desires.
+
 
 ```
 >>> from cap_sc_client import CapClient
@@ -40,16 +41,14 @@ The main goal of the package is to provide an interface to access CAP datasets a
 9            club cell                 True             [SCGB1A1]
 ```
 
-There is also a `MDSession` class that allows to interact molecular profile of cell types within specific dataset. However, this class requires user to be familiar with CAP MD page. For more examples please refer to [examples](./examples/) folder and GitHub Wiki for detailed documentation. 
+There is also an `MDSession` class that allows users to interact with the molecular profiles of cell types within a specific dataset. However, this class requires users to be familiar with the CAP MD page.
+
+For more examples, please refer to ["examples"](https://github.com/cellannotation/cap-python-client/tree/main/examples) and the [GitHub wiki](https://github.com/cellannotation/cap-python-client/wiki) for detailed documentation.
 
 ## Documentation
 
 Detailed documentation is available on [GitHub Wiki](https://github.com/cellannotation/cap-python-client/wiki).
 
-
-## Changelog
-
-See [CHANGELOG.md](./CHANGELOG.md).
 
 ## Development
 
