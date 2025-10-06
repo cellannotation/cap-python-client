@@ -47,3 +47,7 @@ client_name="_Client"
 
 [tool.setuptools.packages.find]
 exclude = ["tmp*", "test*", "examples*"]
+
+
+[tool.pytest.ini_options]
+pythonpath = ["./"]
