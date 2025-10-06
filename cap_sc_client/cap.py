@@ -33,7 +33,18 @@ CELL_LABELS_MODE = "cell-labels"
 
 
 class MDSession:
+    """
+    A session for processing molecular data page endpoints.
+    """
     def __init__(self, dataset_id: str, _client: _Client):
+        """
+        Initializes the MDSession with the provided dataset ID and client.
+        Do not call directly, use CapClient.md_session instead. 
+
+        Args:
+            dataset_id (str): The unique identifier of the dataset to be processed.
+            _client (_Client): An instance of the client to interact with the backend API.
+        """
         self.__client: _Client = _client
         self._dataset_id: str = dataset_id
         self._session_id: str = None
@@ -334,6 +345,33 @@ class MDSession:
             selection_key: SELECTION_KEY = None,
             include_reference: bool = True
         ) -> HeatmapDatasetEmbeddingDiffHeatMap:
+        """
+        Return the data to plot a heatmap for the top differentially expressed genes from specific DE analysis.
+
+        Parameters:
+        -----------
+        diff_key : DIFF_KEY
+            The string key associated with the differential expression analysis results.
+        n_top_genes : int, optional
+            The number of top differentially expressed genes to include in the heatmap. Default is 3.
+        max_cells_displayed : int, optional
+            The maximum number of cells to display in the heatmap. Default is 1000.
+        gene_name_filter : str, optional
+            A filter to include only genes matching a given prefix. Should be used to focus on specific gene. Default is None.
+        pseudogenes_filter : bool, optional
+            If True, filters out genes which are often over-expressed but biologically non-informative. 
+            Defaults to True. See https://github.com/cellannotation/cap-gene-filtering for details.
+        selection_key : SELECTION_KEY, optional
+            If provided, the heatmap will include only cells within the specified selection. Default is None.
+        include_reference : bool, optional
+            If True, includes a reference selection in the heatmap. Default is True.
+
+        Returns:
+        --------
+        HeatmapDatasetEmbeddingDiffHeatMap
+            An object containing the heatmap data, including gene names, cell IDs, expression values,
+            and selection information.
+        """
         
         options=PostHeatmapInput(
             diff_key = diff_key,
@@ -373,6 +411,33 @@ class CapClient:
         offset: int = 0,
         sort: List[Dict[str, str]] = [],
     ) -> pd.DataFrame:
+        """
+        Search public datasets, the analogue of the [dataset search page on CAP](https://celltype.info/search/datasets).
+
+        Parameters:
+        -----------
+        search : List[str], optional
+            A list of search terms to filter datasets by name. Defaults to None.
+        organism : List[str], optional
+            A list of organism names to filter datasets. Defaults to None.
+        tissue : List[str], optional
+            A list of tissue types to filter datasets. Defaults to None.
+        assay : List[str], optional
+            A list of assay types to filter datasets. Defaults to None.
+        limit : int, optional
+            The maximum number of datasets to return. Defaults to 50.
+        offset : int, optional
+            The number of datasets to skip before starting to collect the result set. Defaults to 0.
+        sort : List[Dict[str, str]], optional
+            A list of dictionaries specifying the sorting order. Each dictionary should have a single key-value pair
+            where the key is the field to sort by and the value is either "asc" for ascending or "desc" for descending order.
+            Example: [{"name": "asc"}, {"createdAt": "desc"}]. Defaults to an empty list.
+
+        Returns:
+        --------
+        pd.DataFrame
+            A DataFrame containing the search results with columns corresponding to dataset attributes.
+        """
         sorting = []
         for item in sort:
             key = list(item.keys())[0]
@@ -411,6 +476,33 @@ class CapClient:
         offset: int = 0,
         sort: List[Dict[str, str]] = [],
     ) -> pd.DataFrame:
+        """
+        Search for cell labels in the dataset. The analogue of the [cell labels search page on CAP](https://celltype.info/search/cell-labels).
+
+        Parameters:
+        -----------
+        search : List[str], optional
+            A list of search terms to filter datasets by name. Defaults to None.
+        organism : List[str], optional
+            A list of organism names to filter datasets. Defaults to None.
+        tissue : List[str], optional
+            A list of tissue types to filter datasets. Defaults to None.
+        assay : List[str], optional
+            A list of assay types to filter datasets. Defaults to None.
+        limit : int, optional
+            The maximum number of datasets to return. Defaults to 50.
+        offset : int, optional
+            The number of datasets to skip before starting to collect the result set. Defaults to 0.
+        sort : List[Dict[str, str]], optional
+            A list of dictionaries specifying the sorting order. Each dictionary should have a single key-value pair
+            where the key is the field to sort by and the value is either "asc" for ascending or "desc" for descending order.
+            Example: [{"name": "asc"}, {"createdAt": "desc"}]. Defaults to an empty list.
+
+        Returns:
+        --------
+        pd.DataFrame
+            A DataFrame containing the search results with columns corresponding to cell annotation metadata attributes.
+        """
         sorting = []
         for item in sort:
             key = list(item.keys())[0]
