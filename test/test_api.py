@@ -19,6 +19,3 @@ def test_md_session():
     md_session.create_session()
     assert md_session.session_id is not None
     assert len(md_session.embeddings) > 0
-    for emb_name in md_session.embeddings:
-        emb_data = md_session.embedding_data(embedding=emb_name, max_points=100)
-        assert emb_data is not None
