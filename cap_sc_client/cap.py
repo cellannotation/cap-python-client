@@ -1,9 +1,4 @@
 from typing import List, Dict, Literal
-import time
-import http.client
-import json
-import jwt
-import os
 from uuid import uuid4
 import pandas as pd
 import httpx
@@ -30,7 +25,6 @@ from .client.embedding_data import EmbeddingDataDatasetEmbeddingData
 from .client.heatmap import HeatmapDatasetEmbeddingDiffHeatMap
 
 CAP_API_URL = "https://celltype.info/graphql"
-CAP_AUTHENTICATE_URL = "us-central1-capv2-gke-prod.cloudfunctions.net" # https://${var.gcp_region}-${var.gcp_project_id}.cloudfunctions.net/authenticate-token
 
 SESSION_ID = str
 DIFF_KEY = str
@@ -39,7 +33,18 @@ CELL_LABELS_MODE = "cell-labels"
 
 
 class MDSession:
+    """
+    A session for processing molecular data page endpoints.
+    """
     def __init__(self, dataset_id: str, _client: _Client):
+        """
+        Initializes the MDSession with the provided dataset ID and client.
+        Do not call directly, use CapClient.md_session instead. 
+
+        Args:
+            dataset_id (str): The unique identifier of the dataset to be processed.
+            _client (_Client): An instance of the client to interact with the backend API.
+        """
         self.__client: _Client = _client
         self._dataset_id: str = dataset_id
         self._session_id: str = None
@@ -195,8 +200,6 @@ class MDSession:
             selection_key_minor = selection_key_minor,
         )
         
-        # TODO: is not workgin with new rc1
-        # update request later https://capdevelopment.atlassian.net/browse/MVP-6489
         response = self.__client.embedding_data(
             dataset_id = self.dataset_id,
             options = options
@@ -342,6 +345,33 @@ class MDSession:
             selection_key: SELECTION_KEY = None,
             include_reference: bool = True
         ) -> HeatmapDatasetEmbeddingDiffHeatMap:
+        """
+        Return the data to plot a heatmap for the top differentially expressed genes from specific DE analysis.
+
+        Parameters:
+        -----------
+        diff_key : DIFF_KEY
+            The string key associated with the differential expression analysis results.
+        n_top_genes : int, optional
+            The number of top differentially expressed genes to include in the heatmap. Default is 3.
+        max_cells_displayed : int, optional
+            The maximum number of cells to display in the heatmap. Default is 1000.
+        gene_name_filter : str, optional
+            A filter to include only genes matching a given prefix. Should be used to focus on specific gene. Default is None.
+        pseudogenes_filter : bool, optional
+            If True, filters out genes which are often over-expressed but biologically non-informative. 
+            Defaults to True. See https://github.com/cellannotation/cap-gene-filtering for details.
+        selection_key : SELECTION_KEY, optional
+            If provided, the heatmap will include only cells within the specified selection. Default is None.
+        include_reference : bool, optional
+            If True, includes a reference selection in the heatmap. Default is True.
+
+        Returns:
+        --------
+        HeatmapDatasetEmbeddingDiffHeatMap
+            An object containing the heatmap data, including gene names, cell IDs, expression values,
+            and selection information.
+        """
         
         options=PostHeatmapInput(
             diff_key = diff_key,
@@ -354,7 +384,6 @@ class MDSession:
             selection_key = selection_key,
         )
 
-        # TODO: update api, it was changed on rc1 https://capdevelopment.atlassian.net/browse/MVP-6489
         res = self.__client.heatmap(
             dataset_id=self.dataset_id,
             options=options,
@@ -367,73 +396,11 @@ class CapClient:
     def __init__(
             self,
             url: str = CAP_API_URL, 
-            auth_url: str = CAP_AUTHENTICATE_URL,
-            login: str = None,
-            pwd: str = None,
-            custom_token: str = None  
         ) -> None:
         headers = None
         client = httpx.Client(timeout=300, headers=headers)
         self.__client = _Client(url, headers=headers, http_client=client)
-        self._login = login if login is not None else os.environ.get('CAP_LOGIN')
-        self._pwd = pwd if pwd is not None else os.environ.get('CAP_PWD')
-        self._custom_token = custom_token if custom_token is not None else os.environ.get('CAP_TOKEN')
-        self._token: str = None
-        self._token_expiry_time: time = None
-        self._error_status: str = None
-        self.auth_url = auth_url
-
-    def _auth_request (
-            self,
-            base_url: str, 
-            url: str,
-            body: dict
-        ) -> bool: 
-        connection = http.client.HTTPSConnection(base_url)
-        headers = {'Content-type': 'application/json'}
-        connection.request("POST", url = url,  body=json.dumps(body), headers=headers)
-        response = connection.getresponse()
-        if (response.status == 200):
-            try:
-                response = response.read().decode()
-                self._token = json.loads(response)['idToken']
-                # TODO : Add signature verification https://capdevelopment.atlassian.net/browse/MVP-6392
-                self._token_expiry_time = jwt.decode(self._token, options={"verify_signature": False})['exp']
-                self._error_status = None
-                return True
-            except: # TODO: implement appropriate error handling https://capdevelopment.atlassian.net/browse/MVP-6489
-                self._error_status = "Failed to parse 200 OK response to get ID token"
-                return False
-        self._error_status = "Failed to get ID token " + response.reason 
-        return False
-    
-    def authenticate(
-        self
-     ) -> bool:
-        # try authenticate by custom token first
-        if self._custom_token is not None:
-            body = {'token':self._custom_token}
-            if (self._auth_request(base_url= self.auth_url, url = "/authenticate-token", body = body)):
-                return True
-        if self._login is not None and self._pwd is not None:    
-            body = {'email':self._login, 'password': self._pwd}
-            if (self._auth_request(base_url = self.auth_url, url = "/authenticate-user", body = body)):
-                return True
-        self._error_status = "Missing CAP client authetication settings. Check CAP_LOGIN, CAP_PWD or CAP_TOKEN enviroment variables."
-        return False
-
-    @property     
-    def error_status(self) -> str:
-        return self._error_status
-    
-    @property
-    def id_token(self) -> str:
-        return self._token
-    
-    @property
-    def token_expiry_time(self) -> time:
-        return self._token_expiry_time
-
+        
     def search_datasets(
         self,
         search: List[str] = None,
@@ -444,6 +411,33 @@ class CapClient:
         offset: int = 0,
         sort: List[Dict[str, str]] = [],
     ) -> pd.DataFrame:
+        """
+        Search public datasets, the analogue of the [dataset search page on CAP](https://celltype.info/search/datasets).
+
+        Parameters:
+        -----------
+        search : List[str], optional
+            A list of search terms to filter datasets by name. Defaults to None.
+        organism : List[str], optional
+            A list of organism names to filter datasets. Defaults to None.
+        tissue : List[str], optional
+            A list of tissue types to filter datasets. Defaults to None.
+        assay : List[str], optional
+            A list of assay types to filter datasets. Defaults to None.
+        limit : int, optional
+            The maximum number of datasets to return. Defaults to 50.
+        offset : int, optional
+            The number of datasets to skip before starting to collect the result set. Defaults to 0.
+        sort : List[Dict[str, str]], optional
+            A list of dictionaries specifying the sorting order. Each dictionary should have a single key-value pair
+            where the key is the field to sort by and the value is either "asc" for ascending or "desc" for descending order.
+            Example: [{"name": "asc"}, {"createdAt": "desc"}]. Defaults to an empty list.
+
+        Returns:
+        --------
+        pd.DataFrame
+            A DataFrame containing the search results with columns corresponding to dataset attributes.
+        """
         sorting = []
         for item in sort:
             key = list(item.keys())[0]
@@ -467,7 +461,9 @@ class CapClient:
         response = self.__client.search_datasets(
             options=search_options, filter=search_filter, search=search_input
         )
-        df = pd.DataFrame([r.model_dump() for r in response.results])        
+        df = pd.DataFrame([r.model_dump() for r in response.results])    
+        if "typename__" in df.columns:
+            df.drop(columns=["typename__"], inplace=True)    
         return df
 
     def search_cell_labels(
@@ -480,6 +476,33 @@ class CapClient:
         offset: int = 0,
         sort: List[Dict[str, str]] = [],
     ) -> pd.DataFrame:
+        """
+        Search for cell labels in the dataset. The analogue of the [cell labels search page on CAP](https://celltype.info/search/cell-labels).
+
+        Parameters:
+        -----------
+        search : List[str], optional
+            A list of search terms to filter datasets by name. Defaults to None.
+        organism : List[str], optional
+            A list of organism names to filter datasets. Defaults to None.
+        tissue : List[str], optional
+            A list of tissue types to filter datasets. Defaults to None.
+        assay : List[str], optional
+            A list of assay types to filter datasets. Defaults to None.
+        limit : int, optional
+            The maximum number of datasets to return. Defaults to 50.
+        offset : int, optional
+            The number of datasets to skip before starting to collect the result set. Defaults to 0.
+        sort : List[Dict[str, str]], optional
+            A list of dictionaries specifying the sorting order. Each dictionary should have a single key-value pair
+            where the key is the field to sort by and the value is either "asc" for ascending or "desc" for descending order.
+            Example: [{"name": "asc"}, {"createdAt": "desc"}]. Defaults to an empty list.
+
+        Returns:
+        --------
+        pd.DataFrame
+            A DataFrame containing the search results with columns corresponding to cell annotation metadata attributes.
+        """
         sorting = []
         for item in sort:
             key = list(item.keys())[0]
@@ -507,7 +530,9 @@ class CapClient:
         response = self.__client.lookup_cells(
             options=search_options, filter=search_filter, search=search_input
         )
-        df = pd.DataFrame([lc.model_dump() for lc in response.lookup_cells])        
+        df = pd.DataFrame([lc.model_dump() for lc in response.lookup_cells])
+        if "typename__" in df.columns:
+            df.drop(columns=["typename__"], inplace=True)
         return df
 
     def md_session(self, dataset_id: str) -> MDSession:

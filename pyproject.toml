@@ -3,10 +3,10 @@ name="cap_sc_client"
 version="0.0.10"
 license = "MIT"
 authors= [
-  { name="M. Sokolov"     },
   { name="R. Mukhin"      },
-  { name="A. Isaev"       },
   { name="E. Biederstedt" },
+  { name="A. Isaev"       },
+  { name="M. Sokolov"     },
 ]
 description = "Python client for Cell-Annotation-Platform (CAP) GraphQL API."
 readme = {file = "README.txt", content-type = "text/markdown"}
@@ -18,7 +18,6 @@ dependencies = [
     "httpx>=0.27.2",
     "pydantic>=2.10.3",
     "pydantic_core>=2.27.1",
-    "PyJWT>=2.10.1",
     "pandas>=2.0.0",
 ]
 
@@ -35,7 +34,6 @@ requires = ["setuptools"]
 
 [project.optional-dependencies]
 dev = ["ariadne"]
-test = ["pytest"]
 
 [tool.ariadne-codegen]
 remote_schema_url = "https://celltype.info/graphql"
@@ -47,9 +45,9 @@ target_package_path="./cap_client/"
 target_package_name="client"
 client_name="_Client"
 
-[tool.pytest.ini_options]
-pythonpath = ["cap_client"]
-log_level = "DEBUG"
-
 [tool.setuptools.packages.find]
 exclude = ["tmp*", "test*", "examples*"]
+
+
+[tool.pytest.ini_options]
+pythonpath = ["./"]
