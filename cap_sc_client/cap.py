@@ -396,7 +396,9 @@ class CapClient:
         response = self.__client.search_datasets(
             options=search_options, filter=search_filter, search=search_input
         )
-        df = pd.DataFrame([r.model_dump() for r in response.results])        
+        df = pd.DataFrame([r.model_dump() for r in response.results])    
+        if "typename__" in df.columns:
+            df.drop(columns=["typename__"], inplace=True)    
         return df
 
     def search_cell_labels(
@@ -436,7 +438,9 @@ class CapClient:
         response = self.__client.lookup_cells(
             options=search_options, filter=search_filter, search=search_input
         )
-        df = pd.DataFrame([lc.model_dump() for lc in response.lookup_cells])        
+        df = pd.DataFrame([lc.model_dump() for lc in response.lookup_cells])
+        if "typename__" in df.columns:
+            df.drop(columns=["typename__"], inplace=True)
         return df
 
     def md_session(self, dataset_id: str) -> MDSession:

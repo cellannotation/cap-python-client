@@ -4,8 +4,8 @@ version="0.0.10"
 license = "MIT"
 authors= [
   { name="R. Mukhin"      },
-  { name="A. Isaev"       },
   { name="E. Biederstedt" },
+  { name="A. Isaev"       },
   { name="M. Sokolov"     },
 ]
 description = "Python client for Cell-Annotation-Platform (CAP) GraphQL API."
