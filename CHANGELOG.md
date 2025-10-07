@@ -1,24 +1,14 @@
 # Changelog
 
-## [v1.0.0] - 2025-10-03
+## [v1.0.0] - 2025-10-07
 
 ### First stable release
 
 - **search_datasets** endpoint
-- **search_cells** endpoint
-- **download_urls** endpoint
-- **dataset_metadata** endpoint
+- **search_cell_labels** endpoint
+- **create_session** endpoint
 - **embedding_data** endpoint
 - **heatmap** endpoint
-- **differential_expression** endpoint
-- **session management** with token-based authentication
-
-
-## [v0.0.1] - 2024-12-12
-
-### Added
-
-- **search_datasets** endpoint
-- **search_cells** endpoint
-- **download_urls** endpoint
-
+- **general_de** endpoint
+- **highly_variable_genes** endpoint
+- **is_md_cache_ready** endpoint
