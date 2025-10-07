@@ -9,7 +9,7 @@ authors= [
   { name="M. Sokolov"     },
 ]
 description = "Python client for Cell-Annotation-Platform (CAP) GraphQL API."
-readme = {file = "README.txt", content-type = "text/markdown"}
+readme = "README.md"
 classifiers = [
     "Programming Language :: Python :: 3",
     "Operating System :: OS Independent",
