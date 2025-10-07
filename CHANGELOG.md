@@ -1,5 +1,16 @@
 # Changelog
 
+## [Unreleased]
+
+...
+
+
+## [v1.0.1] - 2025-10-07
+
+### Fixed
+
+- Readme file notation in `pyproject.toml`
+
 ## [v1.0.0] - 2025-10-07
 
 ### First stable release
