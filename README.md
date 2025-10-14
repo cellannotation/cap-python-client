@@ -1,8 +1,8 @@
 
-# Python client for Cell-Annotation-Platform GraphQL API
+# cap-sc-client
 [![PyPI version](https://img.shields.io/pypi/v/cap-sc-client)](https://pypi.org/project/cap-sc-client/)
 
-The Python package provides a simple interface to interact with the [Cell Annotation Platform](https://celltype.info/) (CAP) GraphQL API. The package allows to search for datasets, cell labels metadata and get molecular profiles of cell types published on CAP.
+The `cap-sc-client` package provides a simple interface to interact with the [Cell Annotation Platform](https://celltype.info/) (CAP) GraphQL API. The package allows to search for datasets, cell labels metadata and get molecular profiles of cell types published on CAP.
 
 ## Installation
 
