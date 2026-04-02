@@ -9,25 +9,25 @@ from .base_model import BaseModel
 
 
 class CreateSession(BaseModel):
-    save_embedding_session: "CreateSessionSaveEmbeddingSession" = Field(
-        alias="saveEmbeddingSession"
+    save_dataset_session: "CreateSessionSaveDatasetSession" = Field(
+        alias="saveDatasetSession"
     )
 
 
-class CreateSessionSaveEmbeddingSession(BaseModel):
-    id: Optional[str]
-    name: Optional[str]
+class CreateSessionSaveDatasetSession(BaseModel):
+    id: str
+    name: str
     dataset_type: Optional[str] = Field(alias="datasetType")
     description: Optional[str]
-    cell_count: Optional[float] = Field(alias="cellCount")
-    labelsets: Optional[List["CreateSessionSaveEmbeddingSessionLabelsets"]]
+    cell_count: int = Field(alias="cellCount")
+    labelsets: List["CreateSessionSaveDatasetSessionLabelsets"]
     typename__: Literal["DatasetModel"] = Field(alias="__typename")
 
 
-class CreateSessionSaveEmbeddingSessionLabelsets(BaseModel):
-    id: Optional[str]
-    name: Optional[str]
-    mode: Optional[str]
+class CreateSessionSaveDatasetSessionLabelsets(BaseModel):
+    id: str
+    name: str
+    mode: str
     description: Optional[str]
     annotation_method: Optional[str] = Field(alias="annotationMethod")
     algorithm_name: Optional[str] = Field(alias="algorithmName")
@@ -35,14 +35,14 @@ class CreateSessionSaveEmbeddingSessionLabelsets(BaseModel):
     algorithm_repo_url: Optional[str] = Field(alias="algorithmRepoUrl")
     reference_location: Optional[str] = Field(alias="referenceLocation")
     reference_description: Optional[str] = Field(alias="referenceDescription")
-    labels: Optional[List["CreateSessionSaveEmbeddingSessionLabelsetsLabels"]]
+    labels: List["CreateSessionSaveDatasetSessionLabelsetsLabels"]
     typename__: Literal["LabelsetModel"] = Field(alias="__typename")
 
 
-class CreateSessionSaveEmbeddingSessionLabelsetsLabels(BaseModel):
-    id: Optional[str]
-    name: Optional[str]
-    count: Optional[float]
+class CreateSessionSaveDatasetSessionLabelsetsLabels(BaseModel):
+    id: str
+    name: str
+    count: int
     color: Optional[str]
     full_name: Optional[str] = Field(alias="fullName")
     ontology_term_exists: Optional[bool] = Field(alias="ontologyTermExists")
@@ -64,5 +64,5 @@ class CreateSessionSaveEmbeddingSessionLabelsetsLabels(BaseModel):
 
 
 CreateSession.model_rebuild()
-CreateSessionSaveEmbeddingSession.model_rebuild()
-CreateSessionSaveEmbeddingSessionLabelsets.model_rebuild()
+CreateSessionSaveDatasetSession.model_rebuild()
+CreateSessionSaveDatasetSessionLabelsets.model_rebuild()

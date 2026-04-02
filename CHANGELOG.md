@@ -2,6 +2,12 @@
 
 ## [Unreleased]
 
+## [v2.6.0] - 2026-04-02
+
+### Modified
+
+- GQL schema updated to match the latest CAP API changes. Most of the MD page related endpoints were changes.
+
 ...
 
 

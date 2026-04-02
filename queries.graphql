@@ -258,20 +258,8 @@ fragment DatasetInitialState on Dataset {
   __typename
 }
 
-query ClusterTypes($datasetId: ID!) {
-  dataset(datasetId: $datasetId) {
-    id
-    embeddingClusterTypes {
-      name
-      cellCount
-      __typename
-    }
-    __typename
-  }
-}
-
-mutation CreateSession($data: PostSaveEmbeddingSessionInput!) {
-  saveEmbeddingSession(data: $data) {
+mutation CreateSession($data: SaveDatasetSessionInput!) {
+  saveDatasetSession(data: $data) {
     id
     name
     datasetType
@@ -316,84 +304,58 @@ mutation CreateSession($data: PostSaveEmbeddingSessionInput!) {
 }
 
 query MDCommonsQuery($datasetId: ID!) {
-  dataset(datasetId: $datasetId) {
-    id
-    ...CurrentEmbeddingProvider_AvailableEmbeddings
-    __typename
+  datasetSession(datasetId: $datasetId) {
+    embeddings {
+      name
+      __typename
+    }
   }
-}
-
-fragment CurrentEmbeddingProvider_AvailableEmbeddings on Dataset {
-  embeddings {
-    name
-    __typename
-  }
-  __typename
 }
 
 query EmbeddingData($datasetId: ID!, $options: GetDatasetEmbeddingDataInput!) {
-  dataset(datasetId: $datasetId) {
+  datasetSession(datasetId: $datasetId) {
     embeddingData(options: $options) {
-      
-      positions: embeddings
-      annotations { name labelIds }
-      
+      obsIds
+      positions { x y }
+      geneExpression
+      inSelectionMajor
+      inSelectionMinor
+      annotations { name labels labelIds }
     }
   }
 }
 
 query HighlyVariableGenes($options: GetHighlyVariableGenesInput!, $datasetId: ID!) {
-  dataset(datasetId: $datasetId) {
-    id
-    embeddingHighlyVariableGenes(options: $options) {
+  datasetSession(datasetId: $datasetId) {
+    highlyVariableGenes(options: $options) {
       name
       dispersion
+      highlyVariable
       __typename
     }
-    __typename
   }
 }
 
 query FilesStatus($datasetId: ID!) {
-  dataset(datasetId: $datasetId) {
-    id
-    getMdFilesStatus
-    __typename
+  datasetSession(datasetId: $datasetId) {
+    mdFilesStatus
   }
 }
 
 query GeneralDE($options: GetGeneralDiffInput!, $datasetId: ID!) {
-  dataset(datasetId: $datasetId) {
-    id
-    generalDiff(options: $options)
-    __typename
+  datasetSession(datasetId: $datasetId) {
+    generalDifferentialExpressions(options: $options)
   }
 }
 
 query Heatmap($options: PostHeatmapInput!, $datasetId: ID!) {
-  dataset(datasetId: $datasetId) {
-    id
-    embeddingDiffHeatMap(options: $options) {
-      obsIds {
-        data
-        __typename
-      }
-      annotations {
-        data
-        __typename
-      }
-      isInSelections {
-        data
-        __typename
-      }
-      genes {
-        data
-        __typename
-      }
-      scores {
-        data
-        __typename
-      }
+  datasetSession(datasetId: $datasetId) {
+    heatmap(options: $options) {
+      obsIds
+      annotations
+      isInSelections
+      genes
+      scores
       topGenesBySelection {
         genes
         selectionName
@@ -401,20 +363,6 @@ query Heatmap($options: PostHeatmapInput!, $datasetId: ID!) {
       }
       __typename
     }
-    __typename
-  }
-}
-
-query EmbeddingClusters($cluster: GetDatasetClustersDataInput!, $datasetId: ID!) {
-  dataset(datasetId: $datasetId) {
-    id
-    embeddingClusters(cluster: $cluster) {
-      clusterId
-      cellCount
-      color
-      __typename
-    }
-    __typename
   }
 }
 

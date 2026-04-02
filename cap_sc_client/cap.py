@@ -18,11 +18,11 @@ from .client.input_types import (
     GetDatasetEmbeddingDataInput,
     GetGeneralDiffInput,
     GetHighlyVariableGenesInput,
-    PostSaveEmbeddingSessionInput,
+    SaveDatasetSessionInput,
     PostHeatmapInput
 )
-from .client.embedding_data import EmbeddingDataDatasetEmbeddingData
-from .client.heatmap import HeatmapDatasetEmbeddingDiffHeatMap
+from .client.embedding_data import EmbeddingDataDatasetSessionEmbeddingData
+from .client.heatmap import HeatmapDatasetSessionHeatmap
 
 CAP_API_URL = "https://celltype.info/graphql"
 
@@ -88,17 +88,10 @@ class MDSession:
         ready = self.__client.dataset_ready(self.dataset_id)
         if not ready.dataset.is_embeddings_up_to_date:
             raise RuntimeError(f"The Molecular Data for the dataset {self.dataset_id} is not ready!")
-        
-    def _get_clusterings(self) -> list[str]:
-        res = self.__client.cluster_types(self.dataset_id)
-        res = res.dataset
-        clusters = res.embedding_cluster_types
-        cluster_names = [cl.name for cl in clusters]
-        return cluster_names
     
     def _get_embeddings(self) -> list[str]:
         res = self.__client.md_commons_query(self.dataset_id)
-        res = res.dataset
+        res = res.dataset_session
         embeddings = res.embeddings
         emb_names = [e.name for e in embeddings]
         return emb_names
@@ -131,20 +124,20 @@ class MDSession:
 
         ds = self.__client.dataset_initial_state_query(self.dataset_id)
         self._dataset_snapshot = ds.dataset
-        self._clusterings = self._get_clusterings()
+        self._clusterings = []  # cluster_types query removed from schema
         self._embeddings = self._get_embeddings()
         self._labelsets = self._get_cell_type_labelsets()
 
         session_id = str(uuid4())
  
-        data = PostSaveEmbeddingSessionInput(
+        data = SaveDatasetSessionInput(
             session_id = session_id,
             dataset = self._dataset_snapshot.model_dump()
         )
         response = self.__client.create_session(
             data = data
         )
-        self._dataset_snapshot = response.save_embedding_session
+        self._dataset_snapshot = response.save_dataset_session
         self._session_id = session_id
         return self.session_id
     
@@ -156,7 +149,7 @@ class MDSession:
             selection_gene: str = None,
             selection_key_major: str = None,
             selection_key_minor: str = None,
-        ) -> EmbeddingDataDatasetEmbeddingData:
+        ) -> EmbeddingDataDatasetSessionEmbeddingData:
         """
         Retrieves embedding data for the specified embedding type, with optional filtering and downsampling.
 
@@ -177,7 +170,7 @@ class MDSession:
 
         Returns:
         --------
-        EmbeddingDataDatasetEmbeddingData
+        EmbeddingDataDatasetSessionEmbeddingData
             An object containing the embedding data, including observation IDs, selections, embeddings, annotations, 
             and gene expression values.
 
@@ -204,7 +197,7 @@ class MDSession:
             dataset_id = self.dataset_id,
             options = options
         )
-        data = response.dataset.embedding_data
+        data = response.dataset_session.embedding_data
         return data
 
     def _labelset_id_from_name(self, labelset_name) -> str:
@@ -260,7 +253,7 @@ class MDSession:
             dataset_id = self.dataset_id,
             options = options,
         )
-        diff_key = response.dataset.general_diff
+        diff_key = response.dataset_session.general_differential_expressions
         return diff_key
     
     def highly_variable_genes(
@@ -311,7 +304,7 @@ class MDSession:
             dataset_id = self.dataset_id,
             options = options
         )
-        hvg_list = res.dataset.embedding_highly_variable_genes
+        hvg_list = res.dataset_session.highly_variable_genes
         
         df = pd.DataFrame({
             "gene_symbol": [g.name for g in hvg_list],
@@ -332,7 +325,7 @@ class MDSession:
             True if the metadata cache is ready, otherwise False.
         """
         res = self.__client.files_status(self.dataset_id)
-        status = res.dataset.get_md_files_status
+        status = res.dataset_session.md_files_status
         return status == "ready"
 
     def heatmap(
@@ -344,7 +337,7 @@ class MDSession:
             pseudogenes_filter: bool = True,
             selection_key: SELECTION_KEY = None,
             include_reference: bool = True
-        ) -> HeatmapDatasetEmbeddingDiffHeatMap:
+        ) -> HeatmapDatasetSessionHeatmap:
         """
         Return the data to plot a heatmap for the top differentially expressed genes from specific DE analysis.
 
@@ -368,7 +361,7 @@ class MDSession:
 
         Returns:
         --------
-        HeatmapDatasetEmbeddingDiffHeatMap
+        HeatmapDatasetSessionHeatmap
             An object containing the heatmap data, including gene names, cell IDs, expression values,
             and selection information.
         """
@@ -388,7 +381,7 @@ class MDSession:
             dataset_id=self.dataset_id,
             options=options,
         )
-        heatmap = res.dataset.embedding_diff_heat_map
+        heatmap = res.dataset_session.heatmap
         return heatmap
 
 

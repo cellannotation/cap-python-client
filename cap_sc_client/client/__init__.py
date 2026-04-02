@@ -3,16 +3,11 @@
 from .base_client import BaseClient
 from .base_model import BaseModel, Upload
 from .client import _Client
-from .cluster_types import (
-    ClusterTypes,
-    ClusterTypesDataset,
-    ClusterTypesDatasetEmbeddingClusterTypes,
-)
 from .create_session import (
     CreateSession,
-    CreateSessionSaveEmbeddingSession,
-    CreateSessionSaveEmbeddingSessionLabelsets,
-    CreateSessionSaveEmbeddingSessionLabelsetsLabels,
+    CreateSessionSaveDatasetSession,
+    CreateSessionSaveDatasetSessionLabelsets,
+    CreateSessionSaveDatasetSessionLabelsetsLabels,
 )
 from .dataset_initial_state_query import (
     DatasetInitialStateQuery,
@@ -21,16 +16,12 @@ from .dataset_initial_state_query import (
 )
 from .dataset_ready import DatasetReady, DatasetReadyDataset
 from .download_urls import DownloadUrls, DownloadUrlsDownloadUrls
-from .embedding_clusters import (
-    EmbeddingClusters,
-    EmbeddingClustersDataset,
-    EmbeddingClustersDatasetEmbeddingClusters,
-)
 from .embedding_data import (
     EmbeddingData,
-    EmbeddingDataDataset,
-    EmbeddingDataDatasetEmbeddingData,
-    EmbeddingDataDatasetEmbeddingDataAnnotations,
+    EmbeddingDataDatasetSession,
+    EmbeddingDataDatasetSessionEmbeddingData,
+    EmbeddingDataDatasetSessionEmbeddingDataAnnotations,
+    EmbeddingDataDatasetSessionEmbeddingDataPositions,
 )
 from .exceptions import (
     GraphQLClientError,
@@ -39,12 +30,10 @@ from .exceptions import (
     GraphQLClientHttpError,
     GraphQLClientInvalidResponseError,
 )
-from .files_status import FilesStatus, FilesStatusDataset
+from .files_status import FilesStatus, FilesStatusDatasetSession
 from .fragments import (
     CellLabelResult,
     CommentContentExplanationData,
-    CurrentEmbeddingProviderAvailableEmbeddings,
-    CurrentEmbeddingProviderAvailableEmbeddingsEmbeddings,
     DatasetInitialState,
     DatasetInitialStateLabelsets,
     DatasetInitialStateLabelsetsLabels,
@@ -80,22 +69,17 @@ from .fragments import (
     SplitContentExplanationData,
     SplitContentExplanationDataGroups,
 )
-from .general_de import GeneralDE, GeneralDEDataset
+from .general_de import GeneralDE, GeneralDEDatasetSession
 from .heatmap import (
     Heatmap,
-    HeatmapDataset,
-    HeatmapDatasetEmbeddingDiffHeatMap,
-    HeatmapDatasetEmbeddingDiffHeatMapAnnotations,
-    HeatmapDatasetEmbeddingDiffHeatMapGenes,
-    HeatmapDatasetEmbeddingDiffHeatMapIsInSelections,
-    HeatmapDatasetEmbeddingDiffHeatMapObsIds,
-    HeatmapDatasetEmbeddingDiffHeatMapScores,
-    HeatmapDatasetEmbeddingDiffHeatMapTopGenesBySelection,
+    HeatmapDatasetSession,
+    HeatmapDatasetSessionHeatmap,
+    HeatmapDatasetSessionHeatmapTopGenesBySelection,
 )
 from .highly_variable_genes import (
     HighlyVariableGenes,
-    HighlyVariableGenesDataset,
-    HighlyVariableGenesDatasetEmbeddingHighlyVariableGenes,
+    HighlyVariableGenesDatasetSession,
+    HighlyVariableGenesDatasetSessionHighlyVariableGenes,
 )
 from .input_types import (
     CellLabelsSearchOptions,
@@ -103,7 +87,6 @@ from .input_types import (
     DatasetObjectInput,
     DatasetSearchOptions,
     DatasetSearchSort,
-    GetDatasetClustersDataInput,
     GetDatasetEmbeddingDataInput,
     GetGeneralDiffInput,
     GetHighlyVariableGenesInput,
@@ -114,13 +97,17 @@ from .input_types import (
     LookupDatasetsSearchInput,
     LookupLabelsFilters,
     PostHeatmapInput,
-    PostSaveEmbeddingSessionInput,
     ResolveDatasetLabelsetOrder,
+    SaveDatasetSessionInput,
     SearchByMetadataArgs,
     SearchLabelByMetadataArgs,
 )
 from .lookup_cells import LookupCells, LookupCellsLookupCells
-from .md_commons_query import MDCommonsQuery, MDCommonsQueryDataset
+from .md_commons_query import (
+    MDCommonsQuery,
+    MDCommonsQueryDatasetSession,
+    MDCommonsQueryDatasetSessionEmbeddings,
+)
 from .md_ready import MDReady, MDReadyDataset
 from .search_datasets import SearchDatasets, SearchDatasetsResults
 
@@ -130,16 +117,11 @@ __all__ = [
     "CellLabelResult",
     "CellLabelsSearchOptions",
     "CellLabelsSearchSort",
-    "ClusterTypes",
-    "ClusterTypesDataset",
-    "ClusterTypesDatasetEmbeddingClusterTypes",
     "CommentContentExplanationData",
     "CreateSession",
-    "CreateSessionSaveEmbeddingSession",
-    "CreateSessionSaveEmbeddingSessionLabelsets",
-    "CreateSessionSaveEmbeddingSessionLabelsetsLabels",
-    "CurrentEmbeddingProviderAvailableEmbeddings",
-    "CurrentEmbeddingProviderAvailableEmbeddingsEmbeddings",
+    "CreateSessionSaveDatasetSession",
+    "CreateSessionSaveDatasetSessionLabelsets",
+    "CreateSessionSaveDatasetSessionLabelsetsLabels",
     "DatasetInitialState",
     "DatasetInitialStateLabelsets",
     "DatasetInitialStateLabelsetsLabels",
@@ -164,13 +146,11 @@ __all__ = [
     "DatasetSearchSort",
     "DownloadUrls",
     "DownloadUrlsDownloadUrls",
-    "EmbeddingClusters",
-    "EmbeddingClustersDataset",
-    "EmbeddingClustersDatasetEmbeddingClusters",
     "EmbeddingData",
-    "EmbeddingDataDataset",
-    "EmbeddingDataDatasetEmbeddingData",
-    "EmbeddingDataDatasetEmbeddingDataAnnotations",
+    "EmbeddingDataDatasetSession",
+    "EmbeddingDataDatasetSessionEmbeddingData",
+    "EmbeddingDataDatasetSessionEmbeddingDataAnnotations",
+    "EmbeddingDataDatasetSessionEmbeddingDataPositions",
     "FeedbackCardFeedback",
     "FeedbackCardFeedbackExplanation",
     "FeedbackCardFeedbackExplanationDataFeedbackExplanationDataComment",
@@ -180,12 +160,11 @@ __all__ = [
     "FeedbackCardFeedbackUser",
     "FeedbackCardOrganismLabelset",
     "FilesStatus",
-    "FilesStatusDataset",
+    "FilesStatusDatasetSession",
     "GeneLinkLabelset",
     "GeneLinkLabelsetLabels",
     "GeneralDE",
-    "GeneralDEDataset",
-    "GetDatasetClustersDataInput",
+    "GeneralDEDatasetSession",
     "GetDatasetEmbeddingDataInput",
     "GetGeneralDiffInput",
     "GetHighlyVariableGenesInput",
@@ -195,17 +174,12 @@ __all__ = [
     "GraphQLClientHttpError",
     "GraphQLClientInvalidResponseError",
     "Heatmap",
-    "HeatmapDataset",
-    "HeatmapDatasetEmbeddingDiffHeatMap",
-    "HeatmapDatasetEmbeddingDiffHeatMapAnnotations",
-    "HeatmapDatasetEmbeddingDiffHeatMapGenes",
-    "HeatmapDatasetEmbeddingDiffHeatMapIsInSelections",
-    "HeatmapDatasetEmbeddingDiffHeatMapObsIds",
-    "HeatmapDatasetEmbeddingDiffHeatMapScores",
-    "HeatmapDatasetEmbeddingDiffHeatMapTopGenesBySelection",
+    "HeatmapDatasetSession",
+    "HeatmapDatasetSessionHeatmap",
+    "HeatmapDatasetSessionHeatmapTopGenesBySelection",
     "HighlyVariableGenes",
-    "HighlyVariableGenesDataset",
-    "HighlyVariableGenesDatasetEmbeddingHighlyVariableGenes",
+    "HighlyVariableGenesDatasetSession",
+    "HighlyVariableGenesDatasetSessionHighlyVariableGenes",
     "LabelObjectInput",
     "LabelsetWithLabelsObjectInput",
     "LookupCells",
@@ -215,13 +189,13 @@ __all__ = [
     "LookupDatasetsSearchInput",
     "LookupLabelsFilters",
     "MDCommonsQuery",
-    "MDCommonsQueryDataset",
+    "MDCommonsQueryDatasetSession",
+    "MDCommonsQueryDatasetSessionEmbeddings",
     "MDReady",
     "MDReadyDataset",
     "MergeContentExplanationData",
     "MergeContentExplanationDataLabels",
     "PostHeatmapInput",
-    "PostSaveEmbeddingSessionInput",
     "ProjectAuthorsProject",
     "ProjectAuthorsProjectOwner",
     "ProjectAuthorsProjectPermissions",
@@ -229,6 +203,7 @@ __all__ = [
     "RefineContentExplanationData",
     "RefineContentExplanationDataChanges",
     "ResolveDatasetLabelsetOrder",
+    "SaveDatasetSessionInput",
     "SearchByMetadataArgs",
     "SearchDatasets",
     "SearchDatasetsResults",

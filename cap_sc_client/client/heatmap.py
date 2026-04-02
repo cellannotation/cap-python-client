@@ -9,62 +9,31 @@ from .base_model import BaseModel
 
 
 class Heatmap(BaseModel):
-    dataset: "HeatmapDataset"
+    dataset_session: "HeatmapDatasetSession" = Field(alias="datasetSession")
 
 
-class HeatmapDataset(BaseModel):
-    id: str
-    embedding_diff_heat_map: "HeatmapDatasetEmbeddingDiffHeatMap" = Field(
-        alias="embeddingDiffHeatMap"
+class HeatmapDatasetSession(BaseModel):
+    heatmap: "HeatmapDatasetSessionHeatmap"
+
+
+class HeatmapDatasetSessionHeatmap(BaseModel):
+    obs_ids: List[int] = Field(alias="obsIds")
+    annotations: List[str]
+    is_in_selections: List[bool] = Field(alias="isInSelections")
+    genes: List[str]
+    scores: List[float]
+    top_genes_by_selection: List["HeatmapDatasetSessionHeatmapTopGenesBySelection"] = (
+        Field(alias="topGenesBySelection")
     )
-    typename__: Literal["Dataset"] = Field(alias="__typename")
-
-
-class HeatmapDatasetEmbeddingDiffHeatMap(BaseModel):
-    obs_ids: "HeatmapDatasetEmbeddingDiffHeatMapObsIds" = Field(alias="obsIds")
-    annotations: "HeatmapDatasetEmbeddingDiffHeatMapAnnotations"
-    is_in_selections: "HeatmapDatasetEmbeddingDiffHeatMapIsInSelections" = Field(
-        alias="isInSelections"
-    )
-    genes: "HeatmapDatasetEmbeddingDiffHeatMapGenes"
-    scores: "HeatmapDatasetEmbeddingDiffHeatMapScores"
-    top_genes_by_selection: List[
-        "HeatmapDatasetEmbeddingDiffHeatMapTopGenesBySelection"
-    ] = Field(alias="topGenesBySelection")
     typename__: Literal["Heatmap"] = Field(alias="__typename")
 
 
-class HeatmapDatasetEmbeddingDiffHeatMapObsIds(BaseModel):
-    data: List[int]
-    typename__: Literal["ObsIDSObject"] = Field(alias="__typename")
-
-
-class HeatmapDatasetEmbeddingDiffHeatMapAnnotations(BaseModel):
-    data: List[str]
-    typename__: Literal["AnnotationsObject"] = Field(alias="__typename")
-
-
-class HeatmapDatasetEmbeddingDiffHeatMapIsInSelections(BaseModel):
-    data: List[bool]
-    typename__: Literal["IsInSelectionsObject"] = Field(alias="__typename")
-
-
-class HeatmapDatasetEmbeddingDiffHeatMapGenes(BaseModel):
-    data: List[str]
-    typename__: Literal["GenesObject"] = Field(alias="__typename")
-
-
-class HeatmapDatasetEmbeddingDiffHeatMapScores(BaseModel):
-    data: List[float]
-    typename__: Literal["ScoresObject"] = Field(alias="__typename")
-
-
-class HeatmapDatasetEmbeddingDiffHeatMapTopGenesBySelection(BaseModel):
+class HeatmapDatasetSessionHeatmapTopGenesBySelection(BaseModel):
     genes: List[str]
     selection_name: str = Field(alias="selectionName")
     typename__: Literal["HeatmapTopGenesBySelection"] = Field(alias="__typename")
 
 
 Heatmap.model_rebuild()
-HeatmapDataset.model_rebuild()
-HeatmapDatasetEmbeddingDiffHeatMap.model_rebuild()
+HeatmapDatasetSession.model_rebuild()
+HeatmapDatasetSessionHeatmap.model_rebuild()

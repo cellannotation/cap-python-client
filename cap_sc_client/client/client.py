@@ -5,12 +5,10 @@ from typing import Any, Dict, Optional, Union
 
 from .base_client import BaseClient
 from .base_model import UNSET, UnsetType
-from .cluster_types import ClusterTypes
 from .create_session import CreateSession
 from .dataset_initial_state_query import DatasetInitialStateQuery
 from .dataset_ready import DatasetReady
 from .download_urls import DownloadUrls
-from .embedding_clusters import EmbeddingClusters
 from .embedding_data import EmbeddingData
 from .files_status import FilesStatus
 from .general_de import GeneralDE
@@ -19,7 +17,6 @@ from .highly_variable_genes import HighlyVariableGenes
 from .input_types import (
     CellLabelsSearchOptions,
     DatasetSearchOptions,
-    GetDatasetClustersDataInput,
     GetDatasetEmbeddingDataInput,
     GetGeneralDiffInput,
     GetHighlyVariableGenesInput,
@@ -28,8 +25,8 @@ from .input_types import (
     LookupDatasetsSearchInput,
     LookupLabelsFilters,
     PostHeatmapInput,
-    PostSaveEmbeddingSessionInput,
     ResolveDatasetLabelsetOrder,
+    SaveDatasetSessionInput,
 )
 from .lookup_cells import LookupCells
 from .md_commons_query import MDCommonsQuery
@@ -352,36 +349,13 @@ class _Client(BaseClient):
         data = self.get_data(response)
         return DatasetInitialStateQuery.model_validate(data)
 
-    def cluster_types(self, dataset_id: str, **kwargs: Any) -> ClusterTypes:
-        query = gql(
-            """
-            query ClusterTypes($datasetId: ID!) {
-              dataset(datasetId: $datasetId) {
-                id
-                embeddingClusterTypes {
-                  name
-                  cellCount
-                  __typename
-                }
-                __typename
-              }
-            }
-            """
-        )
-        variables: Dict[str, object] = {"datasetId": dataset_id}
-        response = self.execute(
-            query=query, operation_name="ClusterTypes", variables=variables, **kwargs
-        )
-        data = self.get_data(response)
-        return ClusterTypes.model_validate(data)
-
     def create_session(
-        self, data: PostSaveEmbeddingSessionInput, **kwargs: Any
+        self, data: SaveDatasetSessionInput, **kwargs: Any
     ) -> CreateSession:
         query = gql(
             """
-            mutation CreateSession($data: PostSaveEmbeddingSessionInput!) {
-              saveEmbeddingSession(data: $data) {
+            mutation CreateSession($data: SaveDatasetSessionInput!) {
+              saveDatasetSession(data: $data) {
                 id
                 name
                 datasetType
@@ -437,19 +411,12 @@ class _Client(BaseClient):
         query = gql(
             """
             query MDCommonsQuery($datasetId: ID!) {
-              dataset(datasetId: $datasetId) {
-                id
-                ...CurrentEmbeddingProvider_AvailableEmbeddings
-                __typename
+              datasetSession(datasetId: $datasetId) {
+                embeddings {
+                  name
+                  __typename
+                }
               }
-            }
-
-            fragment CurrentEmbeddingProvider_AvailableEmbeddings on Dataset {
-              embeddings {
-                name
-                __typename
-              }
-              __typename
             }
             """
         )
@@ -466,11 +433,19 @@ class _Client(BaseClient):
         query = gql(
             """
             query EmbeddingData($datasetId: ID!, $options: GetDatasetEmbeddingDataInput!) {
-              dataset(datasetId: $datasetId) {
+              datasetSession(datasetId: $datasetId) {
                 embeddingData(options: $options) {
-                  positions: embeddings
+                  obsIds
+                  positions {
+                    x
+                    y
+                  }
+                  geneExpression
+                  inSelectionMajor
+                  inSelectionMinor
                   annotations {
                     name
+                    labels
                     labelIds
                   }
                 }
@@ -491,14 +466,13 @@ class _Client(BaseClient):
         query = gql(
             """
             query HighlyVariableGenes($options: GetHighlyVariableGenesInput!, $datasetId: ID!) {
-              dataset(datasetId: $datasetId) {
-                id
-                embeddingHighlyVariableGenes(options: $options) {
+              datasetSession(datasetId: $datasetId) {
+                highlyVariableGenes(options: $options) {
                   name
                   dispersion
+                  highlyVariable
                   __typename
                 }
-                __typename
               }
             }
             """
@@ -517,10 +491,8 @@ class _Client(BaseClient):
         query = gql(
             """
             query FilesStatus($datasetId: ID!) {
-              dataset(datasetId: $datasetId) {
-                id
-                getMdFilesStatus
-                __typename
+              datasetSession(datasetId: $datasetId) {
+                mdFilesStatus
               }
             }
             """
@@ -538,10 +510,8 @@ class _Client(BaseClient):
         query = gql(
             """
             query GeneralDE($options: GetGeneralDiffInput!, $datasetId: ID!) {
-              dataset(datasetId: $datasetId) {
-                id
-                generalDiff(options: $options)
-                __typename
+              datasetSession(datasetId: $datasetId) {
+                generalDifferentialExpressions(options: $options)
               }
             }
             """
@@ -559,29 +529,13 @@ class _Client(BaseClient):
         query = gql(
             """
             query Heatmap($options: PostHeatmapInput!, $datasetId: ID!) {
-              dataset(datasetId: $datasetId) {
-                id
-                embeddingDiffHeatMap(options: $options) {
-                  obsIds {
-                    data
-                    __typename
-                  }
-                  annotations {
-                    data
-                    __typename
-                  }
-                  isInSelections {
-                    data
-                    __typename
-                  }
-                  genes {
-                    data
-                    __typename
-                  }
-                  scores {
-                    data
-                    __typename
-                  }
+              datasetSession(datasetId: $datasetId) {
+                heatmap(options: $options) {
+                  obsIds
+                  annotations
+                  isInSelections
+                  genes
+                  scores
                   topGenesBySelection {
                     genes
                     selectionName
@@ -589,7 +543,6 @@ class _Client(BaseClient):
                   }
                   __typename
                 }
-                __typename
               }
             }
             """
@@ -600,35 +553,6 @@ class _Client(BaseClient):
         )
         data = self.get_data(response)
         return Heatmap.model_validate(data)
-
-    def embedding_clusters(
-        self, cluster: GetDatasetClustersDataInput, dataset_id: str, **kwargs: Any
-    ) -> EmbeddingClusters:
-        query = gql(
-            """
-            query EmbeddingClusters($cluster: GetDatasetClustersDataInput!, $datasetId: ID!) {
-              dataset(datasetId: $datasetId) {
-                id
-                embeddingClusters(cluster: $cluster) {
-                  clusterId
-                  cellCount
-                  color
-                  __typename
-                }
-                __typename
-              }
-            }
-            """
-        )
-        variables: Dict[str, object] = {"cluster": cluster, "datasetId": dataset_id}
-        response = self.execute(
-            query=query,
-            operation_name="EmbeddingClusters",
-            variables=variables,
-            **kwargs
-        )
-        data = self.get_data(response)
-        return EmbeddingClusters.model_validate(data)
 
     def dataset_ready(self, dataset_id: str, **kwargs: Any) -> DatasetReady:
         query = gql(
