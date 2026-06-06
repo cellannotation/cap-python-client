@@ -12,6 +12,12 @@ from .exceptions import (
     GraphQLClientGraphQLMultiError,
     GraphQLClientHttpError,
     GraphQLClientInvalidResponseError,
+    GraphQLClientPersistedQueryError,
+)
+from .persisted_queries import (
+    persisted_operation_name,
+    persisted_query_id,
+    persisted_variables,
 )
 
 Self = TypeVar("Self", bound="BaseClient")
@@ -170,13 +176,12 @@ class BaseClient:
         files_map: Dict[str, List[str]],
         **kwargs: Any,
     ) -> httpx.Response:
+        operation_payload = self._get_persisted_query_payload(
+            operation_name=operation_name, variables=variables
+        )
         data = {
             "operations": json.dumps(
-                {
-                    "query": query,
-                    "operationName": operation_name,
-                    "variables": variables,
-                },
+                operation_payload,
                 default=to_jsonable_python,
             ),
             "map": json.dumps(files_map, default=to_jsonable_python),
@@ -196,16 +201,37 @@ class BaseClient:
 
         merged_kwargs: Dict[str, Any] = kwargs.copy()
         merged_kwargs["headers"] = headers
+        operation_payload = self._get_persisted_query_payload(
+            operation_name=operation_name, variables=variables
+        )
 
         return self.http_client.post(
             url=self.url,
             content=json.dumps(
-                {
-                    "query": query,
-                    "operationName": operation_name,
-                    "variables": variables,
-                },
+                operation_payload,
                 default=to_jsonable_python,
             ),
             **merged_kwargs,
         )
+
+    def _get_persisted_query_payload(
+        self, operation_name: Optional[str], variables: Dict[str, Any]
+    ) -> Dict[str, Any]:
+        if not operation_name:
+            raise GraphQLClientPersistedQueryError(operation_name)
+
+        try:
+            query_id = persisted_query_id(operation_name)
+        except KeyError as exc:
+            raise GraphQLClientPersistedQueryError(operation_name) from exc
+
+        return {
+            "operationName": persisted_operation_name(operation_name),
+            "variables": persisted_variables(operation_name, variables),
+            "extensions": {
+                "persistedQuery": {
+                    "version": 1,
+                    "sha256Hash": query_id,
+                }
+            },
+        }

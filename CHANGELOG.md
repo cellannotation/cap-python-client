@@ -2,6 +2,13 @@
 
 ## [Unreleased]
 
+## [v2.9.0] - 2026-06-06
+
+### Modified
+
+- Use CAP persisted GraphQL query hashes for API requests.
+- Send Apollo client awareness headers as `cap-sc-client`.
+
 ## [v2.6.0] - 2026-04-02
 
 ### Modified

@@ -25,6 +25,8 @@ from .client.embedding_data import EmbeddingDataDatasetSessionEmbeddingData
 from .client.heatmap import HeatmapDatasetSessionHeatmap
 
 CAP_API_URL = "https://celltype.info/graphql"
+APOLLO_CLIENT_NAME = "cap-sc-client"
+CLIENT_VERSION = "2.9.0"
 
 SESSION_ID = str
 DIFF_KEY = str
@@ -129,15 +131,11 @@ class MDSession:
         self._labelsets = self._get_cell_type_labelsets()
 
         session_id = str(uuid4())
- 
         data = SaveDatasetSessionInput(
             session_id = session_id,
             dataset = self._dataset_snapshot.model_dump()
         )
-        response = self.__client.create_session(
-            data = data
-        )
-        self._dataset_snapshot = response.save_dataset_session
+        self.__client.create_session(data=data)
         self._session_id = session_id
         return self.session_id
     
@@ -388,9 +386,12 @@ class MDSession:
 class CapClient:
     def __init__(
             self,
-            url: str = CAP_API_URL, 
+            url: str = CAP_API_URL,
         ) -> None:
-        headers = None
+        headers = {
+            "apollographql-client-name": APOLLO_CLIENT_NAME,
+            "apollographql-client-version": CLIENT_VERSION,
+        }
         client = httpx.Client(timeout=300, headers=headers)
         self.__client = _Client(url, headers=headers, http_client=client)
         

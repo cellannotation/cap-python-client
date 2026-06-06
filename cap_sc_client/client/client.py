@@ -34,10 +34,6 @@ from .md_ready import MDReady
 from .search_datasets import SearchDatasets
 
 
-def gql(q: str) -> str:
-    return q
-
-
 class _Client(BaseClient):
     def search_datasets(
         self,
@@ -46,28 +42,7 @@ class _Client(BaseClient):
         filter: Union[Optional[LookupDatasetsFiltersInput], UnsetType] = UNSET,
         **kwargs: Any
     ) -> SearchDatasets:
-        query = gql(
-            """
-            query SearchDatasets($options: DatasetSearchOptions, $search: LookupDatasetsSearchInput, $filter: LookupDatasetsFiltersInput) {
-              results: lookupDatasets(options: $options, search: $search, filter: $filter) {
-                id
-                name
-                ...DatasetResult
-                __typename
-              }
-            }
-
-            fragment DatasetResult on Dataset {
-              id
-              name
-              cellCount
-              project {
-                id
-                name
-              }
-            }
-            """
-        )
+        query = ""
         variables: Dict[str, object] = {
             "options": options,
             "search": search,
@@ -86,36 +61,7 @@ class _Client(BaseClient):
         search: Union[Optional[LookupCellsSearch], UnsetType] = UNSET,
         **kwargs: Any
     ) -> LookupCells:
-        query = gql(
-            """
-            query LookupCells($options: CellLabelsSearchOptions!, $filter: LookupLabelsFilters, $search: LookupCellsSearch) {
-              lookupCells(options: $options, filter: $filter, search: $search) {
-                id
-                fullName
-                name
-                ...CellLabelResult
-                __typename
-              }
-            }
-
-            fragment CellLabelResult on Label {
-              id
-              fullName
-              name
-              ontologyTermExists
-              ontologyTermId
-              ontologyTerm
-              synonyms
-              categoryOntologyTermExists
-              categoryOntologyTermId
-              categoryOntologyTerm
-              categoryFullName
-              markerGenes
-              canonicalMarkerGenes
-              count
-            }
-            """
-        )
+        query = ""
         variables: Dict[str, object] = {
             "options": options,
             "filter": filter,
@@ -128,19 +74,7 @@ class _Client(BaseClient):
         return LookupCells.model_validate(data)
 
     def download_urls(self, dataset_id: str, **kwargs: Any) -> DownloadUrls:
-        query = gql(
-            """
-            query DownloadUrls($datasetId: ID!) {
-              downloadUrls(datasetId: $datasetId) {
-                isAnnDataUrlUpToDate
-                annDataUrl
-                capJsonUrlZip
-                capJsonUrlTar
-                __typename
-              }
-            }
-            """
-        )
+        query = ""
         variables: Dict[str, object] = {"datasetId": dataset_id}
         response = self.execute(
             query=query, operation_name="DownloadUrls", variables=variables, **kwargs
@@ -154,188 +88,7 @@ class _Client(BaseClient):
         labelset_order: Union[Optional[ResolveDatasetLabelsetOrder], UnsetType] = UNSET,
         **kwargs: Any
     ) -> DatasetInitialStateQuery:
-        query = gql(
-            """
-            query DatasetInitialStateQuery($datasetId: ID!, $labelsetOrder: ResolveDatasetLabelsetOrder) {
-              dataset(datasetId: $datasetId) {
-                id
-                name
-                project {
-                  version
-                  __typename
-                }
-                ...DatasetInitialState
-                __typename
-              }
-            }
-
-            fragment CommentContent_explanationData on FeedbackExplanationDataComment {
-              comment
-              __typename
-            }
-
-            fragment DatasetInitialState on Dataset {
-              id
-              name
-              description
-              datasetType
-              defaultEmbedding
-              cellCount
-              inReview
-              labelsets(order: $labelsetOrder) {
-                id
-                name
-                mode
-                order
-                description
-                annotationMethod
-                algorithmName
-                algorithmVersion
-                algorithmRepoUrl
-                referenceDescription
-                referenceLocation
-                labels {
-                  id
-                  name
-                  count
-                  color
-                  fullName
-                  ontologyTermExists
-                  ontologyTerm
-                  ontologyTermId
-                  categoryFullName
-                  categoryOntologyTermExists
-                  categoryOntologyTerm
-                  categoryOntologyTermId
-                  markerGenes
-                  canonicalMarkerGenes
-                  synonyms
-                  rationale
-                  rationaleDois
-                  ontologyAssessment
-                  scores {
-                    agree
-                    disagree
-                    idk
-                    __typename
-                  }
-                  feedbacks {
-                    isUpdated
-                    user {
-                      uid
-                      __typename
-                    }
-                    score
-                    explanation {
-                      data {
-                        ... on FeedbackExplanationDataMerge {
-                          comment
-                          labelIds
-                          __typename
-                        }
-                        ... on FeedbackExplanationDataRefine {
-                          changes {
-                            attribute
-                            newValue
-                            originalValue
-                            __typename
-                          }
-                          __typename
-                        }
-                        ... on FeedbackExplanationDataComment {
-                          comment
-                          __typename
-                        }
-                        __typename
-                      }
-                      type
-                      __typename
-                    }
-                    ...FeedbackCard_feedback
-                    __typename
-                  }
-                  __typename
-                }
-                ...FeedbackCard_organismLabelset
-                __typename
-              }
-              __typename
-            }
-
-            fragment FeedbackCard_feedback on LabelFeedback {
-              createdAt
-              user {
-                uid
-                displayName
-                avatarUrl
-                __typename
-              }
-              explanation {
-                type
-                data {
-                  ... on FeedbackExplanationDataComment {
-                    comment
-                    __typename
-                  }
-                  ...CommentContent_explanationData
-                  ...MergeContent_explanationData
-                  ...SplitContent_explanationData
-                  ...RefineContent_explanationData
-                  __typename
-                }
-                __typename
-              }
-              __typename
-            }
-
-            fragment FeedbackCard_organismLabelset on Labelset {
-              ...GeneLink_labelset
-              __typename
-            }
-
-            fragment GeneLink_labelset on Labelset {
-              id
-              labels {
-                id
-                name
-                count
-                __typename
-              }
-              __typename
-            }
-
-            fragment MergeContent_explanationData on FeedbackExplanationDataMerge {
-              comment
-              labels {
-                id
-                name
-                __typename
-              }
-              __typename
-            }
-
-            fragment RefineContent_explanationData on FeedbackExplanationDataRefine {
-              changes {
-                attribute
-                originalValue
-                newValue
-                __typename
-              }
-              __typename
-            }
-
-            fragment SplitContent_explanationData on FeedbackExplanationDataSplit {
-              groupsNumber: labelsNumber
-              groups: labels {
-                name
-                markerGenes
-                __typename
-              }
-              comment
-              __typename
-            }
-            """
-        )
+        query = ""
         variables: Dict[str, object] = {
             "datasetId": dataset_id,
             "labelsetOrder": labelset_order,
@@ -352,54 +105,7 @@ class _Client(BaseClient):
     def create_session(
         self, data: SaveDatasetSessionInput, **kwargs: Any
     ) -> CreateSession:
-        query = gql(
-            """
-            mutation CreateSession($data: SaveDatasetSessionInput!) {
-              saveDatasetSession(data: $data) {
-                id
-                name
-                datasetType
-                description
-                cellCount
-                labelsets {
-                  id
-                  name
-                  mode
-                  description
-                  annotationMethod
-                  algorithmName
-                  algorithmVersion
-                  algorithmRepoUrl
-                  referenceLocation
-                  referenceDescription
-                  labels {
-                    id
-                    name
-                    count
-                    color
-                    fullName
-                    ontologyTermExists
-                    ontologyTerm
-                    ontologyTermId
-                    categoryFullName
-                    categoryOntologyTermExists
-                    categoryOntologyTerm
-                    categoryOntologyTermId
-                    markerGenes
-                    canonicalMarkerGenes
-                    synonyms
-                    rationale
-                    rationaleDois
-                    ontologyAssessment
-                    __typename
-                  }
-                  __typename
-                }
-                __typename
-              }
-            }
-            """
-        )
+        query = ""
         variables: Dict[str, object] = {"data": data}
         response = self.execute(
             query=query, operation_name="CreateSession", variables=variables, **kwargs
@@ -408,18 +114,7 @@ class _Client(BaseClient):
         return CreateSession.model_validate(_data)
 
     def md_commons_query(self, dataset_id: str, **kwargs: Any) -> MDCommonsQuery:
-        query = gql(
-            """
-            query MDCommonsQuery($datasetId: ID!) {
-              datasetSession(datasetId: $datasetId) {
-                embeddings {
-                  name
-                  __typename
-                }
-              }
-            }
-            """
-        )
+        query = ""
         variables: Dict[str, object] = {"datasetId": dataset_id}
         response = self.execute(
             query=query, operation_name="MDCommonsQuery", variables=variables, **kwargs
@@ -430,29 +125,7 @@ class _Client(BaseClient):
     def embedding_data(
         self, dataset_id: str, options: GetDatasetEmbeddingDataInput, **kwargs: Any
     ) -> EmbeddingData:
-        query = gql(
-            """
-            query EmbeddingData($datasetId: ID!, $options: GetDatasetEmbeddingDataInput!) {
-              datasetSession(datasetId: $datasetId) {
-                embeddingData(options: $options) {
-                  obsIds
-                  positions {
-                    x
-                    y
-                  }
-                  geneExpression
-                  inSelectionMajor
-                  inSelectionMinor
-                  annotations {
-                    name
-                    labels
-                    labelIds
-                  }
-                }
-              }
-            }
-            """
-        )
+        query = ""
         variables: Dict[str, object] = {"datasetId": dataset_id, "options": options}
         response = self.execute(
             query=query, operation_name="EmbeddingData", variables=variables, **kwargs
@@ -463,20 +136,7 @@ class _Client(BaseClient):
     def highly_variable_genes(
         self, options: GetHighlyVariableGenesInput, dataset_id: str, **kwargs: Any
     ) -> HighlyVariableGenes:
-        query = gql(
-            """
-            query HighlyVariableGenes($options: GetHighlyVariableGenesInput!, $datasetId: ID!) {
-              datasetSession(datasetId: $datasetId) {
-                highlyVariableGenes(options: $options) {
-                  name
-                  dispersion
-                  highlyVariable
-                  __typename
-                }
-              }
-            }
-            """
-        )
+        query = ""
         variables: Dict[str, object] = {"options": options, "datasetId": dataset_id}
         response = self.execute(
             query=query,
@@ -488,15 +148,7 @@ class _Client(BaseClient):
         return HighlyVariableGenes.model_validate(data)
 
     def files_status(self, dataset_id: str, **kwargs: Any) -> FilesStatus:
-        query = gql(
-            """
-            query FilesStatus($datasetId: ID!) {
-              datasetSession(datasetId: $datasetId) {
-                mdFilesStatus
-              }
-            }
-            """
-        )
+        query = ""
         variables: Dict[str, object] = {"datasetId": dataset_id}
         response = self.execute(
             query=query, operation_name="FilesStatus", variables=variables, **kwargs
@@ -507,15 +159,7 @@ class _Client(BaseClient):
     def general_de(
         self, options: GetGeneralDiffInput, dataset_id: str, **kwargs: Any
     ) -> GeneralDE:
-        query = gql(
-            """
-            query GeneralDE($options: GetGeneralDiffInput!, $datasetId: ID!) {
-              datasetSession(datasetId: $datasetId) {
-                generalDifferentialExpressions(options: $options)
-              }
-            }
-            """
-        )
+        query = ""
         variables: Dict[str, object] = {"options": options, "datasetId": dataset_id}
         response = self.execute(
             query=query, operation_name="GeneralDE", variables=variables, **kwargs
@@ -526,27 +170,7 @@ class _Client(BaseClient):
     def heatmap(
         self, options: PostHeatmapInput, dataset_id: str, **kwargs: Any
     ) -> Heatmap:
-        query = gql(
-            """
-            query Heatmap($options: PostHeatmapInput!, $datasetId: ID!) {
-              datasetSession(datasetId: $datasetId) {
-                heatmap(options: $options) {
-                  obsIds
-                  annotations
-                  isInSelections
-                  genes
-                  scores
-                  topGenesBySelection {
-                    genes
-                    selectionName
-                    __typename
-                  }
-                  __typename
-                }
-              }
-            }
-            """
-        )
+        query = ""
         variables: Dict[str, object] = {"options": options, "datasetId": dataset_id}
         response = self.execute(
             query=query, operation_name="Heatmap", variables=variables, **kwargs
@@ -555,18 +179,7 @@ class _Client(BaseClient):
         return Heatmap.model_validate(data)
 
     def dataset_ready(self, dataset_id: str, **kwargs: Any) -> DatasetReady:
-        query = gql(
-            """
-            query DatasetReady($datasetId: ID!) {
-              dataset(datasetId: $datasetId) {
-                id
-                isAnnDataUpToDate
-                isEmbeddingsUpToDate
-                __typename
-              }
-            }
-            """
-        )
+        query = ""
         variables: Dict[str, object] = {"datasetId": dataset_id}
         response = self.execute(
             query=query, operation_name="DatasetReady", variables=variables, **kwargs
@@ -575,17 +188,7 @@ class _Client(BaseClient):
         return DatasetReady.model_validate(data)
 
     def md_ready(self, dataset_id: str, **kwargs: Any) -> MDReady:
-        query = gql(
-            """
-            query MDReady($datasetId: ID!) {
-              dataset(datasetId: $datasetId) {
-                id
-                isEmbeddingsUpToDate
-                __typename
-              }
-            }
-            """
-        )
+        query = ""
         variables: Dict[str, object] = {"datasetId": dataset_id}
         response = self.execute(
             query=query, operation_name="MDReady", variables=variables, **kwargs

@@ -9,6 +9,14 @@ class GraphQLClientError(Exception):
     """Base exception."""
 
 
+class GraphQLClientPersistedQueryError(GraphQLClientError):
+    def __init__(self, operation_name: Optional[str]) -> None:
+        self.operation_name = operation_name
+
+    def __str__(self) -> str:
+        return f"No persisted query id configured for operation: {self.operation_name!r}"
+
+
 class GraphQLClientHttpError(GraphQLClientError):
     def __init__(self, status_code: int, response: httpx.Response) -> None:
         self.status_code = status_code

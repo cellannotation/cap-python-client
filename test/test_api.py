@@ -13,7 +13,7 @@ def test_label_search():
 
 def test_md_session():
     cp = CapClient()
-    datasets = cp.search_datasets(limit=1)
+    datasets = cp.search_datasets(limit=1, sort=[{"cellCount": "ASC"}])
     dataset_id = datasets["id"].to_list()[0]
     md_session = cp.md_session(dataset_id=dataset_id)
     md_session.create_session()

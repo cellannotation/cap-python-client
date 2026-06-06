@@ -153,6 +153,7 @@ class DatasetInitialState(BaseModel):
     dataset_type: str = Field(alias="datasetType")
     default_embedding: Optional[str] = Field(alias="defaultEmbedding")
     cell_count: float = Field(alias="cellCount")
+    gene_count: float = Field(alias="geneCount")
     in_review: bool = Field(alias="inReview")
     labelsets: List["DatasetInitialStateLabelsets"]
     typename__: str = Field(alias="__typename")
@@ -162,6 +163,7 @@ class DatasetInitialStateLabelsets(FeedbackCardOrganismLabelset):
     id: str
     name: str
     mode: str
+    status: Optional[str] = None
     order: float
     description: Optional[str]
     annotation_method: Optional[str] = Field(alias="annotationMethod")

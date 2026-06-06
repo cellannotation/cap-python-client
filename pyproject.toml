@@ -1,6 +1,6 @@
 [project]
 name="cap_sc_client"
-version="2.6.0"
+version="2.9.0"
 license = "MIT"
 authors= [
   { name="R. Mukhin"      },
