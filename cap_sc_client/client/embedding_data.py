@@ -22,8 +22,8 @@ class EmbeddingDataDatasetSessionEmbeddingData(BaseModel):
     obs_ids: List[int] = Field(alias="obsIds")
     positions: List["EmbeddingDataDatasetSessionEmbeddingDataPositions"]
     gene_expression: List[float] = Field(alias="geneExpression")
-    in_selection_major: List[bool] = Field(alias="inSelectionMajor")
-    in_selection_minor: List[bool] = Field(alias="inSelectionMinor")
+    in_selection_major: List[bool] = Field(alias="inSelectionMajor", default_factory=list)
+    in_selection_minor: List[bool] = Field(alias="inSelectionMinor", default_factory=list)
     annotations: List["EmbeddingDataDatasetSessionEmbeddingDataAnnotations"]
 
 
