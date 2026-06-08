@@ -2,6 +2,14 @@
 
 ## [Unreleased]
 
+## [v2.9.1] - 2026-06-08
+
+### Fixed
+
+- Handle current CAP API responses that omit embedding selection arrays.
+- Handle current CAP API responses that omit the highly variable gene flag.
+- Expand live API tests to cover health-check client usage.
+
 ## [v2.9.0] - 2026-06-06
 
 ### Modified

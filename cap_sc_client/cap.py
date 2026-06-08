@@ -26,7 +26,7 @@ from .client.heatmap import HeatmapDatasetSessionHeatmap
 
 CAP_API_URL = "https://celltype.info/graphql"
 APOLLO_CLIENT_NAME = "cap-sc-client"
-CLIENT_VERSION = "2.9.0"
+CLIENT_VERSION = "2.9.1"
 
 SESSION_ID = str
 DIFF_KEY = str
