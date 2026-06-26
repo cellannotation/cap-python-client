@@ -6,7 +6,7 @@ PERSISTED_QUERY_IDS: Mapping[str, str] = {
     "DatasetDataQuery": "0bf580de5e51d602a103067cf8cab04d4f7f7ece914e95e02ee17a2b5b6e403a",
     "DatasetReadiness": "97f3fe6ae4e98f449eca68a663b445abd1dd245b9346dd65ac5811c92e60c6df",
     "DownloadUrls": "2f3dba0f60c5bc24355329a34f78a3adcea5ce3967d4b69613b7a0b83707286b",
-    "EmbeddingData": "61dd5234267ce1ac69dd0eaa9691315614ede21aa684326fe2ed5c5df01b211c",
+    "EmbeddingData": "d184176a0bf9f1bc9f6d5ed34231ea4e5c8cecd0de6ad2e0a7819dc8c4b00e8f",
     "FilesStatus": "52379360efe8f4e5817b4ffd0b72fe0cceafa83293eae8cac7fe121b0e706ecb",
     "GeneralDE": "d16f2c801e1cb4f81905b4dbd400887518789be1e3875b93123511658525bd8a",
     "Heatmap": "f7996dd71e84df72e05d0fcc504cc1eb261102bed7b02568680687da8748eef7",

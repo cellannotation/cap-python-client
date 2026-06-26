@@ -2,6 +2,12 @@
 
 ## [Unreleased]
 
+## [v2.9.2] - 2026-06-26
+
+### Fixed
+
+- Update the `EmbeddingData` persisted GraphQL query and response model for the current CAP API payload.
+
 ## [v2.9.1] - 2026-06-08
 
 ### Fixed
