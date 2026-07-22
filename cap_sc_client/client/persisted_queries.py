@@ -11,9 +11,9 @@ PERSISTED_QUERY_IDS: Mapping[str, str] = {
     "GeneralDE": "d16f2c801e1cb4f81905b4dbd400887518789be1e3875b93123511658525bd8a",
     "Heatmap": "f7996dd71e84df72e05d0fcc504cc1eb261102bed7b02568680687da8748eef7",
     "HighlyVariableGenes": "f23dfa3723a3720e469bc036f86f9501962c9c838477ed8d0c7e02a1aeae428c",
-    "LookupCells": "8799894aedfb3533dcdf37615b8dd04d4d9308d59a72d62a0a9856274633c239",
+    "LookupCells": "7669f4698d1243244b365018dc60a69b61969791659814e0b4ad1b65385ddaab",
     "MDCommonsQuery": "584e91f0ee408d633394d3d350d1deeb6439a514928983a7b8621837a4e056f1",
-    "SearchDatasets": "5953956a6e6e0f5fe5b7aa2f1154fe672523ce5535bb1241fa93c2b8fce7b8f0",
+    "SearchDatasets": "84226dc93685478baaabbc0687bb8c85fd24ea280c9d1db957d332dc8a9bff57",
 }
 
 OPERATION_NAME_OVERRIDES: Mapping[str, str] = {

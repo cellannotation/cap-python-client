@@ -2,6 +2,12 @@
 
 ## [Unreleased]
 
+## [v2.10.0] - 2026-07-22
+
+### Fixed
+
+- Update the `SearchDatasets` and `LookupCells` persisted GraphQL queries for the current CAP API.
+
 ## [v2.9.2] - 2026-06-26
 
 ### Fixed
